@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theory in Practice</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --ink: #0f0e0c; --paper: #f8f5f0; --warm: #f2ede4; --accent: #b83a10; --mid: #7a7570; --rule: #ddd8d0; --dark: #1a1916; }
+html { scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: 'Outfit', sans-serif; font-weight: 300; font-size: 16px; line-height: 1.7; overflow-x: hidden; }
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: var(--ink); height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 3rem; }
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 500; color: var(--paper); letter-spacing: 0.02em; text-decoration: none; }
+.nav-logo span { color: var(--accent); font-style: italic; }
+.nav-links { display: flex; align-items: center; list-style: none; height: 56px; }
+.nav-item { position: relative; height: 100%; display: flex; align-items: center; }
+.nav-item > a { display: flex; align-items: center; gap: 0.3rem; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(248,245,240,0.45); text-decoration: none; padding: 0 0.85rem; height: 100%; transition: color 0.2s; }
+.nav-item > a:hover, .nav-item:hover > a { color: var(--paper); }
+.arrow { font-size: 8px; opacity: 0.4; transition: transform 0.2s; display: inline-block; }
+.nav-item:hover .arrow { transform: rotate(180deg); opacity: 1; }
+.nav-dropdown { position: absolute; top: 56px; left: 0; background: var(--dark); border: 0.5px solid rgba(255,255,255,0.08); border-top: 2px solid var(--accent); min-width: 240px; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity 0.18s, transform 0.18s; z-index: 300; }
+.nav-item:hover .nav-dropdown { opacity: 1; pointer-events: all; transform: translateY(0); }
+.nav-dropdown a { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(248,245,240,0.45); text-decoration: none; padding: 0.75rem 1.25rem; border-bottom: 0.5px solid rgba(255,255,255,0.05); transition: color 0.15s, background 0.15s; }
+.nav-dropdown a:last-child { border-bottom: none; }
+.nav-dropdown a:hover { color: var(--paper); background: rgba(184,58,16,0.12); }
+.nav-cta { background: var(--accent); color: var(--paper); padding: 0.45rem 1.1rem; border-radius: 3px; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; margin-left: 0.75rem; transition: background 0.2s; white-space: nowrap; }
+.nav-cta:hover { background: #9e3009; }
+.container { max-width: 1160px; margin: 0 auto; padding: 0 3rem; }
+.eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.25rem; display: block; }
+.section-rule { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; }
+.section-rule hr { flex: 1; border: none; border-top: 0.5px solid var(--rule); }
+.rule-light hr { border-top-color: rgba(255,255,255,0.08); }
+.form-input { width: 100%; padding: 0.75rem 1rem; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 300; color: var(--ink); background: var(--paper); border: 0.5px solid var(--rule); border-radius: 3px; outline: none; transition: border-color 0.2s; margin-bottom: 0.6rem; display: block; }
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--mid); }
+.form-dark { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--paper); }
+.form-dark::placeholder { color: rgba(248,245,240,0.3); }
+.form-dark:focus { border-color: var(--accent); }
+.form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 0.6rem; }
+.form-row2 .form-input { margin-bottom: 0; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.btn-sub { width: 100%; padding: 0.85rem; background: var(--accent); color: var(--paper); font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; margin-top: 0.25rem; }
+.btn-sub:hover { background: #9e3009; }
+.btn-p { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent); color: var(--paper); font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 0.9rem 1.75rem; border-radius: 3px; transition: background 0.2s; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; }
+.btn-p:hover { background: #9e3009; }
+.btn-s { display: inline-flex; align-items: center; gap: 0.5rem; background: transparent; color: rgba(248,245,240,0.6); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; padding: 0.9rem 1.75rem; border: 0.5px solid rgba(248,245,240,0.2); border-radius: 3px; transition: all 0.2s; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 300; }
+.btn-s:hover { border-color: rgba(248,245,240,0.5); color: var(--paper); }
+.btn-s-dark { color: var(--mid); border-color: var(--rule); }
+.btn-s-dark:hover { border-color: var(--accent); color: var(--accent); }
+
+/* HERO */
+.hero { background: var(--ink); padding: 9rem 3rem 6rem; min-height: 100vh; display: flex; align-items: center; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(184,58,16,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(184,58,16,0.025) 1px,transparent 1px); background-size: 64px 64px; pointer-events: none; }
+.hero-inner { position: relative; z-index: 1; width: 100%; }
+.hero-ey { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin-bottom: 3.5rem; display: flex; align-items: center; gap: 1rem; }
+.hero-ey::before { content: ''; display: block; width: 32px; height: 1px; background: var(--accent); }
+.hero-scroll { position: absolute; bottom: 2.5rem; right: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.hero-scroll span { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(248,245,240,0.15); writing-mode: vertical-rl; }
+.scroll-line { width: 1px; height: 48px; background: linear-gradient(to bottom,transparent,rgba(184,58,16,0.35)); }
+
+/* VENN */
+.venn-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.venn-svg-wrap { width: 100%; max-width: 900px; position: relative; }
+.venn-labels { display: grid; grid-template-columns: 1fr 200px 1fr; gap: 0; width: 100%; max-width: 900px; margin-top: 2rem; }
+.venn-label-left { padding-right: 2rem; }
+.venn-label-right { padding-left: 2rem; }
+.venn-label-center { text-align: center; }
+.venn-term { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3.5vw, 3rem); font-weight: 400; color: var(--paper); line-height: 1; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+.venn-sub-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; display: block; }
+.venn-def-text { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-style: italic; color: rgba(248,245,240,0.38); line-height: 1.65; }
+.venn-overlap-term { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 2.2vw, 1.8rem); font-weight: 400; color: var(--accent); line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 0.4rem; }
+.venn-overlap-def-text { font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; font-style: italic; color: rgba(248,245,240,0.4); line-height: 1.6; }
+
+/* ACADEMY */
+.acad { background: var(--ink); padding: 7rem 0 0; }
+.acad-head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; margin-bottom: 3rem; }
+.acad-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem,4vw,3.2rem); font-weight: 400; color: var(--paper); line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 1rem; }
+.acad-intro { font-size: 0.9rem; color: rgba(248,245,240,0.5); line-height: 1.8; max-width: 520px; }
+.acad-badge { display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 1.25rem; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(248,245,240,0.28); border: 0.5px solid rgba(248,245,240,0.1); padding: 0.5rem 1rem; border-radius: 3px; }
+.acad-badge::before { content: ''; display: block; width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+.acad-ctas { display: flex; flex-direction: column; gap: 0.6rem; align-items: flex-end; }
+.tab-nav { display: flex; gap: 1px; background: rgba(255,255,255,0.05); }
+.tab-btn { flex: 1; padding: 1rem 1.25rem; background: rgba(255,255,255,0.02); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,245,240,0.3); border: none; cursor: pointer; transition: all 0.2s; text-align: left; border-top: 2px solid transparent; }
+.tab-btn:hover { background: rgba(255,255,255,0.05); color: rgba(248,245,240,0.6); }
+.tab-btn.active { background: var(--dark); color: var(--accent); border-top-color: var(--accent); }
+.tab-panel { display: none; background: var(--dark); }
+.tab-panel.active { display: block; }
+.tab-left { padding: 2.5rem; border-right: 0.5px solid rgba(255,255,255,0.06); }
+.tab-right { padding: 2.5rem; }
+.tab-title { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 400; color: var(--paper); margin-bottom: 1.5rem; line-height: 1.2; }
+.tab-mods { list-style: none; display: flex; flex-direction: column; gap: 1px; background: rgba(255,255,255,0.04); margin-bottom: 1.5rem; }
+.tab-mods li { background: rgba(255,255,255,0.02); padding: 0.65rem 0.9rem; font-size: 0.84rem; color: rgba(248,245,240,0.5); display: flex; gap: 0.6rem; align-items: baseline; transition: all 0.15s; }
+.tab-mods li:hover { background: rgba(184,58,16,0.08); color: rgba(248,245,240,0.85); }
+.tab-mods li::before { content: '·'; color: var(--accent); flex-shrink: 0; }
+.tab-mods li b { color: rgba(248,245,240,0.8); font-weight: 500; }
+.enq-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(248,245,240,0.22); margin-bottom: 1rem; display: block; }
+
+/* PROOF */
+.proof { background: var(--dark); padding: 3rem 0; border-top: 1px solid rgba(255,255,255,0.05); }
+.proof-inner { display: grid; grid-template-columns: 220px 1fr; gap: 4rem; align-items: start; }
+.proof-nums { display: flex; flex-direction: column; gap: 1.5rem; }
+.proof-num strong { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 400; color: var(--paper); display: block; line-height: 1; letter-spacing: -0.01em; }
+.proof-num span { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,245,240,0.3); }
+.proof-qs { display: flex; flex-direction: column; gap: 1.5rem; }
+.proof-q { padding-left: 1.25rem; border-left: 2px solid rgba(184,58,16,0.3); }
+.proof-q p { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-style: italic; color: rgba(248,245,240,0.65); line-height: 1.55; margin-bottom: 0.3rem; }
+.proof-q cite { font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,245,240,0.2); font-style: normal; }
+
+/* PARTNERS */
+.partners { background: var(--warm); padding: 4rem 0; border-top: 0.5px solid var(--rule); border-bottom: 0.5px solid var(--rule); }
+.partners-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); margin-top: 2rem; }
+.partner { background: var(--paper); padding: 2rem; }
+.partner h3 { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.5rem; }
+.partner p { font-size: 0.875rem; color: var(--mid); line-height: 1.7; }
+
+/* CONSULTING */
+.cons { background: var(--paper); padding: 7rem 0; }
+.cons-head { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: end; margin-bottom: 4rem; }
+.cons-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem,4vw,3.2rem); font-weight: 400; line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 1rem; }
+.cons-intro { font-size: 0.9rem; color: var(--mid); line-height: 1.85; }
+.steps { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 0.5px solid var(--rule); }
+.step { background: var(--paper); }
+.step-hd { display: grid; grid-template-columns: 160px 1fr 28px; align-items: center; gap: 2rem; padding: 1.5rem 2rem; cursor: pointer; transition: background 0.2s; user-select: none; }
+.step-hd:hover { background: var(--warm); }
+.step.open .step-hd { background: var(--ink); }
+.step-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); }
+.step.open .step-tag { color: rgba(248,245,240,0.35); }
+.step-ht { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 400; color: var(--ink); line-height: 1.2; }
+.step.open .step-ht { color: var(--paper); }
+.step-hq { font-size: 0.8rem; color: var(--mid); margin-top: 0.15rem; font-style: italic; }
+.step.open .step-hq { color: rgba(248,245,240,0.35); }
+.step-tog { width: 26px; height: 26px; border: 0.5px solid var(--rule); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1; color: var(--mid); flex-shrink: 0; transition: all 0.25s; }
+.step.open .step-tog { border-color: rgba(248,245,240,0.12); color: rgba(248,245,240,0.35); transform: rotate(45deg); }
+.step-bd { display: none; }
+.step.open .step-bd { display: grid; grid-template-columns: 1fr 1fr; background: var(--warm); }
+.step-bl { padding: 2rem; border-right: 0.5px solid var(--rule); }
+.step-br { padding: 2rem; background: var(--paper); }
+.step-txt { font-size: 0.875rem; color: var(--mid); line-height: 1.85; margin-bottom: 1.5rem; }
+.step-out-l { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.35rem; }
+.step-out-v { font-size: 0.845rem; color: var(--ink); font-weight: 500; line-height: 1.5; }
+.step-pl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); margin-bottom: 0.75rem; display: block; }
+.step-pt { font-size: 0.875rem; color: var(--mid); line-height: 1.8; }
+.stat-box { margin-top: 1.5rem; background: var(--ink); padding: 1.25rem 1.5rem; }
+.stat-n { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 400; color: var(--accent); line-height: 1; display: block; margin-bottom: 0.25rem; }
+.stat-l { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,245,240,0.3); }
+
+/* PARTNERSHIP */
+.pship { background: var(--ink); padding: 6rem 0; }
+.pship-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.pship-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; color: var(--paper); line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 1.25rem; }
+.pship-body { font-size: 0.875rem; color: rgba(248,245,240,0.5); line-height: 1.85; }
+.sem-card { background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); padding: 2rem; }
+.sem-badge { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; display: block; }
+.sem-title { font-weight: 500; font-size: 1rem; color: var(--paper); margin-bottom: 0.75rem; }
+.sem-desc { font-size: 0.845rem; color: rgba(248,245,240,0.45); line-height: 1.7; margin-bottom: 1.25rem; }
+.sem-meta { display: flex; gap: 1.5rem; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: rgba(248,245,240,0.2); border-bottom: 0.5px solid rgba(255,255,255,0.06); padding-bottom: 1.25rem; margin-bottom: 1.25rem; }
+
+/* ABOUT */
+.abt { background: var(--paper); padding: 7rem 0; }
+.abt-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.abt-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem,5vw,4rem); font-weight: 400; line-height: 1; letter-spacing: -0.02em; margin-bottom: 1rem; }
+.abt-def { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--mid); line-height: 1.6; margin-bottom: 2rem; padding-left: 1.25rem; border-left: 2px solid var(--accent); }
+.abt-body { font-size: 0.875rem; color: var(--mid); line-height: 1.85; margin-bottom: 1rem; }
+.abt-body a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.cred-sec { margin-bottom: 1.5rem; }
+.cred-sec-l { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); display: block; padding-bottom: 0.5rem; border-bottom: 0.5px solid var(--rule); margin-bottom: 0.5rem; }
+.cred-list { list-style: none; }
+.cred-item { display: grid; grid-template-columns: 68px 1fr; gap: 0.75rem; padding: 0.55rem 0; border-bottom: 0.5px solid var(--rule); font-size: 0.835rem; align-items: baseline; }
+.cred-item:last-child { border-bottom: none; }
+.cred-y { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--mid); }
+.cred-n { font-weight: 500; display: block; margin-bottom: 0.1rem; }
+.cred-d { font-size: 0.775rem; color: var(--mid); }
+.award { background: var(--ink); padding: 1.25rem 1.5rem; display: flex; gap: 1rem; align-items: flex-start; margin-top: 1.5rem; }
+.award-ic { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--accent); letter-spacing: 0.12em; white-space: nowrap; margin-top: 0.1rem; }
+.award strong { font-size: 0.875rem; color: var(--paper); display: block; margin-bottom: 0.2rem; font-weight: 500; }
+.award span { font-size: 0.775rem; color: rgba(248,245,240,0.35); }
+
+/* CTA */
+.cta-sec { background: var(--accent); padding: 6rem 0; position: relative; overflow: hidden; }
+.cta-sec::before { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; border-radius: 50%; background: rgba(0,0,0,0.07); pointer-events: none; }
+.cta-inner { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+.cta-h { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem,4vw,3rem); font-weight: 400; color: var(--paper); line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 0.75rem; }
+.cta-s { font-size: 1rem; color: rgba(248,245,240,0.65); margin-bottom: 1.5rem; }
+.cta-form { background: rgba(0,0,0,0.1); padding: 2rem; }
+.cta-fl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(248,245,240,0.3); margin-bottom: 1rem; display: block; }
+
+footer { background: var(--dark); padding: 3rem; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 3rem; border-top: 0.5px solid rgba(255,255,255,0.05); }
+.ft-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 500; color: var(--paper); margin-bottom: 0.4rem; }
+.ft-brand span { color: var(--accent); font-style: italic; }
+.ft-tag { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(248,245,240,0.15); margin-bottom: 1rem; }
+.ft-legal { font-family: 'DM Mono', monospace; font-size: 8.5px; letter-spacing: 0.08em; color: rgba(248,245,240,0.1); }
+.ft-nav { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-end; margin-bottom: 1rem; }
+.ft-nav a { font-size: 11px; color: rgba(248,245,240,0.28); text-decoration: none; letter-spacing: 0.05em; transition: color 0.2s; }
+.ft-nav a:hover { color: var(--paper); }
+
+@media (max-width: 900px) {
+  nav { padding: 0 1.5rem; }
+  .nav-links { display: none; }
+  .hero { padding: 9rem 1.5rem 5rem; }
+  .container { padding: 0 1.5rem; }
+  .hero-def { grid-template-columns: 1fr; gap: 0.6rem; }
+  .acad-head, .cons-head, .pship-inner, .abt-inner, .cta-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  .proof-inner, .partners-grid { grid-template-columns: 1fr; }
+  .tab-panel.active, .step.open .step-bd { grid-template-columns: 1fr; }
+  .tab-left { border-right: none; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+  .step-bl { border-right: none; border-bottom: 0.5px solid var(--rule); }
+  .step-hd { grid-template-columns: 1fr 28px; gap: 1rem; }
+  .step-tag { display: none; }
+  footer { grid-template-columns: 1fr; }
+  .ft-nav { align-items: flex-start; }
+  .acad-ctas { flex-direction: row; }
+  .form-row2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">Theory <span>in Practice</span></a>
+  <ul class="nav-links">
+    <li class="nav-item">
+      <a href="#academy">Academy <span class="arrow">▾</span></a>
+      <div class="nav-dropdown">
+        <a href="#academy" onclick="openTab('t1');return false;">Delivery Fundamentals</a>
+        <a href="#academy" onclick="openTab('t2');return false;">Human &amp; Change Dynamics</a>
+        <a href="#academy" onclick="openTab('t3');return false;">Risk &amp; Governance</a>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a href="#consulting">Consulting <span class="arrow">▾</span></a>
+      <div class="nav-dropdown">
+        <a href="#consulting" onclick="openStep('s1');return false;">Discover · Why</a>
+        <a href="#consulting" onclick="openStep('s2');return false;">Design · How</a>
+        <a href="#consulting" onclick="openStep('s3');return false;">Deliver · What</a>
+        <a href="#consulting" onclick="openStep('s4');return false;">Debrief · What next</a>
+      </div>
+    </li>
+    <li class="nav-item"><a href="#about">About</a></li>
+    <li><a href="#contact" class="nav-cta">Book a Call</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner" style="width:100%; max-width:1100px;">
+    <div class="hero-ey">Theory in Practice</div>
+
+    <!-- VENN DIAGRAM -->
+    <div class="venn-wrap">
+      <div class="venn-svg-wrap">
+        <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; display:block;">
+          <defs>
+            <clipPath id="left-clip"><circle cx="310" cy="160" r="200"/></clipPath>
+            <clipPath id="right-clip"><circle cx="590" cy="160" r="200"/></clipPath>
+          </defs>
+          <!-- Left circle -->
+          <circle cx="310" cy="160" r="200" fill="rgba(184,58,16,0.06)" stroke="rgba(248,245,240,0.12)" stroke-width="1"/>
+          <!-- Right circle -->
+          <circle cx="590" cy="160" r="200" fill="rgba(248,245,240,0.03)" stroke="rgba(248,245,240,0.12)" stroke-width="1"/>
+          <!-- Overlap fill -->
+          <circle cx="590" cy="160" r="200" fill="rgba(184,58,16,0.09)" clip-path="url(#left-clip)"/>
+          <!-- Theory label -->
+          <text x="210" y="150" font-family="Cormorant Garamond, serif" font-size="48" font-weight="400" fill="rgba(248,245,240,0.9)" text-anchor="middle" letter-spacing="-1">Theory</text>
+          <text x="210" y="178" font-family="DM Mono, monospace" font-size="9" fill="rgba(184,58,16,0.8)" text-anchor="middle" letter-spacing="3" style="text-transform:uppercase;">Head</text>
+          <!-- Practice label -->
+          <text x="690" y="150" font-family="Cormorant Garamond, serif" font-size="48" font-weight="400" fill="rgba(248,245,240,0.9)" text-anchor="middle" letter-spacing="-1">Practice</text>
+          <text x="690" y="178" font-family="DM Mono, monospace" font-size="9" fill="rgba(184,58,16,0.8)" text-anchor="middle" letter-spacing="3" style="text-transform:uppercase;">Hand</text>
+          <!-- Overlap label -->
+          <text x="450" y="145" font-family="Cormorant Garamond, serif" font-size="22" font-weight="400" fill="rgba(184,58,16,1)" text-anchor="middle" letter-spacing="-0.5">Theory</text>
+          <text x="450" y="170" font-family="Cormorant Garamond, serif" font-size="22" font-weight="400" fill="rgba(184,58,16,1)" text-anchor="middle" letter-spacing="-0.5">in Practice</text>
+        </svg>
+      </div>
+      <div class="venn-labels">
+        <div class="venn-label-left">
+          <p class="venn-def-text">"A set of principles on which the practice of an activity is based."</p>
+        </div>
+        <div class="venn-label-center">
+          <p class="venn-overlap-def-text">Applying models to real-world situations.</p>
+        </div>
+        <div class="venn-label-right" style="text-align:right;">
+          <p class="venn-def-text">Repeated action.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="hero-scroll"><span>Scroll</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- ACADEMY -->
+<section class="acad" id="academy">
+  <div class="container">
+    <div class="section-rule rule-light">
+      <span class="eyebrow" style="margin:0; display:flex; align-items:center; gap:0.6rem; white-space:nowrap;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.44-4.24Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.44-4.24Z"/></svg>
+        Academy · Head
+      </span><hr>
+    </div>
+    <div class="acad-head" style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; margin-bottom:3rem;">
+      <div>
+        <h2 class="acad-title">We teach you to fish.</h2>
+        <p class="acad-intro">Each programme connects proven management frameworks to the operational reality of your team. The goal is judgment to act differently on "Monday".</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:1.25rem; padding-top:0.5rem;">
+        <div style="display:flex; gap:1rem; align-items:baseline;">
+          <span style="font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:400; color:var(--paper); line-height:1; letter-spacing:-0.02em;">12</span>
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(248,245,240,0.3);">Years teaching</span>
+        </div>
+        <div style="display:flex; gap:1rem; align-items:baseline;">
+          <span style="font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:400; color:var(--paper); line-height:1; letter-spacing:-0.02em;">1,500+</span>
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(248,245,240,0.3);">Learners</span>
+        </div>
+        <div style="display:flex; gap:1rem; align-items:baseline;">
+          <span style="font-family:'Cormorant Garamond',serif; font-size:2.8rem; font-weight:400; color:var(--paper); line-height:1; letter-spacing:-0.02em;">4 / 4</span>
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(248,245,240,0.3);">Consistent rating</span>
+        </div>
+      </div>
+    </div>
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="openTab('t1')">01 · Delivery Fundamentals</button>
+      <button class="tab-btn" onclick="openTab('t2')">02 · Human &amp; Change Dynamics</button>
+      <button class="tab-btn" onclick="openTab('t3')">03 · Risk &amp; Governance</button>
+    </div>
+    <div class="tab-panel active" id="t1">
+      <div class="tab-left" style="border-right:none;">
+        <h3 class="tab-title">The mechanics of execution.</h3>
+        <ul class="tab-mods">
+          <li><b>Product Management:</b> doing the right thing</li>
+          <li><b>Project Management:</b> doing it right</li>
+          <li><b>Projects for Non-PMs:</b> execution without the jargon</li>
+          <li><b>Earned Value Management:</b> scientific project health tracking</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-panel" id="t2">
+      <div class="tab-left" style="border-right:none;">
+        <h3 class="tab-title">The people side of execution.</h3>
+        <ul class="tab-mods">
+          <li><b>Design Thinking:</b> solving the right problem first</li>
+          <li><b>Change Management:</b> navigating the messy middle</li>
+          <li><b>Effective Meetings:</b> eliminating execution waste</li>
+          <li><b>Building High-Performing Teams:</b> working together effectively</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-panel" id="t3">
+      <div class="tab-left" style="border-right:none;">
+        <h3 class="tab-title">Predicting events and taking action.</h3>
+        <ul class="tab-mods">
+          <li><b>Risk Management:</b> predicting the future and taking action</li>
+          <li><b>PMO Design:</b> governance architecture for consistent results</li>
+          <li><b>The Sponsor's Edge:</b> guiding teams across the finish line</li>
+          <li><b>Agile for Executives:</b> decision-making under complexity and uncertainty</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+</section>
+
+<!-- PARTNERS -->
+<section class="partners">
+  <div class="container">
+    <div class="section-rule"><span class="eyebrow" style="margin:0;">Strategic Partners</span><hr></div>
+    <div class="partners-grid" style="grid-template-columns:1fr 1fr; gap:1px; background:var(--rule); border:0.5px solid var(--rule);">
+
+      <!-- MRU -->
+      <div class="partner" style="padding:2.5rem;">
+        <h3 style="font-size:1rem; font-weight:500; margin-bottom:0.75rem;">Mount Royal University</h3>
+        <p style="font-size:0.875rem; color:var(--mid); line-height:1.75; margin-bottom:1.25rem;">Since 1990, Mount Royal University's Faculty of Continuing Education has partnered with organisations of all types to build capability, meet goals, and respond to change. Every Academy programme is co-delivered through this partnership — combining MRU's academic rigour with Theory in Practice's operational methodology. Graduates receive co-branded certificates carrying the institutional credibility of a leading Canadian university alongside the direct relevance of their organisation's own training investment.</p>
+        <a href="https://www.mtroyal.ca/ContinuingEducation/CustomTraining/index.htm" target="_blank" rel="noopener" style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); text-decoration:none; display:inline-block; margin-bottom:1.5rem;">MRU Custom Training Programme →</a>
+        <div style="border-top:0.5px solid var(--rule); padding-top:1.25rem; margin-bottom:1.25rem;">
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:0.75rem;">Organisations served</span>
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
+            <span style="font-size:11px; font-family:'DM Mono',monospace; padding:3px 8px; background:var(--warm); border:0.5px solid var(--rule); border-radius:2px;">Energy sector association</span>
+            <span style="font-size:11px; font-family:'DM Mono',monospace; padding:3px 8px; background:var(--warm); border:0.5px solid var(--rule); border-radius:2px;">Non-profit organisation</span>
+            <span style="font-size:11px; font-family:'DM Mono',monospace; padding:3px 8px; background:var(--warm); border:0.5px solid var(--rule); border-radius:2px;">Indigenous land authority</span>
+            <span style="font-size:11px; font-family:'DM Mono',monospace; padding:3px 8px; background:var(--warm); border:0.5px solid var(--rule); border-radius:2px;">Natural resources association</span>
+          </div>
+        </div>
+        <div style="background:var(--warm); border-left:2px solid var(--accent); padding:1rem 1.25rem;">
+          <p style="font-family:'Cormorant Garamond',serif; font-size:1rem; font-style:italic; color:var(--mid); line-height:1.6; margin-bottom:0.4rem;">"[Quote from MRU Strategic Partnership — to be added]"</p>
+          <cite style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--mid); font-style:normal;">Strategic Partnership, Mount Royal University</cite>
+        </div>
+      </div>
+
+      <!-- TARKA -->
+      <div class="partner" style="padding:2.5rem; background:var(--warm);">
+        <h3 style="font-size:1rem; font-weight:500; margin-bottom:0.75rem;">Tarka Consulting</h3>
+        <p style="font-size:0.875rem; color:var(--mid); line-height:1.75; margin-bottom:1.5rem;">Tarka Consulting is the delivery vehicle through which Theory in Practice methodology reaches enterprise clients across North America. As a subcontracted specialist, the same frameworks applied in the Academy and Consulting practice are deployed inside some of the continent's most operationally complex organisations — from regulated utilities to aerospace manufacturers.</p>
+        <div style="border-top:0.5px solid var(--rule); padding-top:1.25rem;">
+          <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:1rem;">North American reach</span>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div>
+              <span style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:0.5rem;">Canada</span>
+              <ul style="list-style:none; font-size:0.8rem; color:var(--mid); line-height:1.9;">
+                <li>Petrochemical company, Red Deer AB</li>
+                <li>Industrial group, Sault Ste. Marie ON</li>
+                <li>Research university, Calgary AB</li>
+                <li>Regional college, Medicine Hat AB</li>
+                <li>University partnership, Calgary AB</li>
+              </ul>
+            </div>
+            <div>
+              <span style="font-family:'DM Mono',monospace; font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:0.5rem;">United States</span>
+              <ul style="list-style:none; font-size:0.8rem; color:var(--mid); line-height:1.9;">
+                <li>Transit authority, Seattle WA</li>
+                <li>Medical device company, MN</li>
+                <li>Building materials group, FL</li>
+                <li>Defence contractor, FL</li>
+                <li>GIS software company, Redlands CA</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONSULTING -->
+<section class="cons" id="consulting">
+  <div class="container">
+    <div class="section-rule"><span class="eyebrow" style="margin:0; display:flex; align-items:center; gap:0.6rem; white-space:nowrap;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+      Consulting · Hand
+    </span><hr></div>
+    <div class="cons-head">
+      <div>
+        <h2 class="cons-title">We fish with you.</h2>
+        <p class="cons-intro">The foundation of strategy is good theory. Consulting is where that theory meets your specific problem or opportunity — through a disciplined process that begins with diagnosis and ends with a decision.</p>
+      </div>
+      <div><a href="#contact" class="btn-p">Book a discovery call →</a></div>
+    </div>
+    <div class="steps">
+      <div class="step open" id="s1">
+        <div class="step-hd" onclick="toggleStep('s1')">
+          <div class="step-tag">Discover · Why</div>
+          <div><div class="step-ht">What is the real problem?</div><div class="step-hq">Every engagement begins with a disciplined diagnosis.</div></div>
+          <div class="step-tog">+</div>
+        </div>
+        <div class="step-bd">
+          <div class="step-bl">
+            <p class="step-txt">Before any solution is proposed, we establish a precise definition of the problem or opportunity — grounded in theory, not assumption.</p>
+            <div class="step-out-l">Output</div>
+            <div class="step-out-v">A written definition of the problem or opportunity that all stakeholders agree on.</div>
+          </div>
+          <div class="step-br">
+            <span class="step-pl">In practice</span>
+            <p class="step-pt">A global engineering firm approached us through our university partnership. The stated problem: their project controllers needed help with Earned Value Management. The discovery revealed something different. The tools existed. The templates existed. What was missing was a shared understanding of why disciplined planning matters. The real problem was not technical. It was behavioural.</p>
+          </div>
+        </div>
+      </div>
+      <div class="step" id="s2">
+        <div class="step-hd" onclick="toggleStep('s2')">
+          <div class="step-tag">Design · How</div>
+          <div><div class="step-ht">What does the right solution look like?</div><div class="step-hq">With the problem defined, we design the solution.</div></div>
+          <div class="step-tog">+</div>
+        </div>
+        <div class="step-bd">
+          <div class="step-bl">
+            <p class="step-txt">This is where your context — your team, your constraints, your organisation's specific dynamics — shapes the approach. Using Design Thinking principles, we identify the best path forward from the options available, not from a pre-packaged playbook.</p>
+            <div class="step-out-l">Output</div>
+            <div class="step-out-v">A solution design with clear rationale, grounded in your specific situation.</div>
+          </div>
+          <div class="step-br">
+            <span class="step-pl">In practice</span>
+            <p class="step-pt">Because the problem was a why problem, the solution had to lead with theory, not tools. The design was a scenario-based workshop built around one governing principle: without a clear Work Breakdown Structure, no forecasting system produces reliable results. The workshop would not introduce new tools. It would build the conceptual foundation that made the existing tools usable.</p>
+          </div>
+        </div>
+      </div>
+      <div class="step" id="s3">
+        <div class="step-hd" onclick="toggleStep('s3')">
+          <div class="step-tag">Deliver · What</div>
+          <div><div class="step-ht">How do we execute with precision?</div><div class="step-hq">Delivery is where theory becomes practice.</div></div>
+          <div class="step-tog">+</div>
+        </div>
+        <div class="step-bd">
+          <div class="step-bl">
+            <p class="step-txt">We implement the solution alongside your team — building the systems, developing the capability, and measuring results against the objectives defined in Discover. The measure of success is not completion. It is outcome.</p>
+            <div class="step-out-l">Output</div>
+            <div class="step-out-v">Measurable results. A functioning system. A team that can sustain it.</div>
+          </div>
+          <div class="step-br">
+            <span class="step-pl">In practice</span>
+            <p class="step-pt">Three sessions in a single week — covering Eastern, Central, and Pacific time zones. Twenty to twenty-five project controllers per session, working in teams on their actual projects, their actual WBS gaps, their actual forecasting challenges.</p>
+            <div class="stat-box">
+              <span class="stat-n">93.3%</span>
+              <span class="stat-l">of participants would recommend this programme</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="step" id="s4">
+        <div class="step-hd" onclick="toggleStep('s4')">
+          <div class="step-tag">Debrief · What next</div>
+          <div><div class="step-ht">What did we learn, and what comes next?</div><div class="step-hq">Most engagements end at delivery. This one does not.</div></div>
+          <div class="step-tog">+</div>
+        </div>
+        <div class="step-bd">
+          <div class="step-bl">
+            <p class="step-txt">The Debrief compares what was achieved against what was intended, surfaces the lessons, and transfers the knowledge to your team. Then a decision: exit with confidence, or return to Discover with a sharper question.</p>
+            <div class="step-out-l">Output</div>
+            <div class="step-out-v">Documented lessons. Knowledge transferred. A clear decision on next steps.</div>
+          </div>
+          <div class="step-br">
+            <span class="step-pl">In practice</span>
+            <p class="step-pt">The engagement did not end at delivery. Two subsequent sessions followed — each surfacing a sharper question than the one before. The first asked why EVM matters. The second asked how to build trust between Project Controllers and Project Managers across distributed teams. The third asked how to make the value of Project Controls visible to the people it serves. The client did not exit. They returned to Discover.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="abt" id="about">
+  <div class="container">
+    <div class="section-rule"><span class="eyebrow" style="margin:0;">About</span><hr></div>
+    <div class="abt-inner">
+      <div>
+        <h2 class="abt-title">The firm</h2>
+        <p class="abt-body">Theory in Practice was founded by <a href="https://linkedin.com/in/akinsanmi" target="_blank" rel="noopener">Roti Akinsanmi</a>, Principal. His industry experience spans two decades of executive and entrepreneurial leadership: heading digital innovation and strategic partnerships at a major Canadian airline, driving product strategy for one of North America's leading children's streaming platforms, and founding technology ventures in regulated markets across two continents.</p>
+      </div>
+      <div>
+        <div class="cred-sec">
+          <span class="cred-sec-l">Education</span>
+          <ul class="cred-list">
+            <li class="cred-item"><span class="cred-y">1996</span><div><span class="cred-n">University of Lagos</span><span class="cred-d">BSc Computer Science</span></div></li>
+            <li class="cred-item"><span class="cred-y">2011</span><div><span class="cred-n">Cornell University / Queen's University</span><span class="cred-d">Executive MBA</span></div></li>
+            <li class="cred-item"><span class="cred-y">2023</span><div><span class="cred-n">Harvard Business School</span><span class="cred-d">Certificate of Management Excellence</span></div></li>
+            <li class="cred-item"><span class="cred-y">2021</span><div><span class="cred-n">MIT Sloan School of Management</span><span class="cred-d">AI &amp; Business Strategy</span></div></li>
+          </ul>
+        </div>
+        <div class="cred-sec">
+          <span class="cred-sec-l">Experience</span>
+          <ul class="cred-list">
+            <li class="cred-item"><span class="cred-y">2019–21</span><div><span class="cred-n">Major Canadian Airline</span><span class="cred-d">Head, Digital Innovation Lab</span></div></li>
+            <li class="cred-item"><span class="cred-y">2021–24</span><div><span class="cred-n">Leading Children's Streaming Platform</span><span class="cred-d">VP of Products</span></div></li>
+          </ul>
+        </div>
+        <div class="cred-sec">
+          <span class="cred-sec-l">Entrepreneurship</span>
+          <ul class="cred-list">
+            <li class="cred-item"><span class="cred-y">2016–20</span><div><span class="cred-n">First Transfer Inc.</span><span class="cred-d">Founder · Regulated FinTech</span></div></li>
+          </ul>
+        </div>
+        <div class="cred-sec">
+          <span class="cred-sec-l">Educator</span>
+          <ul class="cred-list">
+            <li class="cred-item">
+              <span class="cred-y">2014–</span>
+              <div>
+                <span class="cred-n">Mount Royal University</span>
+                <span class="cred-d">Instructor · 1,500+ learners</span>
+                <span style="font-size:0.72rem; color:var(--accent); display:block; margin-top:0.2rem;">★ Teaching Excellence in Lifelong Learning Award · 2026 · Faculty Excellence Awards</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-sec" id="contact">
+  <div class="container">
+    <div style="margin-bottom:2.5rem;">
+      <h2 class="cta-h">Theory changes what you see next.</h2>
+      <p class="cta-s">Are we a good fit for you?</p>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1px; background:rgba(0,0,0,0.15);">
+      <div style="background:rgba(0,0,0,0.1); padding:2rem;">
+        <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(248,245,240,0.4); display:block; margin-bottom:1.25rem;">Book a discovery call</span>
+        <div class="form-row2" style="margin-bottom:0.6rem;"><input type="text" class="form-input" placeholder="Name"><input type="text" class="form-input" placeholder="Organisation"></div>
+        <textarea class="form-input form-textarea" placeholder="What are you working on?"></textarea>
+        <button class="btn-sub" data-label="Book a discovery call →">Book a discovery call →</button>
+      </div>
+      <div style="background:rgba(0,0,0,0.06); padding:2rem;">
+        <span style="font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(248,245,240,0.4); display:block; margin-bottom:1.25rem;">Join the next seminar · Monthly · Free</span>
+        <input type="text" class="form-input" placeholder="Name">
+        <input type="email" class="form-input" placeholder="Email">
+        <button class="btn-sub" style="background:rgba(0,0,0,0.25); margin-top:0.25rem;" data-label="Register →">Register →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>
+    <div class="ft-brand">Theory <span>in Practice</span></div>
+    <div class="ft-tag">Theory first.</div>
+    <div class="ft-legal">© 2026 Theory in Practice Inc. · Calgary, Alberta</div>
+  </div>
+  <div>
+    <ul class="ft-nav">
+      <li><a href="#academy">Academy</a></li>
+      <li><a href="#consulting">Consulting</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <div class="ft-legal" style="text-align:right;">theoryinpractice.ca</div>
+  </div>
+</footer>
+
+<script>
+function openTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', 'ti'==id.substring(0,1)+''+id.substring(1) && ['t1','t2','t3'][i]===id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+function toggleStep(id) {
+  const s = document.getElementById(id);
+  const was = s.classList.contains('open');
+  document.querySelectorAll('.step').forEach(x => x.classList.remove('open'));
+  if (!was) s.classList.add('open');
+}
+function openStep(id) {
+  document.querySelectorAll('.step').forEach(x => x.classList.remove('open'));
+  const s = document.getElementById(id);
+  if (s) { s.classList.add('open'); setTimeout(()=>s.scrollIntoView({behavior:'smooth',block:'start'}),80); }
+}
+document.querySelectorAll('.btn-sub').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const wrap = this.closest('.tab-right, .sem-card, [style*="padding:2rem"]');
+    if (!wrap) return;
+    const inputs = wrap.querySelectorAll('input,textarea');
+    let ok = true;
+    inputs.forEach(i => { if (!i.value.trim()) { i.style.borderColor='var(--accent)'; ok=false; } else { i.style.borderColor=''; } });
+    if (ok) {
+      const orig = this.dataset.label || this.textContent;
+      this.textContent = 'Sent ✓';
+      this.style.background = '#2d6a3f';
+      inputs.forEach(i => i.value = '');
+      setTimeout(() => { this.textContent = orig; this.style.background = ''; }, 3000);
+    }
+  });
+});
+// Fix tab buttons
+document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+  btn.onclick = function() { openTab(['t1','t2','t3'][i]); };
+});
+</script>
+</body>
+</html>
