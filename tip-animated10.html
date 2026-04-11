@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theory in Practice</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter+Tight:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        .mobile-venn {
+            display: none;
+        }
+
+        @media (max-width: 1000px) {
+            .desktop-venn {
+                display: none !important;
+            }
+
+            .mobile-venn {
+                display: block !important;
+                margin-top: 0;
+            }
+        }
+
+        :root {
+            --bg: #030303;
+            --accent: #d92020;
+            --text: #ffffff;
+            --dim: #7a7a7a;
+            --rule: rgba(255, 255, 255, 0.1);
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Inter Tight', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            width: 100%;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            line-height: 1.6;
+            overflow-x: hidden;
+            /* GLOBAL FONT SIZE: Adjust this value to scale the entire website's core text up or down */
+            font-size: 20px;
+            cursor: none;
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        .serif {
+            font-family: var(--font-serif);
+        }
+
+        /* METALLIC BOKEH BACKGROUND */
+        .bokeh-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: var(--bg);
+        }
+
+        .bokeh-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 40%, rgba(200, 200, 200, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 80% 65%, rgba(130, 130, 130, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 35%);
+            filter: blur(50px);
+        }
+
+        /* NORTHERN LIGHTS GLOW */
+        .nl-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.2;
+            mix-blend-mode: screen;
+            overflow: hidden;
+        }
+
+        .nl {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            transform-origin: center;
+            will-change: transform;
+        }
+
+        .n1 {
+            width: 60vw;
+            height: 60vh;
+            background: rgba(50, 200, 150, 0.4);
+            top: -10vh;
+            left: -10vw;
+            animation: drift 20s infinite alternate ease-in-out;
+        }
+
+        .n2 {
+            width: 70vw;
+            height: 70vh;
+            background: rgba(80, 40, 200, 0.4);
+            bottom: -20vh;
+            right: -10vw;
+            animation: drift 25s infinite alternate-reverse ease-in-out;
+        }
+
+        .n3 {
+            width: 50vw;
+            height: 50vh;
+            background: rgba(220, 20, 60, 0.15);
+            top: 30vh;
+            left: 30vw;
+        }
+
+        @keyframes drift {
+            0% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+        }
+
+        /* CUSTOM ACTIVE CURSOR */
+        .cursor-visual {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 22px;
+            height: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transform: translate(-50%, -50%);
+            transition: width 0.15s, height 0.15s, background 0.3s;
+        }
+
+        .cursor-visual.active {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* TOP NAV */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        .top-bar>* {
+            pointer-events: auto;
+        }
+
+        .top-logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            letter-spacing: -0.01em;
+            user-select: none;
+            text-decoration: none;
+        }
+
+        .top-logo .logo-w {
+            color: #fff;
+            font-style: normal;
+        }
+
+        .top-logo .logo-r {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-family: var(--font-sans);
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .btn-contact:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        .btn-contact .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s infinite ease-in-out;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .menu-toggle {
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background: #fff;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 14px;
+            height: 1px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover span {
+            background: #000;
+        }
+
+        /* COOL SCROLL NAV */
+        .scroll-nav-advanced {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            pointer-events: none;
+        }
+
+        .sn-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            text-align: right;
+        }
+
+        .sn-link {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            pointer-events: auto;
+            opacity: 0.4;
+            transition: opacity 0.3s, color 0.3s;
+        }
+
+        .sn-link.active {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .sn-track {
+            width: 2px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        .sn-thumb {
+            position: absolute;
+            top: 0;
+            left: -2px;
+            width: 6px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 4px;
+            box-shadow: 0 0 10px var(--accent);
+            transition: height 0.1s;
+        }
+
+        /* STRUCTURE & SHARED */
+        .section-wrap {
+            position: relative;
+            z-index: 10;
+            padding: 10rem 5vw;
+            border-top: 1px solid var(--rule);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .eyebrow {
+            font-family: var(--font-mono);
+            font-size: 24px;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .sec-rule {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .sec-rule hr {
+            flex: 1;
+            border: none;
+            border-top: 1px solid var(--rule);
+        }
+
+        .sec-title {
+            font-family: var(--font-serif);
+            /* MAIN HEADINGS (e.g. Roti Akinsanmi, The Method): Adjust size here */
+            font-size: clamp(3.5rem, 6vw, 6rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1;
+            margin-bottom: 2rem;
+        }
+
+        /* HERO: DUAL LAYER SPOTLIGHT */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+            border-top: none;
+        }
+
+        /* BASE LAYER - Invisible Text (Masked purely for Spotlight) */
+        .hero-layer-base {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            pointer-events: auto;
+            background: transparent;
+        }
+
+        .hero-layer-base .venn-svg text {
+            fill: rgba(255, 255, 255, 0.015);
+            font-weight: 500;
+            font-family: var(--font-serif);
+        }
+
+        .hero-layer-base .venn-svg .in-text {
+            fill: rgba(217, 32, 32, 0.02);
+        }
+
+        .hero-layer-base .venn-svg .text-sub {
+            font-family: var(--font-sans);
+        }
+
+        .hero-layer-base .venn-svg circle {
+            fill: transparent;
+            stroke: rgba(255, 255, 255, 0.06);
+            stroke-dasharray: 4 4;
+            stroke-width: 1.5;
+        }
+
+        /* SPOTLIGHT LAYER - Vibrant unmask */
+        .hero-layer-spotlight {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: none;
+            -webkit-mask-image: radial-gradient(circle 500px at var(--mouse-x) var(--mouse-y), black 0%, transparent 80%);
+            mask-image: radial-gradient(circle 500px at var(--mouse-x) var(--mouse-y), black 0%, transparent 80%);
+            background: radial-gradient(circle 600px at var(--mouse-x) var(--mouse-y), rgba(217, 32, 32, 0.08) 0%, transparent 100%);
+        }
+
+        /* VENN SIZES (Enlarged and Spaced) */
+        .hero-venn-wrapper {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            position: relative;
+            margin-top: 4rem;
+        }
+
+        .venn-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            overflow: visible;
+        }
+
+        .text-title {
+            font-family: var(--font-serif);
+            font-size: 140px;
+            font-weight: 500;
+            text-anchor: middle;
+            letter-spacing: -2px;
+        }
+
+        .text-title.in {
+            font-style: italic;
+            font-size: 110px;
+        }
+
+        .text-sub {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 300;
+            text-anchor: middle;
+            letter-spacing: 0.05em;
+            font-style: italic;
+        }
+
+        .text-sub.in-sub {
+            font-style: normal;
+        }
+
+        /* TEXT REVEAL SECTION ('string-tune' style mask) */
+        .text-reveal {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .reveal-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5vw;
+        }
+
+        .rev-text {
+            font-family: var(--font-serif);
+            font-size: clamp(3rem, 6.5vw, 7rem);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            text-align: center;
+            margin: 0;
+        }
+
+        .rev-text .it {
+            font-style: italic;
+        }
+
+        .rev-base {
+            color: rgba(255, 255, 255, 0.08);
+        }
+
+        .rev-highlight {
+            position: absolute;
+            top: 0;
+            left: 5vw;
+            width: calc(100% - 10vw);
+            height: 100%;
+            color: #fff;
+            clip-path: inset(0 100% 0 0);
+        }
+
+        .rev-highlight .it {
+            color: var(--accent);
+        }
+
+        /* ACADEMY */
+        .acad-intro {
+            font-size: 1.2rem;
+            color: var(--dim);
+            margin-bottom: 4rem;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1px;
+            background: var(--rule);
+            margin-top: 3rem;
+            border: 1px solid var(--rule);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.6);
+            font-family: var(--font-mono);
+            font-size: 16px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--dim);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            box-shadow: inset 0 3px 0 var(--accent);
+        }
+
+        .tab-panel {
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--rule);
+            border-top: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .tab-title {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 400;
+            color: #fff;
+            margin-bottom: 2rem;
+        }
+
+        .tab-mods {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            background: var(--rule);
+        }
+
+        .tab-mods li {
+            background: rgba(10, 10, 10, 0.8);
+            padding: 2rem;
+            transition: background 0.2s;
+        }
+
+        .tab-mods li:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .mod-name {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #fff;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .mod-q {
+            font-size: 1.2rem;
+            color: var(--dim);
+            font-style: italic;
+            font-family: var(--font-serif);
+        }
+
+        /* PROOF STRIP */
+        .acad-proof {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8rem 5vw;
+        }
+
+        .proof-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        .proof-nums {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .proof-stat strong {
+            font-family: var(--font-serif);
+            font-size: 4rem;
+            font-weight: 400;
+            color: #fff;
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .proof-stat span {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--dim);
+        }
+
+        .proof-qs {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            border-left: 2px solid rgba(217, 32, 32, 0.3);
+            padding-left: 2rem;
+        }
+
+        .proof-q p {
+            font-family: var(--font-serif);
+            font-size: 1.6rem;
+            font-style: italic;
+            color: #fff;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .proof-q cite {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--dim);
+            font-style: normal;
+        }
+
+        /* CONSULTING */
+        .cons-head {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: end;
+            margin-bottom: 5rem;
+        }
+
+        .cycle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+        }
+
+        .cycle-step {
+            background: rgba(10, 10, 10, 0.8);
+            padding: 3rem;
+            position: relative;
+        }
+
+        .cycle-step:last-child {
+            background: rgba(217, 32, 32, 0.1);
+        }
+
+        .cycle-num {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .cycle-title {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            color: #fff;
+        }
+
+        .cycle-body {
+            font-size: 1rem;
+            color: var(--dim);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .cycle-out-l {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .cycle-out-v {
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--dim);
+        }
+
+        .cycle-arrow {
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--accent);
+            z-index: 2;
+            line-height: 1;
+        }
+
+        .example-row {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: none;
+            padding: 4rem;
+        }
+
+        .example-label {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 3rem;
+            display: block;
+        }
+
+        .example-cols {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .example-col-label {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .example-col p {
+            font-size: 0.95rem;
+            color: var(--dim);
+            line-height: 1.8;
+        }
+
+        .example-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            text-align: center;
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-style: italic;
+            color: #fff;
+        }
+
+        /* ABOUT */
+        .abt-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6rem;
+            align-items: start;
+        }
+
+        .abt-body {
+            font-size: 1.1rem;
+            color: var(--dim);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .profile-card {
+            background: rgba(15, 15, 15, 0.8);
+            padding: 3rem;
+            border: 1px solid var(--rule);
+        }
+
+        .pr-nav-row {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .pr-name {
+            font-size: 1.4rem;
+            font-weight: 500;
+            display: block;
+            color: #fff;
+        }
+
+        .pr-title {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .pr-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .pr-h {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--rule);
+            padding-bottom: 0.5rem;
+        }
+
+        .pr-li {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .pr-li span.b {
+            font-weight: 500;
+            display: block;
+            color: #fff;
+        }
+
+        .pr-li span.d {
+            color: var(--dim);
+        }
+
+        .award-row {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--rule);
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .award-star {
+            font-family: var(--font-serif);
+            font-size: 4.5rem;
+            font-weight: 400;
+            color: var(--accent);
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+
+        .award-tsub {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--dim);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .award-title {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: #fff;
+            line-height: 1.2;
+            display: block;
+        }
+
+        /* PARTNERS */
+        .partners-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+        }
+
+        .partner-card {
+            background: rgba(10, 10, 10, 0.8);
+            padding: 4rem;
+        }
+
+        .partner-card.alt {
+            background: rgba(20, 20, 20, 0.8);
+        }
+
+        .pc-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .pc-name {
+            font-size: 1.8rem;
+            font-weight: 500;
+            font-family: var(--font-serif);
+        }
+
+        .pc-tag {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            border: 1px solid #fff;
+            padding: 4px 10px;
+            border-radius: 2px;
+        }
+
+        .pc-body {
+            font-size: 1.05rem;
+            color: var(--dim);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .pc-link {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #fff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 4px;
+            transition: border-color 0.2s;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+
+        .pc-link:hover {
+            border-color: var(--accent);
+        }
+
+        .org-tags-wrap {
+            border-top: 1px solid var(--rule);
+            padding-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .org-lbl {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--dim);
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .org-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .org-tag {
+            font-size: 12px;
+            font-family: var(--font-mono);
+            padding: 5px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--rule);
+            border-radius: 2px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .reach-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .reach-label {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.8rem;
+        }
+
+        .reach-list {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--dim);
+            line-height: 2;
+        }
+
+        .pc-quote {
+            border-left: 2px solid var(--accent);
+            padding-left: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .pc-qt {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #fff;
+            margin-bottom: 0.75rem;
+        }
+
+        .pc-qa {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--dim);
+        }
+
+        /* CTA / FORMS */
+        .cta-sec {
+            background: rgba(217, 32, 32, 0.1);
+            border-top: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        .cta-title {
+            font-family: var(--font-serif);
+            font-size: clamp(3rem, 6vw, 5rem);
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        .btn-sub {
+            display: inline-block;
+            padding: 1.5rem 5rem;
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border-radius: 3px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-sub:hover {
+            background: #ff4444;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #010101;
+            padding: 4rem 5vw;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: end;
+            gap: 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .ft-brand {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .ft-brand span {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .ft-legal {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            color: var(--dim);
+            text-transform: uppercase;
+        }
+
+        .ft-nav {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .ft-nav a {
+            font-size: 12px;
+            color: var(--dim);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: color 0.2s;
+            font-family: var(--font-mono);
+        }
+
+        .ft-nav a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 1000px) {
+            .hero {
+                padding: 8rem 0 3rem 0 !important;
+            }
+
+            .f-row {
+                flex-direction: column;
+            }
+
+            .text-title {
+                font-size: 60px;
+            }
+
+            .text-title.in {
+                font-size: 50px;
+            }
+
+            .tab-btn {
+                flex: 1 1 100%;
+                border-bottom: 1px solid var(--rule);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .cycle-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .cycle-arrow {
+                display: none;
+            }
+
+            .abt-inner,
+            .partners-grid,
+            .proof-inner,
+            .example-cols {
+                grid-template-columns: 1fr;
+            }
+
+            .scroll-nav-advanced {
+                display: none;
+            }
+
+            .pr-grid,
+            footer {
+                grid-template-columns: 1fr;
+            }
+
+            .text-title {
+                font-size: 80px;
+            }
+
+            .text-title.in {
+                font-size: 70px;
+            }
+
+            .ft-nav {
+                align-items: flex-start;
+            }
+
+            .ft-legal {
+                text-align: left !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .cycle-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* LOCATIONS MAP */
+        .loc-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .loc-title {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 3rem;
+            line-height: 1.1;
+        }
+
+        .city-item {
+            list-style: none;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--rule);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .city-item:hover, .city-item.active {
+            padding-left: 1rem;
+            border-bottom-color: var(--accent);
+        }
+
+        .city-name {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: #fff;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-family: var(--font-sans);
+        }
+
+        .city-logos {
+            font-size: 1.1rem;
+            color: var(--dim);
+            font-family: var(--font-serif);
+            font-style: italic;
+        }
+
+        .loc-map-wrap {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            overflow: visible;
+        }
+
+        #dot-matrix {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0.15;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .dm-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .dm-dot {
+            width: 5px;
+            height: 5px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.5s;
+        }
+
+        .dm-dot.glow {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            transform: scale(1.5);
+            opacity: 1;
+        }
+        
+        .dm-dot.hidden {
+            opacity: 0;
+        }
+
+        #map-pins {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .leaflet-container { background: transparent; font-family: var(--font-sans); }
+        .leaflet-div-icon { background: transparent; border: none; }
+        
+        .map-pin {
+            position: relative;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 0 15px var(--accent);
+            z-index: 10;
+        }
+
+        .map-pin::after {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .loc-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: rgba(10,10,10,0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            color: #fff;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-radius: 100px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 20;
+        }
+
+        .map-pin.active .loc-logo {
+            pointer-events: auto;
+        }
+        
+        /* Edit Mode Styles */
+        .map-pin.draggable {
+            border: 2px solid #fff;
+            cursor: grab;
+        }
+        .map-pin.draggable:active {
+            cursor: grabbing;
+        }
+        .pin-add-logo {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #000;
+            font-size: 20px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            line-height: 1;
+            z-index: 30;
+        }
+        body[contenteditable="true"] .pin-add-logo {
+            display: flex;
+        }
+
+        @media (max-width: 1000px) {
+            .loc-grid { grid-template-columns: 1fr; }
+            #dot-matrix { opacity: 0.08; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- BACKGROUND AND NORTHERN LIGHTS GLOW -->
+    <div class="bokeh-bg"></div>
+    <div class="nl-bg">
+        <div class="nl n1" id="nl1"></div>
+        <div class="nl n2" id="nl2"></div>
+        <div class="nl n3" id="nl3"></div>
+    </div>
+
+    <!-- TOP NAV BAR -->
+    <header class="top-bar">
+        <a href="#" class="top-logo">
+            <span class="logo-w">Theory</span> <span class="logo-r">in Practice</span>
+        </a>
+        <div class="top-right">
+            <a href="#contact" class="btn-contact">
+                <span class="dot"></span> INITIATE CONTACT
+            </a>
+            <button class="menu-toggle"><span></span><span></span></button>
+        </div>
+    </header>
+
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor-visual" id="cursor"></div>
+
+    <!-- SCROLLING TRACK NAV -->
+    <div class="scroll-nav-advanced">
+        <div class="sn-labels">
+            <a href="#heroSec" class="sn-link t-hero">Hero</a>
+            <a href="#premise" class="sn-link t-premise">Premise</a>
+            <a href="#academy" class="sn-link t-academy">Academy</a>
+            <a href="#consulting" class="sn-link t-consulting">Consulting</a>
+            <a href="#about" class="sn-link t-about">About</a>
+            <a href="#locations" class="sn-link t-locations">Locations</a>
+            <a href="#partners" class="sn-link t-partners">Partners</a>
+        </div>
+        <div class="sn-track">
+            <div class="sn-thumb" id="scrollThumb"></div>
+        </div>
+    </div>
+
+    <!-- 1. HERO SECTION -->
+    <section class="hero section-wrap" id="heroSec" style="padding:15rem 0 5rem 0; border:none;">
+
+        <!-- BASE LAYER (Totally invisible text natively, lit ONLY by spotlight) -->
+        <!-- BASE LAYER -->
+        <div class="hero-layer-base">
+            <div class="hero-venn-wrapper desktop-venn">
+                <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="530" cy="350" r="450" />
+                    <circle cx="1070" cy="350" r="450" />
+                    <text x="400" y="325" class="text-title">Theory</text>
+                    <text x="400" y="385" class="text-sub">Principles that explain why.</text>
+                    <text x="800" y="325" class="text-title in in-text">in</text>
+                    <text x="800" y="375" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
+                        <tspan x="800" dy="0">Applying proven models</tspan>
+                        <tspan x="800" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="1200" y="325" class="text-title">Practice</text>
+                    <text x="1200" y="385" class="text-sub">Repeated action.</text>
+                </svg>
+            </div>
+
+            <div class="hero-venn-wrapper mobile-venn">
+                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="400" cy="350" r="330" />
+                    <circle cx="400" cy="750" r="330" />
+                    <text x="400" y="270" class="text-title">Theory</text>
+                    <text x="400" y="330" class="text-sub">Principles that explain why.</text>
+                    <text x="400" y="550" class="text-title in in-text">in</text>
+                    <text x="400" y="600" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
+                        <tspan x="400" dy="0">Applying proven models</tspan>
+                        <tspan x="400" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="400" y="830" class="text-title">Practice</text>
+                    <text x="400" y="890" class="text-sub">Repeated action.</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- SPOTLIGHT LAYER -->
+        <!-- SPOTLIGHT LAYER -->
+        <div class="hero-layer-spotlight">
+            <div class="hero-venn-wrapper desktop-venn" style="pointer-events: none;">
+                <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="lc">
+                            <circle cx="530" cy="350" r="450" />
+                        </clipPath>
+                    </defs>
+                    <circle cx="530" cy="350" r="450" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.35)" clip-path="url(#lc)" />
+                    <text x="400" y="325" class="text-title" fill="#ffffff">Theory</text>
+                    <text x="400" y="385" class="text-sub" fill="#ffffff">Principles that explain why.</text>
+                    <text x="800" y="325" class="text-title in" fill="#d92020">in</text>
+                    <text x="800" y="375" class="text-sub in-sub" fill="#ffffff">
+                        <tspan x="800" dy="0">Applying proven models</tspan>
+                        <tspan x="800" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="1200" y="325" class="text-title" fill="#ffffff">Practice</text>
+                    <text x="1200" y="385" class="text-sub" fill="#ffffff">Repeated action.</text>
+                </svg>
+            </div>
+
+            <div class="hero-venn-wrapper mobile-venn" style="pointer-events: none;">
+                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="lcm">
+                            <circle cx="400" cy="350" r="330" />
+                        </clipPath>
+                    </defs>
+                    <circle cx="400" cy="350" r="330" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="400" cy="750" r="330" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="400" cy="750" r="330" fill="rgba(217,32,32,0.35)" clip-path="url(#lcm)" />
+                    <text x="400" y="270" class="text-title" fill="#ffffff">Theory</text>
+                    <text x="400" y="330" class="text-sub" fill="#ffffff">Principles that explain why.</text>
+                    <text x="400" y="550" class="text-title in" fill="#d92020">in</text>
+                    <text x="400" y="600" class="text-sub in-sub" fill="#ffffff">
+                        <tspan x="400" dy="0">Applying proven models</tspan>
+                        <tspan x="400" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="400" y="830" class="text-title" fill="#ffffff">Practice</text>
+                    <text x="400" y="890" class="text-sub" fill="#ffffff">Repeated action.</text>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. SCROLL TEXT REVEAL -->
+    <section class="section-wrap text-reveal" id="premise">
+        <div class="reveal-wrapper">
+            <p class="rev-text rev-base">
+                The goal is judgment <span class="it">to act differently</span> on "Monday". Applying proven models to
+                real-world situations.
+            </p>
+            <p class="rev-text rev-highlight" id="revealTarget">
+                The goal is judgment <span class="it">to act differently</span> on "Monday". Applying proven models to
+                real-world situations.
+            </p>
+        </div>
+    </section>
+
+    <!-- 3. ACADEMY -->
+    <section class="section-wrap academy" id="academy">
+        <div class="container">
+            <div class="sec-rule"><span class="eyebrow" style="margin:0;">Academy</span>
+                <hr>
+            </div>
+            <p class="acad-intro">Each program connects proven management frameworks to the operational reality of your
+                team. The goal is judgment to act differently on "Monday".</p>
+
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="t1">Delivery Fundamentals</button>
+                <button class="tab-btn" data-tab="t2">Human & Change Dynamics</button>
+                <button class="tab-btn" data-tab="t3">Risk & Governance</button>
+            </div>
+
+            <div class="tab-panel active" id="t1">
+                <div style="padding:4rem;">
+                    <h3 class="tab-title">The mechanics of execution.</h3>
+                    <ul class="tab-mods">
+                        <li>
+                            <span class="mod-name">Product Management</span>
+                            <span class="mod-q">What should we build, and why? How do we decide what comes next — before
+                                we spend time building the wrong thing?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Project Management</span>
+                            <span class="mod-q">How do we go from a mandate to a finished outcome — on time, within
+                                budget, and to the standard we promised?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Projects for Non-PMs</span>
+                            <span class="mod-q">I'm not a project manager, but I'm running a project. What do I actually
+                                need to know to keep this on track?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Earned Value Management</span>
+                            <span class="mod-q">Are we ahead or behind right now — and how do we know before it's too
+                                late to change anything?</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="t2">
+                <div style="padding:4rem;">
+                    <h3 class="tab-title">The people side of execution.</h3>
+                    <ul class="tab-mods">
+                        <li>
+                            <span class="mod-name">Design Thinking</span>
+                            <span class="mod-q">Are we solving the right problem — or just the most obvious one? How do
+                                we define the challenge before we design the solution?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Change Management</span>
+                            <span class="mod-q">We know what needs to change. Why isn't it changing? What does it take
+                                to move an organisation from where it is to where it needs to be?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Effective Meetings</span>
+                            <span class="mod-q">Why do our meetings cost so much and produce so little? How do we run
+                                the room so that decisions actually get made?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Building High-Performing Teams</span>
+                            <span class="mod-q">We have capable people. Why aren't they performing as a unit? What does
+                                it take to build a team that delivers consistently?</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="t3">
+                <div style="padding:4rem;">
+                    <h3 class="tab-title">Predicting events & taking action.</h3>
+                    <ul class="tab-mods">
+                        <li>
+                            <span class="mod-name">Risk Management</span>
+                            <span class="mod-q">What could go wrong — and how do we decide what to do about it before it
+                                happens? How do we distinguish a real risk from noise?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">PMO Design</span>
+                            <span class="mod-q">How do we build the governance architecture that keeps every project
+                                across the organisation on track and accountable?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">The Sponsor's Edge</span>
+                            <span class="mod-q">I'm sponsoring this initiative. What is my actual job — and what does it
+                                take to guide the team across the finish line?</span>
+                        </li>
+                        <li>
+                            <span class="mod-name">Agile for Executives</span>
+                            <span class="mod-q">My team is running Agile. What do I need to understand to lead it
+                                effectively — without getting in the way of the work?</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROOF STRIP -->
+    <section class="acad-proof" style="position:relative; z-index:10;">
+        <div class="proof-inner">
+            <div class="proof-nums">
+                <div class="proof-stat"><strong>12</strong><span>Years</span></div>
+                <div class="proof-stat"><strong>1,500+</strong><span>Participants</span></div>
+                <div class="proof-stat"><strong>4 / 4</strong><span>Consistent rating</span></div>
+            </div>
+            <div class="proof-qs">
+                <div class="proof-q">
+                    <p>"I walked out with a framework I could use the next morning. The concepts finally connected to
+                        the work I was actually doing."</p>
+                    <cite>Project Controller, 2025</cite>
+                </div>
+                <div class="proof-q">
+                    <p>"Our team left with a shared language for tracking performance. For the first time, everyone
+                        understood what the numbers meant and what to do about them."</p>
+                    <cite>Program Manager, 2023</cite>
+                </div>
+                <div class="proof-q">
+                    <p>"It changed how we plan. We stopped guessing and started forecasting. The difference in our
+                        project outcomes has been measurable."</p>
+                    <cite>Director, Project Controls, 2019</cite>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CONSULTING -->
+    <section class="section-wrap consulting" id="consulting">
+        <div class="container">
+            <div class="sec-rule"><span class="eyebrow" style="margin:0;">Consulting</span>
+                <hr>
+            </div>
+
+            <div class="cons-head">
+                <h2 class="sec-title" style="margin:0;">The Method.</h2>
+                <p class="acad-intro" style="margin:0;">We begin with a question — and follow a disciplined four-step
+                    process from diagnosis to decision. The process is iterative: after Debrief, clients return to
+                    Discover with a sharper question.</p>
+            </div>
+
+            <div class="cycle-grid">
+                <div class="cycle-step">
+                    <div class="cycle-num">01 · Discover</div>
+                    <div class="cycle-title">Why</div>
+                    <p class="cycle-body" style="font-style:italic; margin-bottom:0.75rem; color:#fff;">What is the real
+                        problem or opportunity?</p>
+                    <p class="cycle-body">We establish a fact-based definition before any solution is proposed.</p>
+                    <div class="cycle-out-l">Output</div>
+                    <div class="cycle-out-v">A written definition that all stakeholders agree on.</div>
+                    <div class="cycle-arrow">→</div>
+                </div>
+                <div class="cycle-step">
+                    <div class="cycle-num">02 · Design</div>
+                    <div class="cycle-title">How</div>
+                    <p class="cycle-body" style="font-style:italic; margin-bottom:0.75rem; color:#fff;">What does the
+                        right solution look like?</p>
+                    <p class="cycle-body">We apply Design Thinking to find the best path forward for your specific
+                        context.</p>
+                    <div class="cycle-out-l">Output</div>
+                    <div class="cycle-out-v">A solution design tailored to your situation.</div>
+                    <div class="cycle-arrow">→</div>
+                </div>
+                <div class="cycle-step">
+                    <div class="cycle-num">03 · Deliver</div>
+                    <div class="cycle-title">What</div>
+                    <p class="cycle-body" style="font-style:italic; margin-bottom:0.75rem; color:#fff;">How do we
+                        execute with precision?</p>
+                    <p class="cycle-body">We implement alongside your team, building systems and measuring results
+                        against the objectives defined in Discover.</p>
+                    <div class="cycle-out-l">Output</div>
+                    <div class="cycle-out-v">Measurable results.</div>
+                    <div class="cycle-arrow">→</div>
+                </div>
+                <div class="cycle-step">
+                    <div class="cycle-num">04 · Debrief</div>
+                    <div class="cycle-title" style="color:var(--text);">What next</div>
+                    <p class="cycle-body" style="font-style:italic; margin-bottom:0.75rem; color:#fff;">What did we
+                        learn?</p>
+                    <p class="cycle-body">We compare results to intent, surface lessons, and transfer knowledge.</p>
+                    <div class="cycle-out-l">Output</div>
+                    <div class="cycle-out-v">A decision: exit with confidence, or return to Discover.</div>
+                </div>
+            </div>
+
+            <!-- Example Row -->
+            <div class="example-row">
+                <span class="example-label">In practice · Global engineering firm · Project Controls</span>
+                <div class="example-cols">
+                    <div class="example-col">
+                        <span class="example-col-label">Discover</span>
+                        <p>The stated problem was a skills gap. The real problem was behavioural. Teams had the tools
+                            but lacked a shared model for why planning discipline matters.</p>
+                    </div>
+                    <div class="example-col">
+                        <span class="example-col-label">Design</span>
+                        <p>The solution had to address the why before the how. A single governing principle shaped
+                            everything: a weak Work Breakdown Structure makes forecasting impossible. That theory
+                            determined the workshop design.</p>
+                    </div>
+                    <div class="example-col">
+                        <span class="example-col-label">Deliver</span>
+                        <p>Three sessions across North American time zones. Teams applied the principle to their own
+                            projects, their own WBS gaps, their own forecasting challenges.</p>
+                    </div>
+                    <div class="example-col">
+                        <span class="example-col-label">Debrief</span>
+                        <p>The client returned to Discover twice, each time with a sharper question. First: how do we
+                            build trust between Project Controllers and Project Managers? Then: how do we make the value
+                            of Project Controls visible to the people it serves?</p>
+                    </div>
+                </div>
+                <div class="example-footer">
+                    93.3% of participants said they would recommend this program.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. ABOUT -->
+    <section class="section-wrap about" id="about">
+        <div class="container">
+            <div class="sec-rule"><span class="eyebrow" style="margin:0;">About</span>
+                <hr>
+            </div>
+            <div class="abt-inner">
+                <div>
+                    <h2 class="sec-title" style="font-size:3.5rem;">Roti Akinsanmi</h2>
+                    <p class="abt-body">Roti Akinsanmi bridges the gap between academic theory and operational reality.
+                        He designs governance architectures and builds teams that execute with precision.</p>
+                </div>
+
+                <div class="profile-card">
+                    <div class="pr-nav-row">
+                        <div
+                            style="width:52px; height:52px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                            <span
+                                style="font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; color:var(--dim); text-transform:uppercase;">Photo</span>
+                        </div>
+                        <div style="flex:1;">
+                            <span class="pr-name">Roti Akinsanmi</span>
+                            <span class="pr-title">Founder & Principal</span>
+                        </div>
+                        <a href="https://linkedin.com/in/akinsanmi" target="_blank" rel="noopener"
+                            style="font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em; color:var(--accent); text-transform:uppercase; text-decoration:none;">LinkedIn
+                            →</a>
+                    </div>
+
+                    <div class="pr-grid">
+                        <div>
+                            <div class="pr-h">Education</div>
+                            <div class="pr-li"><span class="b">Cornell / Queen's</span><span class="d">Executive
+                                    MBA</span></div>
+                            <div class="pr-li"><span class="b">Harvard Bus. School</span><span class="d">Cert.
+                                    Management Excellence</span></div>
+                            <div class="pr-li"><span class="b">MIT Sloan</span><span class="d">AI & Business
+                                    Strategy</span></div>
+                            <div class="pr-li"><span class="b">University of Lagos</span><span class="d">BSc Computer
+                                    Science</span></div>
+                        </div>
+                        <div>
+                            <div class="pr-h">Experience</div>
+                            <div class="pr-li"><span class="b">Major Canadian Airline</span><span class="d">Head,
+                                    Innovation Lab · 2019–21</span></div>
+                            <div class="pr-li"><span class="b">Leading Streaming Platform</span><span class="d">VP of
+                                    Products · 2021–24</span></div>
+                            <div class="pr-li"><span class="b">First Transfer Inc.</span><span class="d">Founder ·
+                                    Regulated FinTech · 2016–20</span></div>
+                            <div class="pr-li"><span class="b">Mount Royal University</span><span class="d">Instructor ·
+                                    Since 2014</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Awards section -->
+                    <div class="award-row">
+                        <div
+                            style="width: 80px; height: 80px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <span
+                                style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:var(--dim); text-transform:uppercase; text-align:center;">Award<br>Photo</span>
+                        </div>
+                        <div>
+                            <span class="award-tsub">2026 · Faculty Excellence Awards · Mount Royal University</span>
+                            <span class="award-title">Teaching Excellence in Lifelong Learning Award</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 5.5 LOCATIONS MAP -->
+    <section class="section-wrap map-section" id="locations">
+        <div class="container loc-grid">
+            <div class="loc-list">
+                <div class="sec-rule"><span class="eyebrow" style="margin:0;">Deployment Footprint</span><hr></div>
+                <div class="ll-head">
+                    <h2 class="loc-title">Past workshop locations</h2>
+                </div>
+                <ul id="city-list"></ul>
+                <button id="add-city-btn" class="btn-contact" style="display:none; margin-top: 2rem;">+ Add City</button>
+            </div>
+            
+            <div class="loc-map-wrap">
+                <div id="real-map" style="position: absolute; inset:0; z-index:1;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. PARTNERS -->
+    <section class="section-wrap partners" id="partners">
+        <div class="container">
+            <div class="sec-rule"><span class="eyebrow" style="margin:0;">Strategic Partners</span>
+                <hr>
+            </div>
+            <div class="partners-grid">
+                <!-- MRU -->
+                <div class="partner-card">
+                    <div class="pc-head">
+                        <div class="pc-name">Mount Royal University</div>
+                        <div class="pc-tag">Academy</div>
+                    </div>
+                    <p class="pc-body">Since 1990, Mount Royal University's Faculty of Continuing Education has
+                        partnered with organisations to build capability and respond to change. Every Academy program is
+                        co-delivered through this partnership. Participants receive co-branded certificates from a
+                        leading Canadian university.</p>
+                    <a href="https://www.mtroyal.ca/ContinuingEducation/CustomTraining/index.htm" target="_blank"
+                        rel="noopener" class="pc-link">MRU Custom Training →</a>
+
+                    <div class="org-tags-wrap">
+                        <span class="org-lbl">Organisations served</span>
+                        <div class="org-tags">
+                            <span class="org-tag">AEB ↗</span>
+                            <span class="org-tag">Calgary Food Bank ↗</span>
+                            <span class="org-tag">NALMA ↗</span>
+                            <span class="org-tag">Alberta Landmen ↗</span>
+                        </div>
+                    </div>
+
+                    <div class="pc-quote">
+                        <p class="pc-qt">"[Quote from Strategic Partnerships lead — to be added]"</p>
+                        <span class="pc-qa">Strategic Partnerships, Mount Royal University</span>
+                    </div>
+                </div>
+
+                <!-- TARKA -->
+                <div class="partner-card alt">
+                    <div class="pc-head">
+                        <div class="pc-name">Tarka Consulting</div>
+                        <div class="pc-tag">Consulting</div>
+                    </div>
+                    <p class="pc-body">Tarka Consulting brings Theory in Practice methodology to enterprise clients
+                        across North America. Together, we deploy the same frameworks inside some of the continent's
+                        most operationally complex organisations.</p>
+                    <a href="https://www.tarka-consulting.com" target="_blank" rel="noopener"
+                        class="pc-link">tarka-consulting.com →</a>
+
+                    <div class="org-tags-wrap">
+                        <div class="reach-cols">
+                            <div>
+                                <span class="reach-label">Canada</span>
+                                <ul class="reach-list">
+                                    <li>Petrochemical plant, AB</li>
+                                    <li>Industrial group, ON</li>
+                                    <li>Research university, AB</li>
+                                    <li>Regional college, AB</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <span class="reach-label">United States</span>
+                                <ul class="reach-list">
+                                    <li>Transit authority, WA</li>
+                                    <li>Medical device manufacturer, MN</li>
+                                    <li>Cement plant, FL</li>
+                                    <li>Defence contractor, FL</li>
+                                    <li>GIS software company, CA</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pc-quote">
+                        <p class="pc-qt">"[Quote from Emil Tarka — to be added]"</p>
+                        <span class="pc-qa">Emil Tarka, Principal · Tarka Consulting</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CTA -->
+    <section class="section-wrap cta-sec" id="contact" style="border-bottom:none; padding:10rem 5vw;">
+        <div class="container">
+            <h2 class="cta-title">Ready to act differently on "Monday"?</h2>
+            <a href="mailto:info@theoryinpractice.ca" class="btn-sub" data-cursor-hover>Initiate Contact</a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div>
+            <div class="ft-brand">Theory <span>in Practice</span></div>
+            <div class="ft-legal">© 2026 Theory in Practice Inc. · Calgary, Alberta</div>
+        </div>
+        <div>
+            <ul class="ft-nav">
+                <li><a href="#academy">Academy</a></li>
+                <li><a href="#consulting">Consulting</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#partners">Partners</a></li>
+            </ul>
+            <div class="ft-legal" style="text-align:right;">theoryinpractice.ca</div>
+        </div>
+    </footer>
+
+
+    <script type="application/json" id="map-data-store">
+[
+  {
+    "id": "city-atl",
+    "name": "Atlanta",
+    "logos": [
+      "Coca-Cola",
+      "Delta Air Lines"
+    ],
+    "lat": 33.749,
+    "lng": -84.388
+  },
+  {
+    "id": "city-cal",
+    "name": "Calgary",
+    "logos": [
+      "Mount Royal University",
+      "Enbridge"
+    ],
+    "lat": 51.0447,
+    "lng": -114.0719
+  },
+  {
+    "id": "city-ny",
+    "name": "New York",
+    "logos": [
+      "Morgan Stanley",
+      "Viacom"
+    ],
+    "lat": 40.7128,
+    "lng": -74.006
+  },
+  {
+    "id": "city-la",
+    "name": "Los Angeles",
+    "logos": [
+      "Disney",
+      "Snap"
+    ],
+    "lat": 34.0522,
+    "lng": -118.2437
+  },
+  {
+    "id": "city-bos",
+    "name": "Boston",
+    "logos": [
+      "General Electric"
+    ],
+    "lat": 42.3601,
+    "lng": -71.0589
+  },
+  {
+    "id": "city-mia",
+    "name": "Miami",
+    "logos": [
+      "Royal Caribbean"
+    ],
+    "lat": 25.7617,
+    "lng": -80.1918
+  },
+  {
+    "id": "city-sea",
+    "name": "Seattle",
+    "logos": [
+      "Microsoft",
+      "Amazon"
+    ],
+    "lat": 47.6062,
+    "lng": -122.3321
+  },
+  {
+    "id": "city-den",
+    "name": "Denver",
+    "logos": [
+      "Arrow Electronics"
+    ],
+    "lat": 39.7392,
+    "lng": -104.9903
+  },
+  {
+    "id": "city-chi",
+    "name": "Chicago",
+    "logos": [
+      "Boeing",
+      "United Airlines"
+    ],
+    "lat": 41.8781,
+    "lng": -87.6298
+  }
+]
+    </script>
+    <script>
+        // EDITABLE STATE TWEAK
+        // FRONT-END EDITING: Yes, the frontend is live! Append ?edit to your URL to immediately edit any text on the page natively.
+        if (window.location.search.includes('edit')) {
+            document.body.setAttribute('contenteditable', 'true');
+        }
+
+        // CUSTOM CURSOR
+        const cursor = document.getElementById('cursor');
+        window.addEventListener('mousemove', e => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        });
+        document.querySelectorAll('a, button, .partner-card, .cycle-step').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+        // NORTHERN LIGHTS CURSOR TRACKING
+        const nl1 = document.getElementById('nl1'), nl2 = document.getElementById('nl2'), nl3 = document.getElementById('nl3');
+        window.addEventListener('mousemove', e => {
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            const moveX = (cx - e.clientX) * 0.15;
+            const moveY = (cy - e.clientY) * 0.15;
+            gsap.to(nl1, { x: moveX * 1.5, y: moveY * 1.5, duration: 2, ease: 'power2.out' });
+            gsap.to(nl2, { x: moveX * -1, y: moveY * -1, duration: 3, ease: 'power2.out' });
+            gsap.to(nl3, { x: moveX * 0.5, y: moveY * -0.5, duration: 2.5, ease: 'power2.out' });
+        });
+
+        // TEXT REVEAL ON SCROLL
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.to("#revealTarget", {
+            clipPath: "inset(0 0% 0 0)",
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".text-reveal",
+                start: "top 75%",
+                end: "bottom 95%",
+                scrub: 0.5,
+            }
+        });
+
+        // HERO SPOTLIGHT EFFECT (Auto drifting + Touch/Mouse capture)
+        const heroSec = document.getElementById('heroSec');
+
+        // Abstract coordinates object for GSAP
+        const spotObj = { x: window.innerWidth * 0.3, y: window.innerHeight * 0.5 };
+        const updateSpotlight = () => {
+            heroSec.style.setProperty('--mouse-x', `${spotObj.x}px`);
+            heroSec.style.setProperty('--mouse-y', `${spotObj.y}px`);
+        };
+        updateSpotlight(); // Init
+
+        // Auto drift animation (back and forth)
+        let autoSpot = gsap.to(spotObj, {
+            x: window.innerWidth * 0.7, // Drifts roughly from Theory -> Practice organically
+            y: window.innerHeight * 0.6,
+            duration: 5,
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+            onUpdate: updateSpotlight
+        });
+
+        let interactionTimer;
+        function captureInteraction(cx, cy) {
+            const rect = heroSec.getBoundingClientRect();
+            const x = cx - rect.left;
+            const y = cy - rect.top;
+
+            // Suspend auto drifting
+            if (autoSpot) autoSpot.kill();
+
+            // Rapid tween to cursor position
+            gsap.to(spotObj, { x: x, y: y, duration: 0.1, onUpdate: updateSpotlight });
+
+            // Restart drifting after idle
+            clearTimeout(interactionTimer);
+            interactionTimer = setTimeout(() => {
+                autoSpot = gsap.to(spotObj, {
+                    x: window.innerWidth * 0.7,
+                    y: window.innerHeight * 0.6,
+                    duration: 6,
+                    ease: 'power1.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                    onUpdate: updateSpotlight
+                });
+            }, 3000);
+        }
+
+        heroSec.addEventListener('mousemove', e => captureInteraction(e.clientX, e.clientY));
+
+        // Touch tracking equivalent for mobile
+        heroSec.addEventListener('touchstart', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+        heroSec.addEventListener('touchmove', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+
+
+        // MAP LOGIC (V11)
+        const mapSec = document.getElementById('locations');
+        if (mapSec) {
+            const listEl = document.getElementById('city-list');
+            
+            let mapData = [];
+            try {
+                mapData = JSON.parse(document.getElementById('map-data-store').textContent);
+            } catch(e) { console.error('Map parsing err', e); }
+
+            const bounds = [
+                [10.0, -170.0],
+                [75.0, -50.0]
+            ];
+            
+            const map = L.map('real-map', {
+                center: [45.0, -100.0],
+                zoom: 3,
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                touchZoom: false,
+                maxBounds: bounds
+            });
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap & Carto', subdomains: 'abcd', maxZoom: 20
+            }).addTo(map);
+            
+            const markers = [];
+
+            function renderMapItems() {
+                listEl.innerHTML = '';
+                markers.forEach(m => map.removeLayer(m));
+                markers.length = 0;
+                
+                const isEdit = document.body.getAttribute('contenteditable') === 'true';
+
+                mapData.forEach((dat) => {
+                    const li = document.createElement('li');
+                    li.className = 'city-item';
+                    li.innerHTML = `
+                        <span class="city-name">${dat.name}</span>
+                        <span class="city-logos">${dat.logos.join(', ')}</span>
+                    `;
+                    listEl.appendChild(li);
+
+                    let logosHtml = '';
+                    dat.logos.forEach((txt) => { logosHtml += `<div class="loc-logo">${txt}</div>`; });
+                    let addBtnHtml = `<div class="pin-add-logo" contenteditable="false">+</div>`;
+                    
+                    const mIcon = L.divIcon({
+                        className: 'custom-leaflet-pin',
+                        html: `<div class="map-pin" id="${dat.id}">
+                                 <div class="pin-pulse"></div>
+                                 ${logosHtml}
+                                 ${addBtnHtml}
+                               </div>`,
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+
+                    const marker = L.marker([dat.lat, dat.lng], { 
+                        icon: mIcon,
+                        draggable: isEdit 
+                    }).addTo(map);
+                    
+                    markers.push(marker);
+
+                    if (isEdit) {
+                        marker.on('dragend', function() {
+                           const pos = marker.getLatLng();
+                           dat.lat = pos.lat;
+                           dat.lng = pos.lng;
+                        });
+                    }
+                });
+                
+                setTimeout(() => {
+                    mapData.forEach((dat) => {
+                        const pinEl = document.getElementById(dat.id);
+                        if(!pinEl) return;
+                        const logosNodes = pinEl.querySelectorAll('.loc-logo');
+                        const anims = [];
+                        logosNodes.forEach((lDiv, i) => {
+                            gsap.set(lDiv, { xPercent: -50, yPercent: -50, scale: 0, opacity: 0 });
+                            const angle = (i / dat.logos.length) * Math.PI * 2;
+                            const radius = dat.logos.length === 1 ? 0 : 80;
+                            const tgtX = Math.cos(angle) * radius;
+                            const tgtY = Math.sin(angle) * radius - (dat.logos.length === 1 ? 40 : 0);
+                            anims.push({ el: lDiv, x: tgtX, y: tgtY });
+                        });
+                        
+                        let assignedLi = null;
+                        document.querySelectorAll('.city-item').forEach(el => {
+                            if(el.querySelector('.city-name').textContent === dat.name) assignedLi = el;
+                        });
+                        
+                        const activate = () => {
+                            if(assignedLi) assignedLi.classList.add('active');
+                            pinEl.classList.add('active');
+                            anims.forEach((a, index) => { gsap.to(a.el, { x: a.x, y: a.y, scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.5)", delay: index * 0.05 }); });
+                        };
+                        const deactivate = () => {
+                            if(assignedLi) assignedLi.classList.remove('active');
+                            pinEl.classList.remove('active');
+                            anims.forEach(a => { gsap.to(a.el, { x: 0, y: 0, scale: 0, opacity: 0, duration: 0.3, ease: "power2.in" }); });
+                        };
+
+                        if(assignedLi) {
+                            assignedLi.addEventListener('mouseenter', activate);
+                            assignedLi.addEventListener('mouseleave', deactivate);
+                        }
+                        pinEl.addEventListener('mouseenter', activate);
+                        pinEl.addEventListener('mouseleave', deactivate);
+                        pinEl.addEventListener('touchstart', e => { activate(); }, {passive: true});
+                        pinEl.addEventListener('touchend', deactivate, {passive: true});
+                        
+                        const tBtn = pinEl.querySelector('.pin-add-logo');
+                        if (tBtn) {
+                           tBtn.onclick = (e) => {
+                               e.stopPropagation();
+                               setTimeout(() => {
+                                   const newLogo = prompt('Enter new company logo string:');
+                                   if(newLogo) { dat.logos.push(newLogo); renderMapItems(); }
+                               }, 50);
+                           };
+                        }
+                    });
+                }, 50);
+            }
+
+            renderMapItems();
+
+            document.getElementById('add-city-btn').addEventListener('click', () => {
+                const cname = prompt('City Name:');
+                if(cname) {
+                    mapData.push({ id: 'city-'+Date.now(), name: cname, logos: ['New Company'], lat: 45.0, lng: -100.0 });
+                    renderMapItems();
+                }
+            });
+
+            setInterval(() => {
+                if(document.body.getAttribute('contenteditable') === 'true') {
+                    document.getElementById('add-city-btn').style.display = 'inline-flex';
+                }
+            }, 1000);
+            
+            // SAVE BUTTON LOGIC (V11)
+            if (window.location.search.includes('edit')) {
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'btn-contact';
+                saveBtn.style.position = 'fixed';
+                saveBtn.style.bottom = '2rem';
+                saveBtn.style.right = '2rem';
+                saveBtn.style.zIndex = '9999';
+                saveBtn.style.background = 'var(--accent)';
+                saveBtn.style.border = 'none';
+                saveBtn.style.opacity = '1';
+                saveBtn.style.boxShadow = '0 10px 30px rgba(217,32,32,0.4)';
+                saveBtn.innerHTML = '💾 SAVE CHANGES';
+                
+                saveBtn.onclick = () => {
+                    const conf = confirm('Save all modifications to a downloadable file?');
+                    if(!conf) return;
+                    
+                    saveBtn.remove();
+                    document.getElementById('map-data-store').textContent = JSON.stringify(mapData, null, 2);
+                    document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+                    document.getElementById('real-map').innerHTML = ''; // Strip leaflet junk
+                    
+                    const htmlString = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+                    const blob = new Blob([htmlString], {type: 'text/html'});
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'tip-animated10.html';
+                    a.click();
+                    
+                    setTimeout(() => window.location.reload(), 1000); // Reboot Leaflet natively
+                };
+                document.body.appendChild(saveBtn);
+            }
+        }
+        // ADVANCED TRACK SCROLL NAV
+        const sections = ['#heroSec', '#premise', '#academy', '#consulting', '#about', '#locations', '#partners'];
+        const trackHeight = 300; // px
+        const thumb = document.getElementById('scrollThumb');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const docH = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = scrollY / docH; // Basic relative tracking
+            gsap.to(thumb, { y: progress * trackHeight, duration: 0.2 });
+
+            // Node highlighting
+            let currentIdx = 0;
+            sections.forEach((id, i) => {
+                const sec = document.querySelector(id);
+                if (sec && window.scrollY >= sec.offsetTop - (window.innerHeight / 2)) {
+                    currentIdx = i;
+                }
+            });
+            document.querySelectorAll('.sn-link').forEach(l => l.classList.remove('active'));
+            const activeLink = document.querySelector(`.t-${sections[currentIdx].replace('#', '')}`);
+            if (activeLink) activeLink.classList.add('active');
+        });
+
+        // ACADEMY TABS
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                const panel = document.getElementById(id);
+                if (panel) panel.classList.add('active');
+            });
+        });
+        // CONTACT FORM AJAX SIMULATION
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                this.style.display = 'none';
+                document.getElementById('formSuccess').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>
