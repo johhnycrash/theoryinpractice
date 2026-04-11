@@ -11,21 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <style>
-        .mobile-venn {
-            display: none;
-        }
-
-        @media (max-width: 1000px) {
-            .desktop-venn {
-                display: none !important;
-            }
-
-            .mobile-venn {
-                display: block !important;
-                margin-top: 0;
-            }
-        }
-
         :root {
             --bg: #030303;
             --accent: #d92020;
@@ -56,8 +41,7 @@
             font-weight: 300;
             line-height: 1.6;
             overflow-x: hidden;
-            /* GLOBAL FONT SIZE: Adjust this value to scale the entire website's core text up or down */
-            font-size: 20px;
+            font-size: 18px;
             cursor: none;
         }
 
@@ -312,7 +296,7 @@
 
         .sn-link {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             color: var(--dim);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -363,7 +347,7 @@
 
         .eyebrow {
             font-family: var(--font-mono);
-            font-size: 24px;
+            font-size: 11px;
             letter-spacing: 0.2rem;
             text-transform: uppercase;
             color: var(--accent);
@@ -386,7 +370,6 @@
 
         .sec-title {
             font-family: var(--font-serif);
-            /* MAIN HEADINGS (e.g. Roti Akinsanmi, The Method): Adjust size here */
             font-size: clamp(3.5rem, 6vw, 6rem);
             font-weight: 400;
             letter-spacing: -0.02em;
@@ -569,7 +552,7 @@
             padding: 1.5rem;
             background: rgba(0, 0, 0, 0.6);
             font-family: var(--font-mono);
-            font-size: 16px;
+            font-size: 11px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--dim);
@@ -586,7 +569,7 @@
 
         .tab-btn.active {
             background: rgba(255, 255, 255, 0.08);
-            color: #fff;
+            color: var(--accent);
             box-shadow: inset 0 3px 0 var(--accent);
         }
 
@@ -628,7 +611,7 @@
         }
 
         .mod-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 500;
             color: #fff;
             display: block;
@@ -636,7 +619,7 @@
         }
 
         .mod-q {
-            font-size: 1.2rem;
+            font-size: 1rem;
             color: var(--dim);
             font-style: italic;
             font-family: var(--font-serif);
@@ -677,7 +660,7 @@
 
         .proof-stat span {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--dim);
@@ -693,7 +676,7 @@
 
         .proof-q p {
             font-family: var(--font-serif);
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-style: italic;
             color: #fff;
             line-height: 1.6;
@@ -702,7 +685,7 @@
 
         .proof-q cite {
             font-family: var(--font-mono);
-            font-size: 16px;
+            font-size: 10px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--dim);
@@ -738,7 +721,7 @@
 
         .cycle-num {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.2em;
             text-transform: uppercase;
             color: var(--accent);
@@ -763,7 +746,7 @@
 
         .cycle-out-l {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: #fff;
@@ -796,7 +779,7 @@
 
         .example-label {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.2em;
             text-transform: uppercase;
             color: var(--dim);
@@ -812,7 +795,7 @@
 
         .example-col-label {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--accent);
@@ -876,7 +859,7 @@
 
         .pr-title {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--accent);
@@ -890,7 +873,7 @@
 
         .pr-h {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.15em;
             color: var(--accent);
             text-transform: uppercase;
@@ -935,7 +918,7 @@
 
         .award-tsub {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.18em;
             text-transform: uppercase;
             color: var(--dim);
@@ -985,11 +968,11 @@
 
         .pc-tag {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.2em;
             text-transform: uppercase;
             color: var(--accent);
-            border: 1px solid #fff;
+            border: 1px solid var(--accent);
             padding: 4px 10px;
             border-radius: 2px;
         }
@@ -1003,7 +986,7 @@
 
         .pc-link {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 11px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: #fff;
@@ -1027,7 +1010,7 @@
 
         .org-lbl {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--dim);
@@ -1060,7 +1043,7 @@
 
         .reach-label {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--accent);
@@ -1091,7 +1074,7 @@
 
         .pc-qa {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.1em;
             text-transform: uppercase;
             color: var(--dim);
@@ -1158,7 +1141,7 @@
 
         .ft-legal {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 10px;
             letter-spacing: 0.1em;
             color: var(--dim);
             text-transform: uppercase;
@@ -1185,29 +1168,6 @@
 
         .ft-nav a:hover {
             color: #fff;
-        }
-
-        @media (max-width: 1000px) {
-            .hero {
-                padding: 8rem 0 3rem 0 !important;
-            }
-
-            .f-row {
-                flex-direction: column;
-            }
-
-            .text-title {
-                font-size: 60px;
-            }
-
-            .text-title.in {
-                font-size: 50px;
-            }
-
-            .tab-btn {
-                flex: 1 1 100%;
-                border-bottom: 1px solid var(--rule);
-            }
         }
 
         @media (max-width: 1000px) {
@@ -1304,45 +1264,29 @@
     <section class="hero section-wrap" id="heroSec" style="padding:15rem 0 5rem 0; border:none;">
 
         <!-- BASE LAYER (Totally invisible text natively, lit ONLY by spotlight) -->
-        <!-- BASE LAYER -->
         <div class="hero-layer-base">
-            <div class="hero-venn-wrapper desktop-venn">
+            <div class="hero-venn-wrapper">
                 <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="530" cy="350" r="450" />
                     <circle cx="1070" cy="350" r="450" />
                     <text x="400" y="325" class="text-title">Theory</text>
                     <text x="400" y="385" class="text-sub">Principles that explain why.</text>
+
                     <text x="800" y="325" class="text-title in in-text">in</text>
-                    <text x="800" y="375" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
+                    <text x="800" y="375" class="text-sub in-sub" fill="rgba(255,255,255,0.015)">
                         <tspan x="800" dy="0">Applying proven models</tspan>
                         <tspan x="800" dy="24">to real-world situations.</tspan>
                     </text>
+
                     <text x="1200" y="325" class="text-title">Practice</text>
                     <text x="1200" y="385" class="text-sub">Repeated action.</text>
-                </svg>
-            </div>
-
-            <div class="hero-venn-wrapper mobile-venn">
-                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="400" cy="350" r="330" />
-                    <circle cx="400" cy="750" r="330" />
-                    <text x="400" y="270" class="text-title">Theory</text>
-                    <text x="400" y="330" class="text-sub">Principles that explain why.</text>
-                    <text x="400" y="550" class="text-title in in-text">in</text>
-                    <text x="400" y="600" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
-                        <tspan x="400" dy="0">Applying proven models</tspan>
-                        <tspan x="400" dy="24">to real-world situations.</tspan>
-                    </text>
-                    <text x="400" y="830" class="text-title">Practice</text>
-                    <text x="400" y="890" class="text-sub">Repeated action.</text>
                 </svg>
             </div>
         </div>
 
         <!-- SPOTLIGHT LAYER -->
-        <!-- SPOTLIGHT LAYER -->
         <div class="hero-layer-spotlight">
-            <div class="hero-venn-wrapper desktop-venn" style="pointer-events: none;">
+            <div class="hero-venn-wrapper" style="pointer-events: none;">
                 <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <clipPath id="lc">
@@ -1354,39 +1298,18 @@
                     <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
                         stroke-width="2" />
                     <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.35)" clip-path="url(#lc)" />
+
                     <text x="400" y="325" class="text-title" fill="#ffffff">Theory</text>
                     <text x="400" y="385" class="text-sub" fill="#ffffff">Principles that explain why.</text>
+
                     <text x="800" y="325" class="text-title in" fill="#d92020">in</text>
                     <text x="800" y="375" class="text-sub in-sub" fill="#ffffff">
                         <tspan x="800" dy="0">Applying proven models</tspan>
                         <tspan x="800" dy="24">to real-world situations.</tspan>
                     </text>
+
                     <text x="1200" y="325" class="text-title" fill="#ffffff">Practice</text>
                     <text x="1200" y="385" class="text-sub" fill="#ffffff">Repeated action.</text>
-                </svg>
-            </div>
-
-            <div class="hero-venn-wrapper mobile-venn" style="pointer-events: none;">
-                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <clipPath id="lcm">
-                            <circle cx="400" cy="350" r="330" />
-                        </clipPath>
-                    </defs>
-                    <circle cx="400" cy="350" r="330" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="400" cy="750" r="330" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="400" cy="750" r="330" fill="rgba(217,32,32,0.35)" clip-path="url(#lcm)" />
-                    <text x="400" y="270" class="text-title" fill="#ffffff">Theory</text>
-                    <text x="400" y="330" class="text-sub" fill="#ffffff">Principles that explain why.</text>
-                    <text x="400" y="550" class="text-title in" fill="#d92020">in</text>
-                    <text x="400" y="600" class="text-sub in-sub" fill="#ffffff">
-                        <tspan x="400" dy="0">Applying proven models</tspan>
-                        <tspan x="400" dy="24">to real-world situations.</tspan>
-                    </text>
-                    <text x="400" y="830" class="text-title" fill="#ffffff">Practice</text>
-                    <text x="400" y="890" class="text-sub" fill="#ffffff">Repeated action.</text>
                 </svg>
             </div>
         </div>
@@ -1683,11 +1606,7 @@
 
                     <!-- Awards section -->
                     <div class="award-row">
-                        <div
-                            style="width: 80px; height: 80px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                            <span
-                                style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:var(--dim); text-transform:uppercase; text-align:center;">Award<br>Photo</span>
-                        </div>
+                        <div class="award-star">★</div>
                         <div>
                             <span class="award-tsub">2026 · Faculty Excellence Awards · Mount Royal University</span>
                             <span class="award-title">Teaching Excellence in Lifelong Learning Award</span>
@@ -1806,7 +1725,6 @@
 
     <script>
         // EDITABLE STATE TWEAK
-        // FRONT-END EDITING: Yes, the frontend is live! Append ?edit to your URL to immediately edit any text on the page natively.
         if (window.location.search.includes('edit')) {
             document.body.setAttribute('contenteditable', 'true');
         }
@@ -1846,60 +1764,15 @@
             }
         });
 
-        // HERO SPOTLIGHT EFFECT (Auto drifting + Touch/Mouse capture)
+        // HERO SPOTLIGHT EFFECT
         const heroSec = document.getElementById('heroSec');
-
-        // Abstract coordinates object for GSAP
-        const spotObj = { x: window.innerWidth * 0.3, y: window.innerHeight * 0.5 };
-        const updateSpotlight = () => {
-            heroSec.style.setProperty('--mouse-x', `${spotObj.x}px`);
-            heroSec.style.setProperty('--mouse-y', `${spotObj.y}px`);
-        };
-        updateSpotlight(); // Init
-
-        // Auto drift animation (back and forth)
-        let autoSpot = gsap.to(spotObj, {
-            x: window.innerWidth * 0.7, // Drifts roughly from Theory -> Practice organically
-            y: window.innerHeight * 0.6,
-            duration: 5,
-            ease: 'sine.inOut',
-            yoyo: true,
-            repeat: -1,
-            onUpdate: updateSpotlight
-        });
-
-        let interactionTimer;
-        function captureInteraction(cx, cy) {
+        heroSec.addEventListener('mousemove', e => {
             const rect = heroSec.getBoundingClientRect();
-            const x = cx - rect.left;
-            const y = cy - rect.top;
-
-            // Suspend auto drifting
-            if (autoSpot) autoSpot.kill();
-
-            // Rapid tween to cursor position
-            gsap.to(spotObj, { x: x, y: y, duration: 0.1, onUpdate: updateSpotlight });
-
-            // Restart drifting after idle
-            clearTimeout(interactionTimer);
-            interactionTimer = setTimeout(() => {
-                autoSpot = gsap.to(spotObj, {
-                    x: window.innerWidth * 0.7,
-                    y: window.innerHeight * 0.6,
-                    duration: 6,
-                    ease: 'power1.inOut',
-                    yoyo: true,
-                    repeat: -1,
-                    onUpdate: updateSpotlight
-                });
-            }, 3000);
-        }
-
-        heroSec.addEventListener('mousemove', e => captureInteraction(e.clientX, e.clientY));
-
-        // Touch tracking equivalent for mobile
-        heroSec.addEventListener('touchstart', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
-        heroSec.addEventListener('touchmove', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            heroSec.style.setProperty('--mouse-x', `${x}px`);
+            heroSec.style.setProperty('--mouse-y', `${y}px`);
+        });
 
         // ADVANCED TRACK SCROLL NAV
         const sections = ['#heroSec', '#premise', '#academy', '#consulting', '#about', '#partners'];
@@ -1936,15 +1809,6 @@
                 if (panel) panel.classList.add('active');
             });
         });
-        // CONTACT FORM AJAX SIMULATION
-        const contactForm = document.getElementById('contactForm');
-        if (contactForm) {
-            contactForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                this.style.display = 'none';
-                document.getElementById('formSuccess').style.display = 'block';
-            });
-        }
     </script>
 </body>
 
