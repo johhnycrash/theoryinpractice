@@ -363,7 +363,7 @@
 
         .eyebrow {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 24px;
             letter-spacing: 0.2rem;
             text-transform: uppercase;
             color: var(--accent);
@@ -569,7 +569,7 @@
             padding: 1.5rem;
             background: rgba(0, 0, 0, 0.6);
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 16px;
             letter-spacing: 0.15em;
             text-transform: uppercase;
             color: var(--dim);
@@ -1304,29 +1304,45 @@
     <section class="hero section-wrap" id="heroSec" style="padding:15rem 0 5rem 0; border:none;">
 
         <!-- BASE LAYER (Totally invisible text natively, lit ONLY by spotlight) -->
+        <!-- BASE LAYER -->
         <div class="hero-layer-base">
-            <div class="hero-venn-wrapper">
+            <div class="hero-venn-wrapper desktop-venn">
                 <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="530" cy="350" r="450" />
                     <circle cx="1070" cy="350" r="450" />
                     <text x="400" y="325" class="text-title">Theory</text>
                     <text x="400" y="385" class="text-sub">Principles that explain why.</text>
-
                     <text x="800" y="325" class="text-title in in-text">in</text>
                     <text x="800" y="375" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
                         <tspan x="800" dy="0">Applying proven models</tspan>
                         <tspan x="800" dy="24">to real-world situations.</tspan>
                     </text>
-
                     <text x="1200" y="325" class="text-title">Practice</text>
                     <text x="1200" y="385" class="text-sub">Repeated action.</text>
+                </svg>
+            </div>
+
+            <div class="hero-venn-wrapper mobile-venn">
+                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="400" cy="350" r="330" />
+                    <circle cx="400" cy="750" r="330" />
+                    <text x="400" y="270" class="text-title">Theory</text>
+                    <text x="400" y="330" class="text-sub">Principles that explain why.</text>
+                    <text x="400" y="550" class="text-title in in-text">in</text>
+                    <text x="400" y="600" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
+                        <tspan x="400" dy="0">Applying proven models</tspan>
+                        <tspan x="400" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="400" y="830" class="text-title">Practice</text>
+                    <text x="400" y="890" class="text-sub">Repeated action.</text>
                 </svg>
             </div>
         </div>
 
         <!-- SPOTLIGHT LAYER -->
+        <!-- SPOTLIGHT LAYER -->
         <div class="hero-layer-spotlight">
-            <div class="hero-venn-wrapper" style="pointer-events: none;">
+            <div class="hero-venn-wrapper desktop-venn" style="pointer-events: none;">
                 <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <clipPath id="lc">
@@ -1338,18 +1354,39 @@
                     <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
                         stroke-width="2" />
                     <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.35)" clip-path="url(#lc)" />
-
                     <text x="400" y="325" class="text-title" fill="#ffffff">Theory</text>
                     <text x="400" y="385" class="text-sub" fill="#ffffff">Principles that explain why.</text>
-
                     <text x="800" y="325" class="text-title in" fill="#d92020">in</text>
                     <text x="800" y="375" class="text-sub in-sub" fill="#ffffff">
                         <tspan x="800" dy="0">Applying proven models</tspan>
                         <tspan x="800" dy="24">to real-world situations.</tspan>
                     </text>
-
                     <text x="1200" y="325" class="text-title" fill="#ffffff">Practice</text>
                     <text x="1200" y="385" class="text-sub" fill="#ffffff">Repeated action.</text>
+                </svg>
+            </div>
+
+            <div class="hero-venn-wrapper mobile-venn" style="pointer-events: none;">
+                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="lcm">
+                            <circle cx="400" cy="350" r="330" />
+                        </clipPath>
+                    </defs>
+                    <circle cx="400" cy="350" r="330" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="400" cy="750" r="330" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
+                        stroke-width="2" />
+                    <circle cx="400" cy="750" r="330" fill="rgba(217,32,32,0.35)" clip-path="url(#lcm)" />
+                    <text x="400" y="270" class="text-title" fill="#ffffff">Theory</text>
+                    <text x="400" y="330" class="text-sub" fill="#ffffff">Principles that explain why.</text>
+                    <text x="400" y="550" class="text-title in" fill="#d92020">in</text>
+                    <text x="400" y="600" class="text-sub in-sub" fill="#ffffff">
+                        <tspan x="400" dy="0">Applying proven models</tspan>
+                        <tspan x="400" dy="24">to real-world situations.</tspan>
+                    </text>
+                    <text x="400" y="830" class="text-title" fill="#ffffff">Practice</text>
+                    <text x="400" y="890" class="text-sub" fill="#ffffff">Repeated action.</text>
                 </svg>
             </div>
         </div>
@@ -1809,15 +1846,60 @@
             }
         });
 
-        // HERO SPOTLIGHT EFFECT
+        // HERO SPOTLIGHT EFFECT (Auto drifting + Touch/Mouse capture)
         const heroSec = document.getElementById('heroSec');
-        heroSec.addEventListener('mousemove', e => {
-            const rect = heroSec.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            heroSec.style.setProperty('--mouse-x', `${x}px`);
-            heroSec.style.setProperty('--mouse-y', `${y}px`);
+
+        // Abstract coordinates object for GSAP
+        const spotObj = { x: window.innerWidth * 0.3, y: window.innerHeight * 0.5 };
+        const updateSpotlight = () => {
+            heroSec.style.setProperty('--mouse-x', `${spotObj.x}px`);
+            heroSec.style.setProperty('--mouse-y', `${spotObj.y}px`);
+        };
+        updateSpotlight(); // Init
+
+        // Auto drift animation (back and forth)
+        let autoSpot = gsap.to(spotObj, {
+            x: window.innerWidth * 0.7, // Drifts roughly from Theory -> Practice organically
+            y: window.innerHeight * 0.6,
+            duration: 5,
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+            onUpdate: updateSpotlight
         });
+
+        let interactionTimer;
+        function captureInteraction(cx, cy) {
+            const rect = heroSec.getBoundingClientRect();
+            const x = cx - rect.left;
+            const y = cy - rect.top;
+
+            // Suspend auto drifting
+            if (autoSpot) autoSpot.kill();
+
+            // Rapid tween to cursor position
+            gsap.to(spotObj, { x: x, y: y, duration: 0.1, onUpdate: updateSpotlight });
+
+            // Restart drifting after idle
+            clearTimeout(interactionTimer);
+            interactionTimer = setTimeout(() => {
+                autoSpot = gsap.to(spotObj, {
+                    x: window.innerWidth * 0.7,
+                    y: window.innerHeight * 0.6,
+                    duration: 6,
+                    ease: 'power1.inOut',
+                    yoyo: true,
+                    repeat: -1,
+                    onUpdate: updateSpotlight
+                });
+            }, 3000);
+        }
+
+        heroSec.addEventListener('mousemove', e => captureInteraction(e.clientX, e.clientY));
+
+        // Touch tracking equivalent for mobile
+        heroSec.addEventListener('touchstart', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+        heroSec.addEventListener('touchmove', e => captureInteraction(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
 
         // ADVANCED TRACK SCROLL NAV
         const sections = ['#heroSec', '#premise', '#academy', '#consulting', '#about', '#partners'];
