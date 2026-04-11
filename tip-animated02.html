@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theory in Practice</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter+Tight:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        /* OVERALL CSS VARIABLES & RESET */
+        :root {
+            --bg: #050505;
+            --accent: #d92020;
+            --accent-glow: rgba(217, 32, 32, 0.4);
+            --text: #ffffff;
+            --dim: #7a7a7a;
+            --grid: rgba(255, 255, 255, 0.05);
+            --font-serif: 'Cormorant Garamond', serif;
+            --font-sans: 'Inter Tight', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-weight: 300;
+            overflow-x: hidden;
+            font-size: 18px;
+            cursor: none;
+            /* custom cursor */
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .mono {
+            font-family: var(--font-mono);
+        }
+
+        .serif {
+            font-family: var(--font-serif);
+        }
+
+        .text-accent {
+            color: var(--accent);
+        }
+
+        .text-dim {
+            color: var(--dim);
+        }
+
+        /* ELEGANT METALLIC BOKEH BACKGROUND */
+        .bokeh-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: #030303;
+        }
+
+        .bokeh-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(200, 200, 200, 0.06) 0%, transparent 45%),
+                radial-gradient(circle at 80% 65%, rgba(130, 130, 130, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(255, 255, 255, 0.04) 0%, transparent 35%);
+            filter: blur(50px);
+        }
+
+        /* CUSTOM CURSOR */
+        .cursor-visual {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--text);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transform: translate(-50%, -50%);
+            transition: transform 0.15s ease-out, background 0.3s;
+        }
+
+        .cursor-visual.active {
+            transform: translate(-50%, -50%) scale(2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* TOP NAV & LOGO */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+            /* let clicks pass through empty space */
+        }
+
+        .top-bar>* {
+            pointer-events: auto;
+        }
+
+        .top-logo {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            letter-spacing: -0.01em;
+            user-select: none;
+        }
+
+        .top-logo .logo-w {
+            color: #fff;
+            font-style: normal;
+        }
+
+        .top-logo .logo-r {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .top-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-family: var(--font-sans);
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.4);
+            text-transform: uppercase;
+        }
+
+        .btn-contact:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #fff;
+        }
+
+        .btn-contact .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s infinite ease-in-out;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 0.5;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.3);
+            }
+        }
+
+        .menu-toggle {
+            width: 48px;
+            height: 48px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover {
+            background: #fff;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 14px;
+            height: 1px;
+            background: #fff;
+            transition: all 0.3s;
+        }
+
+        .menu-toggle:hover span {
+            background: #000;
+        }
+
+        /* RIGHT SCROLLING NAV */
+        .scroll-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: scale(1.2);
+        }
+
+        .nav-dot:hover {
+            background: #fff;
+            border-color: #fff;
+        }
+
+        /* HERO SECTION & DUAL LAYER SPOTLIGHT */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+        }
+
+        /* Base Layer (Dim/Wireframe, takes pointer events for Hover!) */
+        .hero-layer-base {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            opacity: 0.25;
+            filter: grayscale(100%);
+            pointer-events: auto;
+        }
+
+        .hero-layer-base .venn-svg text {
+            fill: transparent;
+            stroke: rgba(255, 255, 255, 0.6);
+            stroke-width: 1px;
+        }
+
+        .hero-layer-base .venn-svg circle {
+            fill: transparent;
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-dasharray: 4 4;
+            stroke-width: 1.5;
+        }
+
+        /* Spotlight Layer (Vibrant, masked by mouse position, pointer events none) */
+        .hero-layer-spotlight {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: none;
+            -webkit-mask-image: radial-gradient(circle 400px at var(--mouse-x) var(--mouse-y), black 0%, transparent 80%);
+            mask-image: radial-gradient(circle 400px at var(--mouse-x) var(--mouse-y), black 0%, transparent 80%);
+            background: radial-gradient(circle 450px at var(--mouse-x) var(--mouse-y), rgba(217, 32, 32, 0.06) 0%, transparent 100%);
+        }
+
+        .hero-venn-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .venn-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+            overflow: visible;
+        }
+
+        .text-title {
+            font-family: var(--font-serif);
+            font-size: 84px;
+            font-weight: 400;
+            text-anchor: middle;
+            letter-spacing: -2px;
+        }
+
+        .text-title.in {
+            font-style: italic;
+            font-size: 72px;
+        }
+
+        .text-sub {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 300;
+            text-anchor: middle;
+            letter-spacing: 0.05em;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            fill: #d1d1d1;
+        }
+
+        /* OTHER SECTIONS */
+        .section-wrap {
+            position: relative;
+            z-index: 10;
+            padding: 12rem 5vw;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sec-header {
+            max-width: 1400px;
+            margin: 0 auto 6rem auto;
+        }
+
+        .sec-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-family: var(--font-serif);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        /* PROFILE (ABOUT) */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .profile-desc {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-style: italic;
+            line-height: 1.4;
+            color: #ececec;
+            margin-bottom: 2rem;
+        }
+
+        .p-highlight {
+            color: #fff;
+            box-shadow: 0 1px 0 var(--accent);
+            font-style: normal;
+        }
+
+        .history-block {
+            margin-top: 4rem;
+        }
+
+        .history-block h4 {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            letter-spacing: 0.1em;
+        }
+
+        .history-item {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--dim);
+            margin-bottom: 0.5rem;
+            font-family: var(--font-mono);
+        }
+
+        .history-body {
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        /* STRATEGIC PARTNERS (EVIDENCE BOARD) */
+        .partners-slider {
+            display: flex;
+            gap: 2rem;
+            width: max-content;
+            margin: 0 auto;
+            padding-bottom: 2rem;
+        }
+
+        .partner-card {
+            width: 420px;
+            height: 500px;
+            padding: 3rem;
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: border-color 0.4s;
+            overflow: hidden;
+        }
+
+        .partner-card:hover {
+            border-color: rgba(217, 32, 32, 0.5);
+        }
+
+        .partner-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s;
+        }
+
+        .partner-card:hover::after {
+            width: 100%;
+        }
+
+        .pc-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .pc-title {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            font-weight: 400;
+        }
+
+        .pc-desc {
+            font-size: 0.95rem;
+            color: var(--dim);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .pc-link {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text);
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 4px;
+            transition: border-color 0.3s;
+        }
+
+        .pc-link:hover {
+            border-color: var(--accent);
+        }
+
+        /* CONTACT */
+        .contact {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15rem 5vw;
+        }
+
+        .contact-title {
+            font-size: clamp(4rem, 8vw, 6rem);
+            letter-spacing: -0.01em;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            font-family: var(--font-serif);
+        }
+
+        .contact-sub {
+            font-size: 1.1rem;
+            color: var(--dim);
+            margin-bottom: 4rem;
+        }
+
+        .btn-massive {
+            display: inline-block;
+            padding: 1.5rem 5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            color: var(--text);
+            text-decoration: none;
+            transition: all 0.4s;
+            text-transform: uppercase;
+        }
+
+        .btn-massive:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #fff;
+        }
+
+        @media (max-width: 1000px) {
+            body {
+                font-size: 16px;
+            }
+
+            .profile-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+
+            .partners-slider {
+                overflow-x: auto;
+                width: 100%;
+                scroll-snap-type: x mandatory;
+                padding: 0 2rem;
+            }
+
+            .partner-card {
+                scroll-snap-align: center;
+                flex-shrink: 0;
+                width: 85vw;
+                max-width: 400px;
+            }
+
+            .scroll-nav {
+                display: none;
+            }
+
+            .top-logo {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bokeh-bg"></div>
+
+    <!-- TOP NAV BAR -->
+    <header class="top-bar">
+        <div class="top-logo">
+            <span class="logo-w">Theory</span> <span class="logo-r">in Practice</span>
+        </div>
+        <div class="top-right">
+            <a href="mailto:info@theoryinpractice.ca" class="btn-contact">
+                <span class="dot"></span> INITIATE CONTACT
+            </a>
+            <button class="menu-toggle"><span></span><span></span></button>
+        </div>
+    </header>
+
+    <!-- SCROLLING NAV -->
+    <div class="scroll-nav">
+        <div class="nav-dot active" data-target="#heroSec"></div>
+        <div class="nav-dot" data-target="#about"></div>
+        <div class="nav-dot" data-target="#partners"></div>
+        <div class="nav-dot" data-target="#contact"></div>
+    </div>
+
+    <!-- CUSTOM CURSOR -->
+    <div class="cursor-visual" id="cursor"></div>
+
+    <!-- HERO SECTION WITH SPOTLIGHT & INTERACTIVE VENN -->
+    <section class="hero" id="heroSec">
+        <!-- BASE LAYER (Outlined/Wireframe) -> Captures Hover Events -->
+        <div class="hero-layer-base">
+            <div class="hero-venn-wrapper">
+                <svg class="venn-svg" viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="360" cy="210" r="255" />
+                    <circle cx="740" cy="210" r="255" />
+
+                    <!-- Hover Detection Areas -->
+                    <rect id="hov-theory" x="100" y="80" width="300" height="260" fill="transparent"
+                        style="cursor:pointer" pointer-events="all" />
+                    <rect id="hov-in" x="430" y="80" width="240" height="260" fill="transparent" style="cursor:pointer"
+                        pointer-events="all" />
+                    <rect id="hov-practice" x="700" y="80" width="300" height="260" fill="transparent"
+                        style="cursor:pointer" pointer-events="all" />
+
+                    <g class="grp-theory">
+                        <text x="327" y="185" class="text-title text-base" fill="#fff">Theory</text>
+                        <text x="327" y="240" class="text-sub" fill="#fff">Principles that explain why.</text>
+                    </g>
+                    <g class="grp-in">
+                        <text x="550" y="230" class="text-title in text-base" fill="#fff">in</text>
+                        <text x="550" y="290" class="text-sub" fill="#fff">Applying proven models <tspan x="550"
+                                dy="24">to real-world situations.</tspan></text>
+                    </g>
+                    <g class="grp-practice">
+                        <text x="773" y="185" class="text-title text-base" fill="#fff">Practice</text>
+                        <text x="773" y="240" class="text-sub" fill="#fff">Repeated action.</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- SPOTLIGHT LAYER (Vibrant, Masked) -->
+        <div class="hero-layer-spotlight">
+            <div class="hero-venn-wrapper" style="pointer-events: none;">
+                <svg class="venn-svg" viewBox="0 0 1100 520" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="lc">
+                            <circle cx="360" cy="210" r="255" />
+                        </clipPath>
+                    </defs>
+                    <circle cx="360" cy="210" r="255" fill="rgba(217,32,32,0.08)" stroke="rgba(255,255,255,0.4)"
+                        stroke-width="2" />
+                    <circle cx="740" cy="210" r="255" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.4)"
+                        stroke-width="2" />
+                    <circle cx="740" cy="210" r="255" fill="rgba(217,32,32,0.25)" clip-path="url(#lc)" />
+
+                    <g class="grp-theory">
+                        <text x="327" y="185" class="text-title" fill="#ffffff">Theory</text>
+                        <text x="327" y="240" class="text-sub" fill="#cccccc">Principles that explain why.</text>
+                    </g>
+                    <g class="grp-in">
+                        <text x="550" y="230" class="text-title in" fill="#d92020">in</text>
+                        <text x="550" y="290" class="text-sub" fill="#cccccc">Applying proven models <tspan x="550"
+                                dy="24">to real-world situations.</tspan></text>
+                    </g>
+                    <g class="grp-practice">
+                        <text x="773" y="185" class="text-title" fill="#ffffff">Practice</text>
+                        <text x="773" y="240" class="text-sub" fill="#cccccc">Repeated action.</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUBJECT PROFILE (ABOUT) -->
+    <section class="section-wrap" id="about">
+        <div class="sec-header">
+            <h2 class="sec-title">Operational Reality.</h2>
+        </div>
+        <div class="profile-grid">
+            <div class="profile-col">
+                <p class="profile-desc">
+                    Roti Akinsanmi bridges the gap between <span class="p-highlight">academic theory</span> and <span
+                        class="p-highlight">operational reality</span>. He designs governance architectures and builds
+                    teams that execute with precision.
+                </p>
+                <p class="profile-desc" style="font-size: 1.4rem; color: var(--dim);">
+                    The goal is judgment to act differently on "Monday".
+                </p>
+            </div>
+
+            <div class="profile-details">
+                <div class="history-block mono" style="margin-top:0">
+                    <h4>// ACADEMIC_LOG [EDUCATION]</h4>
+                    <div class="history-item">
+                        <div class="history-header"><span>[CORNELL / QUEEN'S]</span><span>Executive MBA</span></div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-header"><span>[HARVARD BUS. SCHOOL]</span><span>Certificate of Mgt
+                                Excellence</span></div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-header"><span>[MIT SLOAN]</span><span>AI & Business Strategy</span></div>
+                    </div>
+                </div>
+
+                <div class="history-block mono">
+                    <h4>// FIELD_OPERATIONS [EXPERIENCE]</h4>
+                    <div class="history-item">
+                        <div class="history-header"><span>[MAJOR CANADIAN AIRLINE]</span><span>2019–2021</span></div>
+                        <div class="history-body">Head, Digital Innovation Lab</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-header"><span>[LEADING STREAMING PLATFORM]</span><span>2021–2024</span>
+                        </div>
+                        <div class="history-body">VP of Products</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-header"><span>[FIRST TRANSFER INC.]</span><span>2016–2020</span></div>
+                        <div class="history-body">Founder · Regulated FinTech</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STRATEGIC PARTNERS (EVIDENCE BOARD Replacement) -->
+    <section class="section-wrap" id="partners">
+        <div class="sec-header flex-header" style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <h2 class="sec-title">Strategic Partners</h2>
+            <div class="mono text-dim" style="font-size:0.85rem;">02 PARTNERS LISTED</div>
+        </div>
+
+        <div class="partners-slider" id="evidenceSlider">
+            <!-- Card 1 -->
+            <div class="partner-card">
+                <span class="pc-tag">Academy</span>
+                <h3 class="pc-title">Mount Royal University</h3>
+                <p class="pc-desc">Since 1990, Mount Royal University's Faculty of Continuing Education has partnered
+                    with organisations to build capability and respond to change. Every Academy program is co-delivered
+                    through this partnership. Participants receive co-branded certificates from a leading Canadian
+                    university.</p>
+                <a href="https://www.mtroyal.ca" target="_blank" class="pc-link">MRU Custom Training &rarr;</a>
+            </div>
+            <!-- Card 2 -->
+            <div class="partner-card">
+                <span class="pc-tag">Consulting</span>
+                <h3 class="pc-title">Tarka Consulting</h3>
+                <p class="pc-desc">Tarka Consulting brings Theory in Practice methodology to enterprise clients across
+                    North America. Together, we deploy the same frameworks inside some of the continent's most
+                    operationally complex organisations.</p>
+                <a href="https://www.tarka-consulting.com" target="_blank" class="pc-link">tarka-consulting.com
+                    &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section-wrap contact" id="contact" style="border-bottom:none;">
+        <h2 class="contact-title">Ready to align theory<br>with execution?</h2>
+        <p class="contact-sub">Book a call to discuss your team's operational reality.</p>
+        <a href="mailto:info@theoryinpractice.ca" class="btn-massive" data-cursor-hover>Initiate Contact</a>
+        <div class="mono"
+            style="margin-top:8rem;color:var(--dim);font-size:0.75rem;letter-spacing:0.1em; text-align:center;">
+            SECURE LINE ESTABLISHED<br>&copy; 2026 THEORY IN PRACTICE
+        </div>
+    </section>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+
+        window.addEventListener('mousemove', e => {
+            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        });
+
+        document.querySelectorAll('a, button, .partner-card, rect').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+        // HERO SPOTLIGHT EFFECT
+        const heroSec = document.getElementById('heroSec');
+        heroSec.addEventListener('mousemove', e => {
+            const rect = heroSec.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            heroSec.style.setProperty('--mouse-x', `${x}px`);
+            heroSec.style.setProperty('--mouse-y', `${y}px`);
+        });
+
+        // INTERACTIVE VENN DIAGRAM HOVER LOGIC
+        // We attach listeners to the hit areas in the Base Layer
+        const setupHover = (triggerId, grpClass) => {
+            const trigger = document.getElementById(triggerId);
+            if (!trigger) return;
+            trigger.addEventListener('mouseenter', () => {
+                gsap.to(`.${grpClass} .text-sub`, { opacity: 1, y: 5, duration: 0.3, ease: 'power2.out' });
+                // Optional subtle organic text scale
+                gsap.to(`.${grpClass} .text-title`, { scale: 1.05, transformOrigin: 'center center', duration: 0.4 });
+            });
+            trigger.addEventListener('mouseleave', () => {
+                gsap.to(`.${grpClass} .text-sub`, { opacity: 0, y: 0, duration: 0.3 });
+                gsap.to(`.${grpClass} .text-title`, { scale: 1, duration: 0.4 });
+            });
+        };
+        setupHover('hov-theory', 'grp-theory');
+        setupHover('hov-in', 'grp-in');
+        setupHover('hov-practice', 'grp-practice');
+
+        // RIGHT SIDE SCROLLING NAV INTERSECTION OBSERVER
+        const sections = document.querySelectorAll('section');
+        const navDots = document.querySelectorAll('.nav-dot');
+
+        const observerObj = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const targetId = '#' + entry.target.id;
+                    navDots.forEach(dot => {
+                        dot.classList.toggle('active', dot.dataset.target === targetId);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        sections.forEach(sec => observerObj.observe(sec));
+
+        // Nav Dot Smooth Scroll
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const target = document.querySelector(dot.dataset.target);
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // GSAP Horizontal Scroll for Strategic Partners (Desktop Only)
+        gsap.registerPlugin(ScrollTrigger);
+
+        const slider = document.getElementById('evidenceSlider');
+        if (window.innerWidth > 1000 && slider) {
+            // Just a subtle scroll since it's only 2 cards, maybe pin it temporarily
+            let sliderWidth = slider.scrollWidth;
+            let amountToScroll = sliderWidth - window.innerWidth + 100;
+            if (amountToScroll > 0) {
+                gsap.to(slider, {
+                    x: -amountToScroll,
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: "#partners",
+                        start: "top top",
+                        end: `+=${amountToScroll + 300}`,
+                        pin: true,
+                        scrub: 1,
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
