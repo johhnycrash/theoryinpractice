@@ -41,6 +41,7 @@
             font-weight: 300;
             line-height: 1.6;
             overflow-x: hidden;
+            /* GLOBAL FONT SIZE: Adjust this value to scale the entire website's core text up or down */
             font-size: 20px;
             cursor: none;
         }
@@ -370,6 +371,7 @@
 
         .sec-title {
             font-family: var(--font-serif);
+            /* MAIN HEADINGS (e.g. Roti Akinsanmi, The Method): Adjust size here */
             font-size: clamp(3.5rem, 6vw, 6rem);
             font-weight: 400;
             letter-spacing: -0.02em;
@@ -1171,14 +1173,35 @@
         }
 
         @media (max-width: 768px) {
-      .hero { padding: 8rem 0 3rem 0 !important; }
-      .venn-svg { width: 160%; max-width: none; transform: translateX(-15%); }
-      .f-row { flex-direction: column; }
-      .text-title { font-size: 60px; }
-      .text-title.in { font-size: 50px; }
-      .tab-btn { flex: 1 1 100%; border-bottom: 1px solid var(--rule); }
-    }
-    @media (max-width: 1000px) {
+            .hero {
+                padding: 8rem 0 3rem 0 !important;
+            }
+
+            .venn-svg {
+                width: 160%;
+                max-width: none;
+                transform: translateX(-15%);
+            }
+
+            .f-row {
+                flex-direction: column;
+            }
+
+            .text-title {
+                font-size: 60px;
+            }
+
+            .text-title.in {
+                font-size: 50px;
+            }
+
+            .tab-btn {
+                flex: 1 1 100%;
+                border-bottom: 1px solid var(--rule);
+            }
+        }
+
+        @media (max-width: 1000px) {
             .cycle-grid {
                 grid-template-columns: 1fr 1fr;
             }
@@ -1614,7 +1637,11 @@
 
                     <!-- Awards section -->
                     <div class="award-row">
-                        <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><span style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:var(--dim); text-transform:uppercase; text-align:center;">Award<br>Photo</span></div>
+                        <div
+                            style="width: 80px; height: 80px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <span
+                                style="font-family:var(--font-mono); font-size:9px; letter-spacing:0.1em; color:var(--dim); text-transform:uppercase; text-align:center;">Award<br>Photo</span>
+                        </div>
                         <div>
                             <span class="award-tsub">2026 · Faculty Excellence Awards · Mount Royal University</span>
                             <span class="award-title">Teaching Excellence in Lifelong Learning Award</span>
@@ -1733,6 +1760,7 @@
 
     <script>
         // EDITABLE STATE TWEAK
+    // FRONT-END EDITING: Yes, the frontend is live! Append ?edit to your URL to immediately edit any text on the page natively.
         if (window.location.search.includes('edit')) {
             document.body.setAttribute('contenteditable', 'true');
         }
@@ -1817,16 +1845,16 @@
                 if (panel) panel.classList.add('active');
             });
         });
-  // CONTACT FORM AJAX SIMULATION
-    const contactForm = document.getElementById('contactForm');
-    if(contactForm) {
-      contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        this.style.display = 'none';
-        document.getElementById('formSuccess').style.display = 'block';
-      });
-    }
-  </script>
+        // CONTACT FORM AJAX SIMULATION
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                this.style.display = 'none';
+                document.getElementById('formSuccess').style.display = 'block';
+            });
+        }
+    </script>
 </body>
 
 </html>
