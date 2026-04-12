@@ -4323,7 +4323,7 @@
             const MAX_WORDS = 500;
             const MIN_LOAD_SECONDS = 3; // bot check: form must take > 3s
             const loadTime = Date.now();
-            const RECIPIENT = 'info@theoryinpractice.ca'; // swap when Resend is set up
+            // Form sends via /api/contact (Cloudflare Pages Function → Resend)
 
             // Regex
             const EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -4471,45 +4471,36 @@
                     return;
                 }
 
-                // SEND
-                // Without a backend, open the user's email client with a pre-filled draft.
-                // When Resend/Cloudflare Function is wired up, replace this block with a fetch() to /api/contact.
+                // SEND via Resend (Cloudflare Pages Function)
                 fSubmit.disabled = true;
-                setStatus('info', 'Opening your email client…');
+                setStatus('info', 'Sending…');
 
-                const subject = 'Theory in Practice — inquiry from ' + name;
-                const body =
-                    'Name: ' + name + '\n' +
-                    'Email: ' + email + '\n\n' +
-                    'Message:\n' + message + '\n\n' +
-                    '— Sent via theoryinpractice.ca';
-
-                const mailto = 'mailto:' + RECIPIENT +
-                    '?subject=' + encodeURIComponent(subject) +
-                    '&body=' + encodeURIComponent(body);
-
-                window.location.href = mailto;
-
-                setTimeout(function () {
-                    setStatus('ok', 'Thank you. Your email client should have opened with the draft ready to send.');
-                    fSubmit.disabled = false;
-                }, 900);
-
-                /* BACKEND VERSION — uncomment once /api/contact is deployed:
                 fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: escapeHtml(name), email: escapeHtml(email), message: escapeHtml(message) })
+                    body: JSON.stringify({
+                        name: escapeHtml(name),
+                        email: escapeHtml(email),
+                        message: escapeHtml(message),
+                        token: fHuman.value
+                    })
                 })
-                .then(r => r.ok ? r.json() : Promise.reject(r))
+                .then(r => {
+                    if (r.ok) return r.json();
+                    return r.json().then(d => Promise.reject(d));
+                })
                 .then(() => {
-                    setStatus('ok', 'Thank you — your message has been sent.');
+                    setStatus('ok', 'Thank you — your message has been sent. We\'ll be in touch.');
                     form.reset();
                     counter.textContent = '0 / ' + MAX_WORDS + ' words';
+                    fHuman.value = '';
+                    if (typeof turnstile !== 'undefined') turnstile.reset();
                 })
-                .catch(() => setStatus('fail', 'Something went wrong. Please email ' + RECIPIENT + ' directly.'))
+                .catch((err) => {
+                    const msg = (err && err.error) || 'Something went wrong. Please try again or email dev@theoryinpractice.ca directly.';
+                    setStatus('fail', msg);
+                })
                 .finally(() => { fSubmit.disabled = false; });
-                */
             });
         })();
     </script>
