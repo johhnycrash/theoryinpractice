@@ -3353,7 +3353,7 @@
             const h = 250;
 
             // ==========================================================
-            // 1. YEARS — Flip calendar with timeline scrub
+            // 1. YEARS — Split-flap flip calendar with scrub
             // ==========================================================
             const yearsEl = document.getElementById('d3-years');
             const yCanvas = document.createElement('canvas');
@@ -3363,15 +3363,13 @@
             const TEACH_START = new Date(2014, 0, 1);
             const TODAY = new Date();
             const TOTAL_DAYS = Math.floor((TODAY - TEACH_START) / 86400000);
-            const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-            const DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-            let flipDay = TOTAL_DAYS; // current display day (0 = start, TOTAL_DAYS = today)
+            const MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+            const DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+            let flipDay = TOTAL_DAYS;
             let flipTarget = TOTAL_DAYS;
-            let flipAnimating = false;
-            let flipStartTime = 0;
+            let prevFlipDay = TOTAL_DAYS;
+            let flipAngle = 0; // 0 = flat, Math.PI = fully flipped
             let yearHover = false;
-            let yearMouseX = 0.5; // 0=left (2014), 1=right (today)
-            let curlPhase = 0;
             let yearsEntered = false;
 
             function resizeYears() {
@@ -3391,60 +3389,65 @@
             yearsEl.addEventListener('mouseleave', () => { yearHover = false; flipTarget = TOTAL_DAYS; });
             yearsEl.addEventListener('mousemove', (e) => {
                 const rect = yearsEl.getBoundingClientRect();
-                yearMouseX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-                flipTarget = Math.round(yearMouseX * TOTAL_DAYS);
+                flipTarget = Math.round(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)) * TOTAL_DAYS);
             });
+            yearsEl.addEventListener('touchstart', (e) => { yearHover = true; }, { passive: true });
             yearsEl.addEventListener('touchmove', (e) => {
                 const rect = yearsEl.getBoundingClientRect();
-                yearMouseX = Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width));
-                flipTarget = Math.round(yearMouseX * TOTAL_DAYS);
-                yearHover = true;
+                flipTarget = Math.round(Math.max(0, Math.min(1, (e.touches[0].clientX - rect.left) / rect.width)) * TOTAL_DAYS);
             }, { passive: true });
             yearsEl.addEventListener('touchend', () => { yearHover = false; flipTarget = TOTAL_DAYS; });
 
             function dateFromDay(dayIdx) {
                 const d = new Date(TEACH_START);
-                d.setDate(d.getDate() + dayIdx);
+                d.setDate(d.getDate() + Math.max(0, Math.min(TOTAL_DAYS, dayIdx)));
                 return d;
             }
 
-            function drawCalPage(ctx, cx, cy, w2, h2, date, flip) {
-                const radius = 6;
+            // Draw one half of a split-flap page (top or bottom)
+            function drawHalf(ctx, x, y, pw, ph, date, isTop) {
+                const halfH = ph / 2;
+                const r = 5;
                 ctx.save();
-                if (flip !== 0) {
-                    ctx.translate(cx, cy - h2 / 2);
-                    ctx.scale(1, Math.cos(flip));
-                    ctx.translate(-cx, -(cy - h2 / 2));
+                ctx.beginPath();
+                if (isTop) {
+                    ctx.roundRect(x, y, pw, halfH, [r, r, 0, 0]);
+                } else {
+                    ctx.roundRect(x, y + halfH, pw, halfH, [0, 0, r, r]);
                 }
-                // Page shadow
-                ctx.fillStyle = 'rgba(255,255,255,0.04)';
-                ctx.beginPath();
-                ctx.roundRect(cx - w2/2, cy - h2/2, w2, h2, radius);
-                ctx.fill();
-                // Page border
-                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.clip();
+
+                // Page background
+                ctx.fillStyle = 'rgba(255,255,255,0.05)';
+                ctx.fillRect(x, y, pw, ph);
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
                 ctx.lineWidth = 1;
-                ctx.beginPath();
-                ctx.roundRect(cx - w2/2, cy - h2/2, w2, h2, radius);
-                ctx.stroke();
-                // Header strip
-                ctx.fillStyle = 'rgba(255,255,255,0.12)';
-                ctx.beginPath();
-                ctx.roundRect(cx - w2/2, cy - h2/2, w2, 22, [radius, radius, 0, 0]);
-                ctx.fill();
-                // Month + year in header
-                ctx.fillStyle = 'rgba(255,255,255,0.7)';
-                ctx.font = '11px monospace';
+                ctx.strokeRect(x, y, pw, ph);
+
+                // Center line (the split)
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.fillRect(x, y + halfH - 1, pw, 2);
+
+                const cx = x + pw / 2;
+
+                // Month + Year at top
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.font = '600 10px monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText(MONTHS[date.getMonth()] + ' ' + date.getFullYear(), cx, cy - h2/2 + 15);
-                // Day number (large)
+                ctx.fillText(MONTHS[date.getMonth()] + ' ' + date.getFullYear(), cx, y + 18);
+
+                // Large day number
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 48px monospace';
-                ctx.fillText(String(date.getDate()).padStart(2, '0'), cx, cy + 18);
-                // Day name
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.font = '700 ' + Math.min(60, pw * 0.38) + 'px monospace';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(String(date.getDate()).padStart(2, '0'), cx, y + ph * 0.48);
+                ctx.textBaseline = 'alphabetic';
+
+                // Day name at bottom
+                ctx.fillStyle = 'rgba(255,255,255,0.35)';
                 ctx.font = '10px monospace';
-                ctx.fillText(DAYS[date.getDay()], cx, cy + h2/2 - 12);
+                ctx.fillText(DAYS_SHORT[date.getDay()], cx, y + ph - 10);
+
                 ctx.restore();
             }
 
@@ -3452,56 +3455,85 @@
                 yctx.clearRect(0, 0, yW, yH);
                 if (!yearsEntered) { requestAnimationFrame(renderYears); return; }
 
-                // Smooth toward target
-                const speed = yearHover ? 0.15 : 0.06;
+                // Smooth interpolation toward target
+                const speed = yearHover ? 0.18 : 0.07;
                 flipDay += (flipTarget - flipDay) * speed;
-                if (Math.abs(flipDay - flipTarget) < 0.5) flipDay = flipTarget;
+                if (Math.abs(flipDay - flipTarget) < 0.8) flipDay = flipTarget;
 
-                const date = dateFromDay(Math.round(flipDay));
-                const cx = yW / 2;
-                const cy = yH / 2;
-                const pw = Math.min(140, yW * 0.4);
-                const ph = Math.min(160, yH * 0.75);
+                const currentDayIdx = Math.round(flipDay);
+                const isFlipping = Math.abs(flipDay - flipTarget) > 1;
 
-                // Previous page peeking behind (slightly offset)
-                const prevDate = dateFromDay(Math.max(0, Math.round(flipDay) - 1));
-                yctx.globalAlpha = 0.3;
-                drawCalPage(yctx, cx + 2, cy + 2, pw, ph, prevDate, 0);
-                yctx.globalAlpha = 1;
+                // Calendar dimensions — fills most of the container
+                const margin = 16;
+                const pw = Math.min(yW - margin * 2, 200);
+                const ph = Math.min(yH - margin * 2 - 24, 200); // leave room for "12 YEARS" label
+                const px = (yW - pw) / 2;
+                const py = margin;
+                const halfH = ph / 2;
 
-                // Current page
-                const flipAmount = yearHover ? 0 : Math.sin(now * 0.001) * 0.06; // subtle page curl tease
-                drawCalPage(yctx, cx, cy, pw, ph, date, flipAmount);
+                const currentDate = dateFromDay(currentDayIdx);
+                const nextDate = dateFromDay(Math.min(TOTAL_DAYS, currentDayIdx + 1));
 
-                // Page curl tease corner (when not hovered)
-                if (!yearHover) {
-                    curlPhase = now * 0.0015;
-                    const curlSize = 8 + Math.sin(curlPhase) * 4;
-                    const crx = cx + pw/2 - curlSize;
-                    const cry = cy + ph/2 - curlSize;
-                    yctx.beginPath();
-                    yctx.moveTo(cx + pw/2, cy + ph/2 - curlSize);
-                    yctx.quadraticCurveTo(cx + pw/2 - curlSize * 0.3, cy + ph/2 - curlSize * 0.3, cx + pw/2 - curlSize, cy + ph/2);
-                    yctx.lineTo(cx + pw/2, cy + ph/2);
-                    yctx.closePath();
-                    yctx.fillStyle = 'rgba(255,255,255,0.08)';
-                    yctx.fill();
+                // --- Static bottom half (next page visible underneath during flip) ---
+                drawHalf(yctx, px, py, pw, ph, isFlipping ? nextDate : currentDate, false);
+
+                // --- Static top half (current page) ---
+                drawHalf(yctx, px, py, pw, ph, currentDate, true);
+
+                // --- Flipping page (top half rotating down) ---
+                if (isFlipping) {
+                    const flipProgress = (Math.abs(flipDay - currentDayIdx)) * Math.PI;
+                    const angle = Math.min(Math.PI * 0.95, flipProgress * 3);
+
+                    yctx.save();
+                    // Transform: rotate around the center split line
+                    const pivotY = py + halfH;
+                    yctx.translate(px + pw / 2, pivotY);
+
+                    if (angle < Math.PI / 2) {
+                        // First half: showing top of current page flipping down
+                        yctx.scale(1, Math.cos(angle));
+                        yctx.translate(-(px + pw / 2), -pivotY);
+                        drawHalf(yctx, px, py, pw, ph, currentDate, true);
+                        // Shadow on the page
+                        yctx.fillStyle = `rgba(0,0,0,${angle / Math.PI * 0.5})`;
+                        yctx.fillRect(px, py, pw, halfH);
+                    } else {
+                        // Second half: showing bottom of next page flipping into place
+                        yctx.scale(1, -Math.cos(angle));
+                        yctx.translate(-(px + pw / 2), -pivotY);
+                        drawHalf(yctx, px, py, pw, ph, nextDate, false);
+                        yctx.fillStyle = `rgba(0,0,0,${(1 - (angle - Math.PI/2) / (Math.PI/2)) * 0.4})`;
+                        yctx.fillRect(px, py + halfH, pw, halfH);
+                    }
+                    yctx.restore();
                 }
 
-                // Timeline bar at bottom
-                const barY = cy + ph/2 + 16;
-                const barW = pw * 1.2;
-                const barX = cx - barW/2;
-                yctx.fillStyle = 'rgba(255,255,255,0.08)';
-                yctx.fillRect(barX, barY, barW, 2);
-                const progress = Math.round(flipDay) / TOTAL_DAYS;
-                yctx.fillStyle = 'rgba(255,255,255,0.5)';
-                yctx.fillRect(barX, barY, barW * progress, 2);
-                // Pip
-                yctx.beginPath();
-                yctx.arc(barX + barW * progress, barY + 1, 4, 0, Math.PI * 2);
-                yctx.fillStyle = '#fff';
-                yctx.fill();
+                // Page curl tease (subtle corner lift when idle)
+                if (!yearHover && !isFlipping) {
+                    const t = now * 0.0012;
+                    const curlSize = 10 + Math.sin(t) * 5;
+                    const crx = px + pw;
+                    const cry = py;
+                    yctx.save();
+                    yctx.globalAlpha = 0.12;
+                    yctx.beginPath();
+                    yctx.moveTo(crx, cry);
+                    yctx.lineTo(crx - curlSize, cry);
+                    yctx.quadraticCurveTo(crx - curlSize * 0.4, cry + curlSize * 0.4, crx, cry + curlSize);
+                    yctx.closePath();
+                    yctx.fillStyle = '#ffffff';
+                    yctx.fill();
+                    yctx.globalAlpha = 1;
+                    yctx.restore();
+                }
+
+                // "12 YEARS" label at bottom of container
+                yctx.fillStyle = 'rgba(255,255,255,0.35)';
+                yctx.font = '600 11px monospace';
+                yctx.textAlign = 'center';
+                yctx.letterSpacing = '2px';
+                yctx.fillText('12 YEARS TEACHING', yW / 2, py + ph + 18);
 
                 requestAnimationFrame(renderYears);
             }
@@ -3510,7 +3542,6 @@
             function startYearsFlip() {
                 if (yearsEntered) return;
                 yearsEntered = true;
-                // Rapid flip from day 0 to today
                 flipDay = 0;
                 flipTarget = TOTAL_DAYS;
             }
@@ -3656,7 +3687,9 @@
             let rW = 0, rH = 0, rDPR = 1;
             let fillLevel = { v: 0 };
             let ratingHover = false;
-            const splashDrops = []; // {x, y, vx, vy, life, maxLife, r}
+            const splashDrops = [];
+            const waterRipples = []; // {x, y, r, maxR, life}
+            let ratingMouseX = 0, ratingMouseY = 0;
             let lastSplashTime = 0;
 
             function resizeRating() {
@@ -3673,6 +3706,15 @@
             window.addEventListener('resize', resizeRating);
             ratingEl.addEventListener('mouseenter', () => { ratingHover = true; });
             ratingEl.addEventListener('mouseleave', () => { ratingHover = false; });
+            ratingEl.addEventListener('mousemove', (e) => {
+                const rect = ratingEl.getBoundingClientRect();
+                ratingMouseX = e.clientX - rect.left;
+                ratingMouseY = e.clientY - rect.top;
+                // Spawn ripple at cursor
+                if (ratingHover && waterRipples.length < 12) {
+                    waterRipples.push({ x: ratingMouseX, y: ratingMouseY, r: 0, maxR: 40 + Math.random() * 30, life: 1 });
+                }
+            });
 
             function renderRating(now) {
                 rctx.clearRect(0, 0, rW, rH);
@@ -3691,12 +3733,35 @@
                     rctx.roundRect(cx, cy, cW, cH, radius);
                     rctx.clip();
 
+                    // Compute wave surface with cursor-reactive distortion
+                    function waveAt(x) {
+                        let wave = Math.sin(x * 0.03 + t * 2.5) * 4 + Math.sin(x * 0.015 + t * 1.2) * 3;
+                        // Cursor distortion — bigger waves near mouse
+                        if (ratingHover) {
+                            const dx = (cx + x) - ratingMouseX;
+                            const dist = Math.abs(dx);
+                            if (dist < 80) {
+                                const strength = (1 - dist / 80) * 12;
+                                wave += Math.sin(x * 0.08 + t * 5) * strength;
+                            }
+                        }
+                        // Ripple distortion
+                        for (const rip of waterRipples) {
+                            const rdx = (cx + x) - rip.x;
+                            const rdy = fillY - rip.y;
+                            const rd = Math.sqrt(rdx * rdx + rdy * rdy);
+                            if (Math.abs(rd - rip.r) < 20) {
+                                wave += Math.sin((rd - rip.r) * 0.5) * 6 * rip.life;
+                            }
+                        }
+                        return wave;
+                    }
+
                     rctx.beginPath();
                     rctx.moveTo(cx, cy + cH);
                     rctx.lineTo(cx, fillY);
                     for (let x = 0; x <= cW; x += 2) {
-                        const wave = Math.sin(x * 0.03 + t * 2.5) * 4 + Math.sin(x * 0.015 + t * 1.2) * 3;
-                        rctx.lineTo(cx + x, fillY + wave);
+                        rctx.lineTo(cx + x, fillY + waveAt(x));
                     }
                     rctx.lineTo(cx + cW, cy + cH);
                     rctx.closePath();
@@ -3712,10 +3777,25 @@
                     rctx.fillStyle = g;
                     rctx.fill();
 
-                    // Surface highlight
+                    // Update and draw ripple circles
+                    for (let ri = waterRipples.length - 1; ri >= 0; ri--) {
+                        const rip = waterRipples[ri];
+                        rip.r += 1.8;
+                        rip.life -= 0.015;
+                        if (rip.life <= 0 || rip.r > rip.maxR) { waterRipples.splice(ri, 1); continue; }
+                        rctx.beginPath();
+                        rctx.arc(rip.x, rip.y, rip.r, 0, Math.PI * 2);
+                        rctx.strokeStyle = useAccent
+                            ? `rgba(255,120,100,${rip.life * 0.3})`
+                            : `rgba(255,255,255,${rip.life * 0.2})`;
+                        rctx.lineWidth = 1;
+                        rctx.stroke();
+                    }
+
+                    // Surface highlight (uses same reactive wave function)
                     rctx.beginPath();
                     for (let x = 0; x <= cW; x += 2) {
-                        const wave = Math.sin(x * 0.03 + t * 2.5) * 4 + Math.sin(x * 0.015 + t * 1.2) * 3;
+                        const wave = waveAt(x);
                         if (x === 0) rctx.moveTo(cx + x, fillY + wave);
                         else rctx.lineTo(cx + x, fillY + wave);
                     }
