@@ -113,13 +113,16 @@
             filter: blur(50px);
         }
 
-        /* NORTHERN LIGHTS GLOW */
+        /* AMBIENT BACKGROUND GLOW
+           Soft, strictly monochromatic light blobs — no colour tint.
+           They drift slowly and add a subtle depth wash behind the
+           content without ever reading as green/purple/red. */
         .nl-bg {
             position: fixed;
             inset: 0;
             pointer-events: none;
             z-index: 0;
-            opacity: 0.2;
+            opacity: 0.35;
             mix-blend-mode: screen;
             overflow: hidden;
         }
@@ -135,7 +138,7 @@
         .n1 {
             width: 60vw;
             height: 60vh;
-            background: rgba(50, 200, 150, 0.4);
+            background: rgba(255, 255, 255, 0.06);
             top: -10vh;
             left: -10vw;
             animation: drift 20s infinite alternate ease-in-out;
@@ -144,7 +147,7 @@
         .n2 {
             width: 70vw;
             height: 70vh;
-            background: rgba(80, 40, 200, 0.4);
+            background: rgba(255, 255, 255, 0.05);
             bottom: -20vh;
             right: -10vw;
             animation: drift 25s infinite alternate-reverse ease-in-out;
@@ -153,20 +156,20 @@
         .n3 {
             width: 50vw;
             height: 50vh;
-            background: rgba(220, 20, 60, 0.15);
+            background: rgba(255, 255, 255, 0.035);
             top: 30vh;
             left: 30vw;
         }
 
         @keyframes drift {
             0% {
-                opacity: 0.5;
+                opacity: 0.55;
                 transform: scale(1);
             }
 
             100% {
                 opacity: 0.9;
-                transform: scale(1.1);
+                transform: scale(1.08);
             }
         }
 
@@ -3871,7 +3874,7 @@
             </div>
         </div>
         <a href="#engage" class="btn-contact desktop-cta smart-cta state-default">
-            <span class="dot"></span> <span class="btn-label">GET STARTED</span>
+            <span class="dot"></span> <span class="btn-label">BOOK A CALL</span>
         </a>
         <div class="sn-thumb" id="scrollThumb"></div>
         <span class="sn-hint" id="scrollHint">Scroll Down&nbsp;→</span>
@@ -3879,7 +3882,7 @@
 
     <!-- MOBILE FLOATING CTA (bottom-right) -->
     <a href="#engage" class="btn-contact mobile-cta smart-cta state-default">
-        <span class="dot"></span> <span class="btn-label">GET STARTED</span>
+        <span class="dot"></span> <span class="btn-label">BOOK A CALL</span>
     </a>
 
     <!-- CUSTOM CURSOR -->
@@ -6312,7 +6315,7 @@
                     btn.classList.add('state-' + next);
                     const label = btn.querySelector('.btn-label');
                     if (label) {
-                        if (next === 'default') label.textContent = 'GET STARTED';
+                        if (next === 'default') label.textContent = 'BOOK A CALL';
                         else if (next === 'fillout') label.textContent = 'FILL OUT THE FORM';
                         else if (next === 'send') label.textContent = 'SEND';
                     }
