@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Theory in Practice</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://d3js.org/d3.v7.min.js" defer></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -188,6 +191,231 @@ footer { background: var(--dark); padding: 3rem; display: grid; grid-template-co
   .cycle-grid, .example-cols { grid-template-columns: 1fr; }
   .venn-labels { grid-template-columns: 1fr; gap: 1rem; }
 }
+
+/* ── ACADEMY VISUAL STRIP (1500 dots + speedometer) ─────────── */
+.acad-visual {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 4rem 0;
+  position: relative;
+  overflow: hidden;
+}
+.acad-visual-inner {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.acad-dots-wrap {
+  position: relative;
+  min-height: 280px;
+}
+.acad-dots-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: block;
+}
+.acad-dots-caption {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--paper);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+.acad-dots-caption em { color: var(--accent); font-style: italic; }
+.acad-dots-sub {
+  font-size: 0.85rem;
+  color: rgba(248,245,240,0.45);
+  line-height: 1.6;
+  max-width: 420px;
+}
+#dots-canvas {
+  display: block;
+  width: 100%;
+  height: 260px;
+}
+
+.gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+#gauge-svg {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  overflow: visible;
+}
+.gauge-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 500;
+  color: var(--paper);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-top: 0.5rem;
+}
+.gauge-value em { color: var(--accent); font-style: italic; }
+.gauge-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(248,245,240,0.4);
+  margin-top: 0.25rem;
+}
+
+/* ── CLIENTS: LEAFLET MAP ─────────────────────────── */
+.clients-map-wrap {
+  position: relative;
+  margin-bottom: 1px;
+  border: 0.5px solid var(--rule);
+  background: var(--warm);
+  overflow: hidden;
+}
+#clients-map {
+  width: 100%;
+  height: 420px;
+  background: var(--warm);
+}
+.leaflet-container { background: #efe9dd !important; font-family: 'Outfit', sans-serif !important; }
+.leaflet-tile-pane { filter: grayscale(1) contrast(0.95) brightness(1.02); }
+.leaflet-popup-content-wrapper {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 2px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+}
+.leaflet-popup-tip { background: var(--ink); }
+.leaflet-popup-content {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 10px 14px;
+  color: var(--paper);
+}
+.leaflet-popup-content b { color: var(--accent); }
+.map-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--accent), 0 0 12px rgba(184,58,16,0.5);
+  animation: mp-pulse 2.4s ease-in-out infinite;
+}
+@keyframes mp-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.18); opacity: 0.85; }
+}
+.clients-map-legend {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(15,14,12,0.85);
+  color: var(--paper);
+  padding: 0.6rem 0.85rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-left: 1px solid var(--accent);
+  pointer-events: none;
+  z-index: 400;
+}
+
+/* ── HAMBURGER MOBILE NAV ──────────────────────── */
+.hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 1.5px;
+  background: var(--paper);
+  transition: transform 0.25s, opacity 0.25s;
+}
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--ink);
+  z-index: 500;
+  display: none;
+  flex-direction: column;
+  padding: 5rem 2rem 2rem;
+  overflow-y: auto;
+}
+.mobile-overlay.open { display: flex; }
+.mobile-overlay-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--paper);
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.5rem;
+}
+.mobile-overlay ul { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.mobile-overlay li a {
+  display: block;
+  padding: 1.1rem 0;
+  border-bottom: 0.5px solid rgba(255,255,255,0.08);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper);
+  text-decoration: none;
+}
+.mobile-overlay li.sub a {
+  padding-left: 1.5rem;
+  font-size: 10px;
+  color: rgba(248,245,240,0.55);
+}
+.mobile-overlay .mobile-cta {
+  margin-top: 1.75rem;
+  background: var(--accent);
+  color: var(--paper);
+  text-align: center;
+  padding: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: 3px;
+}
+
+@media (max-width: 900px) {
+  .hamburger { display: flex; }
+  .acad-visual-inner { grid-template-columns: 1fr; gap: 2.5rem; }
+  #clients-map { height: 320px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pin { animation: none; }
+}
 </style>
 </head>
 <body>
@@ -218,7 +446,30 @@ footer { background: var(--dark); padding: 3rem; display: grid; grid-template-co
     <li class="nav-item"><a href="#clients">Clients</a></li>
     <li><a href="#contact" class="nav-cta">Book a Call</a></li>
   </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE OVERLAY -->
+<div class="mobile-overlay" id="mobileOverlay">
+  <button class="mobile-overlay-close" id="mobileClose" aria-label="Close">×</button>
+  <ul>
+    <li><a href="#academy" data-mclose>Academy</a></li>
+    <li class="sub"><a href="#academy" data-mclose onclick="openTab('t1');return false;">Delivery Fundamentals</a></li>
+    <li class="sub"><a href="#academy" data-mclose onclick="openTab('t2');return false;">Human &amp; Change Dynamics</a></li>
+    <li class="sub"><a href="#academy" data-mclose onclick="openTab('t3');return false;">Risk &amp; Governance</a></li>
+    <li><a href="#consulting" data-mclose>Consulting</a></li>
+    <li class="sub"><a href="#consulting" data-mclose>Discover · Why</a></li>
+    <li class="sub"><a href="#consulting" data-mclose>Design · How</a></li>
+    <li class="sub"><a href="#consulting" data-mclose>Deliver · What</a></li>
+    <li class="sub"><a href="#consulting" data-mclose>Debrief · What next</a></li>
+    <li><a href="#about" data-mclose>About</a></li>
+    <li><a href="#partners" data-mclose>Partners</a></li>
+    <li><a href="#clients" data-mclose>Clients</a></li>
+  </ul>
+  <a href="#contact" class="mobile-cta" data-mclose>Book a Call</a>
+</div>
 
 <!-- HERO -->
 <section class="hero">
@@ -351,9 +602,54 @@ footer { background: var(--dark); padding: 3rem; display: grid; grid-template-co
   <div class="acad-proof">
     <div class="container">
       <div class="proof-inner">
-        <div class="proof-stat"><strong>12</strong><span>Years</span></div>
+        <div class="proof-stat"><strong>12</strong><span>Years · since 2012 consulting, 2014 Academy</span></div>
         <div class="proof-stat"><strong>1,500+</strong><span>Participants</span></div>
         <div class="proof-stat"><strong>4 / 4</strong><span>Consistent rating</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACADEMY VISUAL STRIP — 1500 dots + 4/4 gauge -->
+  <div class="acad-visual">
+    <div class="container">
+      <div class="acad-visual-inner">
+        <div class="acad-dots-wrap">
+          <span class="acad-dots-label">1,500+ participants</span>
+          <h3 class="acad-dots-caption">Every dot is <em>a decision</em><br>to do it differently.</h3>
+          <p class="acad-dots-sub">One dot for every participant who has completed an Academy program since 2014. Each is a leader who returned to their desk with frameworks they could use on Monday.</p>
+          <canvas id="dots-canvas" aria-hidden="true"></canvas>
+        </div>
+        <div class="gauge-wrap">
+          <svg id="gauge-svg" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <!-- Track arc (full) -->
+            <path d="M 30 150 A 120 120 0 0 1 270 150" fill="none" stroke="rgba(248,245,240,0.08)" stroke-width="14" stroke-linecap="round"/>
+            <!-- Fill arc — animated via JS -->
+            <path id="gauge-fill" d="M 30 150 A 120 120 0 0 1 270 150" fill="none" stroke="url(#gauge-grad)" stroke-width="14" stroke-linecap="round"
+                  pathLength="100" stroke-dasharray="0 100"/>
+            <defs>
+              <linearGradient id="gauge-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#b83a10"/>
+                <stop offset="100%" stop-color="#e67347"/>
+              </linearGradient>
+            </defs>
+            <!-- Tick marks -->
+            <g stroke="rgba(248,245,240,0.22)" stroke-width="1">
+              <line x1="30"  y1="150" x2="42"  y2="150"/>
+              <line x1="90"  y1="48"  x2="100" y2="55"/>
+              <line x1="150" y1="30"  x2="150" y2="42"/>
+              <line x1="210" y1="48"  x2="200" y2="55"/>
+              <line x1="270" y1="150" x2="258" y2="150"/>
+            </g>
+            <!-- Needle -->
+            <g id="gauge-needle" transform="rotate(-90 150 150)">
+              <line x1="150" y1="150" x2="150" y2="48" stroke="var(--accent, #b83a10)" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="150" cy="150" r="8" fill="#b83a10"/>
+              <circle cx="150" cy="150" r="3" fill="#f8f5f0"/>
+            </g>
+          </svg>
+          <div class="gauge-value"><em>4</em> / 4</div>
+          <div class="gauge-label">Consistent average rating</div>
+        </div>
       </div>
     </div>
   </div>
@@ -557,7 +853,14 @@ footer { background: var(--dark); padding: 3rem; display: grid; grid-template-co
 <section style="background:var(--paper); padding:5rem 0;" id="clients">
   <div class="container">
     <div class="section-rule"><span class="eyebrow" style="margin:0;">Clients</span><hr></div>
-    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule); border:0.5px solid var(--rule);">
+
+    <!-- ANONYMIZED LEAFLET MAP -->
+    <div class="clients-map-wrap">
+      <div class="clients-map-legend">North America · anonymized footprint</div>
+      <div id="clients-map"></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--rule); border:0.5px solid var(--rule); margin-top:1px;">
 
           <div style="background:var(--paper); padding:1.5rem 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.75rem;">
@@ -722,6 +1025,12 @@ footer { background: var(--dark); padding: 3rem; display: grid; grid-template-co
 </footer>
 
 <script>
+// ── Graceful motion detection — if the device is weak, skip animations ──
+const PREFERS_REDUCED = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const LOW_MEMORY = (navigator.deviceMemory && navigator.deviceMemory <= 2);
+const LOW_CORES = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+const LIGHT_MODE = PREFERS_REDUCED || LOW_MEMORY || LOW_CORES;
+
 // Tab switching
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', function() {
@@ -733,6 +1042,165 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (panel) panel.classList.add('active');
   });
 });
+
+// ── Hamburger mobile nav ─────────────────────────────
+(function(){
+  const btn = document.getElementById('hamburger');
+  const overlay = document.getElementById('mobileOverlay');
+  const close = document.getElementById('mobileClose');
+  if (!btn || !overlay || !close) return;
+  function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  function shut() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
+  btn.addEventListener('click', open);
+  close.addEventListener('click', shut);
+  overlay.querySelectorAll('[data-mclose]').forEach(a => a.addEventListener('click', shut));
+  window.addEventListener('keydown', e => { if (e.key === 'Escape') shut(); });
+})();
+
+// ── 1,500-dot D3 particle field (Academy visual) ─────
+(function(){
+  function init() {
+    const canvas = document.getElementById('dots-canvas');
+    if (!canvas || typeof d3 === 'undefined') return;
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function size() {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = r.width * dpr;
+      canvas.height = r.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { w: r.width, h: r.height };
+    }
+    let { w, h } = size();
+    const N = LIGHT_MODE ? 400 : 1500;
+    const dots = d3.range(N).map(() => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: 0.9 + Math.random() * 1.6,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: (Math.random() - 0.5) * 0.18,
+      a: 0.15 + Math.random() * 0.55
+    }));
+    let raf = 0;
+    function tick() {
+      ctx.clearRect(0, 0, w, h);
+      for (const d of dots) {
+        d.x += d.vx; d.y += d.vy;
+        if (d.x < 0 || d.x > w) d.vx *= -1;
+        if (d.y < 0 || d.y > h) d.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(184, 58, 16, ' + d.a + ')';
+        ctx.fill();
+      }
+      raf = requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize', () => {
+      const r = size(); w = r.w; h = r.h;
+    });
+    // Pause when off-screen
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !raf) tick();
+        else if (!e.isIntersecting && raf) { cancelAnimationFrame(raf); raf = 0; }
+      });
+    });
+    io.observe(canvas);
+    if (LIGHT_MODE) {
+      // Draw one static frame, no animation
+      ctx.clearRect(0, 0, w, h);
+      for (const d of dots) {
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(184, 58, 16, ' + d.a + ')';
+        ctx.fill();
+      }
+      return;
+    }
+    tick();
+  }
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+})();
+
+// ── Speedometer gauge sweep (Academy visual) ────────
+(function(){
+  const fill = document.getElementById('gauge-fill');
+  const needle = document.getElementById('gauge-needle');
+  if (!fill || !needle) return;
+  const TARGET_PCT = 100; // 4/4
+  const START_DEG = -90;
+  const END_DEG = 90;
+  function sweep() {
+    const duration = LIGHT_MODE ? 0 : 1800;
+    const t0 = performance.now();
+    function step(now) {
+      const t = duration ? Math.min(1, (now - t0) / duration) : 1;
+      const eased = 1 - Math.pow(1 - t, 3);
+      const pct = TARGET_PCT * eased;
+      fill.setAttribute('stroke-dasharray', pct + ' 100');
+      const deg = START_DEG + (END_DEG - START_DEG) * eased;
+      needle.setAttribute('transform', 'rotate(' + deg + ' 150 150)');
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { sweep(); io.disconnect(); } });
+  }, { threshold: 0.3 });
+  io.observe(document.getElementById('gauge-svg'));
+})();
+
+// ── Leaflet map — anonymized client footprint ───────
+(function(){
+  function init() {
+    const el = document.getElementById('clients-map');
+    if (!el || typeof L === 'undefined') return;
+    const map = L.map('clients-map', {
+      center: [42, -96],
+      zoom: 3.6,
+      zoomControl: false,
+      scrollWheelZoom: false,
+      attributionControl: false,
+      dragging: !L.Browser.mobile
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 10
+    }).addTo(map);
+
+    const pins = [
+      { ll: [53.93, -116.58], label: 'Petrochemical plant, AB', role: 'Program Lead' },
+      { ll: [51.05, -114.07], label: 'Research university, AB', role: 'Department Head' },
+      { ll: [52.27, -113.80], label: 'Regional college, AB', role: 'Operations Manager' },
+      { ll: [50.44, -104.62], label: 'Industrial group, ON', role: 'Project Director' },
+      { ll: [47.45, -122.26], label: 'Transit authority, WA', role: 'Program Manager' },
+      { ll: [44.98, -93.27],  label: 'Medical device manufacturer, MN', role: 'VP Operations' },
+      { ll: [27.95, -82.46],  label: 'Cement plant, FL', role: 'Project Controller' },
+      { ll: [28.40, -80.60],  label: 'Defence contractor, FL', role: 'Director, PMO' },
+      { ll: [34.05, -117.19], label: 'GIS software company, CA', role: 'Delivery Lead' }
+    ];
+    const pinIcon = L.divIcon({
+      className: 'custom-pin',
+      html: '<div class="map-pin"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    pins.forEach(p => {
+      L.marker(p.ll, { icon: pinIcon })
+       .addTo(map)
+       .bindPopup('<b>' + p.label + '</b><br>' + p.role);
+    });
+    // Fit bounds comfortably
+    setTimeout(() => {
+      try {
+        map.fitBounds(L.latLngBounds(pins.map(p => p.ll)).pad(0.25), { animate: false });
+      } catch (_) {}
+    }, 50);
+  }
+  if (document.readyState === 'complete') init();
+  else window.addEventListener('load', init);
+})();
 
 // Nav dropdown tab links
 function openTab(id) {
