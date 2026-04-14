@@ -8,7 +8,7 @@ export async function onRequestPost(context) {
 
   try {
     const body = await request.json();
-    const { name, email, message, token } = body;
+    const { name, organisation, email, phone, message, token } = body;
 
     if (!name || !email || !message) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400, headers });
@@ -31,9 +31,11 @@ export async function onRequestPost(context) {
     }
 
     // Sanitize
-    const clean = (s) => String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
+    const clean = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').trim();
     const safeName = clean(name).substring(0, 80);
+    const safeOrg = clean(organisation).substring(0, 120);
     const safeEmail = clean(email).substring(0, 120);
+    const safePhone = clean(phone).substring(0, 40);
     const safeMessage = clean(message).substring(0, 4000);
 
     // Build email HTML — dark-themed, site-branded
@@ -44,7 +46,7 @@ export async function onRequestPost(context) {
       timeZone: 'America/Edmonton',
     });
 
-    const adminHtml = buildAdminEmail({ safeName, safeEmail, safeMessage, stamp });
+    const adminHtml = buildAdminEmail({ safeName, safeOrg, safeEmail, safePhone, safeMessage, stamp });
     const replyHtml = buildReplyEmail({ safeName });
 
     // Send admin notification via Resend
@@ -179,8 +181,12 @@ function emailShell(innerHtml, preheader) {
 </html>`;
 }
 
-function buildAdminEmail({ safeName, safeEmail, safeMessage, stamp }) {
+function buildAdminEmail({ safeName, safeOrg, safeEmail, safePhone, safeMessage, stamp }) {
   const messageHtml = safeMessage.replace(/\n/g, '<br>');
+  const labelCell = (label) => `<td style="padding:0 0 18px 0;width:120px;font-family:${MONO};font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:${DIM};vertical-align:top;">${label}</td>`;
+  const valueCell = (value) => `<td style="padding:0 0 18px 0;font-family:${SANS};font-size:15px;color:#ffffff;vertical-align:top;">${value}</td>`;
+  const orgRow = safeOrg ? `<tr>${labelCell('Organisation')}${valueCell(safeOrg)}</tr>` : '';
+  const phoneRow = safePhone ? `<tr>${labelCell('Phone')}${valueCell(safePhone)}</tr>` : '';
   const inner = `
     <div style="font-family:${MONO};font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${ACCENT};margin-bottom:12px;">
       New Inquiry
@@ -194,13 +200,14 @@ function buildAdminEmail({ safeName, safeEmail, safeMessage, stamp }) {
 
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid ${RULE};border-bottom:1px solid ${RULE};margin-bottom:28px;">
       <tr>
-        <td style="padding:18px 0;width:90px;font-family:${MONO};font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:${DIM};vertical-align:top;">
+        <td style="padding:18px 0;width:120px;font-family:${MONO};font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:${DIM};vertical-align:top;">
           From
         </td>
         <td style="padding:18px 0;font-family:${SANS};font-size:15px;color:#ffffff;vertical-align:top;">
           ${safeName}
         </td>
       </tr>
+      ${orgRow}
       <tr>
         <td style="padding:0 0 18px 0;font-family:${MONO};font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:${DIM};vertical-align:top;">
           Reply to
@@ -209,6 +216,7 @@ function buildAdminEmail({ safeName, safeEmail, safeMessage, stamp }) {
           <a href="mailto:${safeEmail}" style="color:${ACCENT};text-decoration:none;">${safeEmail}</a>
         </td>
       </tr>
+      ${phoneRow}
     </table>
 
     <div style="font-family:${MONO};font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${ACCENT};margin-bottom:14px;">
