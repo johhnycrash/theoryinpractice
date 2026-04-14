@@ -514,21 +514,31 @@
         }
         /* ===== END BASE VENN ===== */
 
-        /* SPOTLIGHT LAYER — additive polish, not a reveal */
-        .hero-layer-spotlight {
+        /* CSS-only spotlight polish — single layer, no SVG duplication */
+        .hero-spot-overlay {
             position: absolute;
             inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             z-index: 2;
             pointer-events: none;
+            background: radial-gradient(circle 360px at var(--mouse-x) var(--mouse-y),
+                rgba(217, 32, 32, 0.10) 0%,
+                rgba(217, 32, 32, 0.04) 35%,
+                transparent 70%);
             mix-blend-mode: screen;
-            opacity: 0.65;
-            -webkit-mask-image: radial-gradient(circle 400px at var(--mouse-x) var(--mouse-y), black 0%, transparent 75%);
-            mask-image: radial-gradient(circle 400px at var(--mouse-x) var(--mouse-y), black 0%, transparent 75%);
-            background: radial-gradient(circle 500px at var(--mouse-x) var(--mouse-y), rgba(217, 32, 32, 0.06) 0%, transparent 100%);
+            transition: opacity 0.4s ease;
+        }
+
+        /* Caption directly under the venn */
+        .hero-venn-caption {
+            font-family: var(--font-serif);
+            font-size: clamp(1.3rem, 2vw, 1.8rem);
+            font-style: italic;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin: 1.25rem 0 0;
+            letter-spacing: 0.005em;
+            line-height: 1.4;
         }
 
         /* VENN SIZES (Enlarged and Spaced) */
@@ -3596,96 +3606,53 @@
         </svg>
     </div>
 
-    <!-- 1. HERO SECTION -->
-    <section class="hero section-wrap" id="overview" style="padding:9rem 0 1rem 0; border:none;" data-no-divider>
+    <!-- 1. HERO SECTION — SINGLE venn layer, no doubling -->
+    <section class="hero section-wrap" id="overview" style="padding:9rem 0 2rem 0; border:none;" data-no-divider>
 
-        <!-- BASE LAYER (Totally invisible text natively, lit ONLY by spotlight) -->
-        <!-- BASE LAYER -->
+        <!-- One venn — fully visible, both circles + text. Spotlight is a CSS overlay. -->
         <div class="hero-layer-base">
             <div class="hero-venn-wrapper desktop-venn">
-                <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="530" cy="350" r="450" />
-                    <circle cx="1070" cy="350" r="450" />
-                    <text x="400" y="325" class="text-title">Theory</text>
-                    <text x="400" y="385" class="text-sub">Principles that explain why.</text>
-                    <text x="800" y="325" class="text-title in in-text">in</text>
-                    <text x="800" y="375" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
-                        <tspan x="800" dy="0">Applying proven models</tspan>
-                        <tspan x="800" dy="24">to real-world situations.</tspan>
-                    </text>
-                    <text x="1200" y="325" class="text-title">Practice</text>
-                    <text x="1200" y="385" class="text-sub">Repeated action.</text>
-                </svg>
-            </div>
-
-            <div class="hero-venn-wrapper mobile-venn">
-                <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="400" cy="350" r="330" />
-                    <circle cx="400" cy="750" r="330" />
-                    <text x="400" y="270" class="text-title">Theory</text>
-                    <text x="400" y="330" class="text-sub">Principles that explain why.</text>
-                    <text x="400" y="550" class="text-title in in-text">in</text>
-                    <text x="400" y="600" class="text-sub in-sub" fill="rgba(255,255,255,0.3)">
-                        <tspan x="400" dy="0">Applying proven models</tspan>
-                        <tspan x="400" dy="24">to real-world situations.</tspan>
-                    </text>
-                    <text x="400" y="830" class="text-title">Practice</text>
-                    <text x="400" y="890" class="text-sub">Repeated action.</text>
-                </svg>
-            </div>
-        </div>
-
-        <!-- SPOTLIGHT LAYER -->
-        <!-- SPOTLIGHT LAYER -->
-        <div class="hero-layer-spotlight">
-            <div class="hero-venn-wrapper desktop-venn" style="pointer-events: none;">
                 <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <clipPath id="lc">
                             <circle cx="530" cy="350" r="450" />
                         </clipPath>
                     </defs>
-                    <circle cx="530" cy="350" r="450" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.35)" clip-path="url(#lc)" />
-                    <text x="400" y="325" class="text-title" fill="#ffffff">Theory</text>
-                    <text x="400" y="385" class="text-sub" fill="#ffffff">Principles that explain why.</text>
-                    <text x="800" y="325" class="text-title in" fill="#d92020">in</text>
-                    <text x="800" y="375" class="text-sub in-sub" fill="#ffffff">
-                        <tspan x="800" dy="0">Applying proven models</tspan>
-                        <tspan x="800" dy="24">to real-world situations.</tspan>
-                    </text>
+                    <circle cx="530"  cy="350" r="450" fill="rgba(217,32,32,0.10)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.28)" clip-path="url(#lc)"/>
+                    <text x="400"  y="325" class="text-title" fill="#ffffff">Theory</text>
+                    <text x="400"  y="385" class="text-sub"   fill="rgba(255,255,255,0.55)">Principles that explain why.</text>
+                    <text x="800"  y="335" class="text-title in" fill="#d92020">in</text>
                     <text x="1200" y="325" class="text-title" fill="#ffffff">Practice</text>
-                    <text x="1200" y="385" class="text-sub" fill="#ffffff">Repeated action.</text>
+                    <text x="1200" y="385" class="text-sub"   fill="rgba(255,255,255,0.55)">Repeated action.</text>
                 </svg>
             </div>
 
-            <div class="hero-venn-wrapper mobile-venn" style="pointer-events: none;">
+            <div class="hero-venn-wrapper mobile-venn">
                 <svg class="venn-svg" viewBox="0 0 800 1200" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <clipPath id="lcm">
                             <circle cx="400" cy="350" r="330" />
                         </clipPath>
                     </defs>
-                    <circle cx="400" cy="350" r="330" fill="rgba(217,32,32,0.12)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="400" cy="750" r="330" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.7)"
-                        stroke-width="2" />
-                    <circle cx="400" cy="750" r="330" fill="rgba(217,32,32,0.35)" clip-path="url(#lcm)" />
+                    <circle cx="400" cy="350" r="330" fill="rgba(217,32,32,0.10)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="400" cy="750" r="330" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="400" cy="750" r="330" fill="rgba(217,32,32,0.28)" clip-path="url(#lcm)"/>
                     <text x="400" y="270" class="text-title" fill="#ffffff">Theory</text>
-                    <text x="400" y="330" class="text-sub" fill="#ffffff">Principles that explain why.</text>
-                    <text x="400" y="550" class="text-title in" fill="#d92020">in</text>
-                    <text x="400" y="600" class="text-sub in-sub" fill="#ffffff">
-                        <tspan x="400" dy="0">Applying proven models</tspan>
-                        <tspan x="400" dy="24">to real-world situations.</tspan>
-                    </text>
+                    <text x="400" y="330" class="text-sub"   fill="rgba(255,255,255,0.55)">Principles that explain why.</text>
+                    <text x="400" y="560" class="text-title in" fill="#d92020">in</text>
                     <text x="400" y="830" class="text-title" fill="#ffffff">Practice</text>
-                    <text x="400" y="890" class="text-sub" fill="#ffffff">Repeated action.</text>
+                    <text x="400" y="890" class="text-sub"   fill="rgba(255,255,255,0.55)">Repeated action.</text>
                 </svg>
             </div>
+
+            <!-- Caption directly under the venn -->
+            <p class="hero-venn-caption">Applying proven models to real-world situations.</p>
         </div>
+
+        <!-- Spotlight polish — pure CSS overlay, no second SVG, no doubling -->
+        <div class="hero-spot-overlay" aria-hidden="true"></div>
 
         <!-- Scroll-down indicator (hero only) -->
         <button type="button" class="hero-scroll-down" id="heroScrollDown" aria-label="Scroll to premise">
@@ -3711,13 +3678,6 @@
                 <span class="blur-word it">differently</span>
                 <span class="blur-word">on</span>
                 <span class="blur-word">"Monday".</span>
-                <br><br>
-                <span class="blur-word">Applying</span>
-                <span class="blur-word">proven</span>
-                <span class="blur-word">models</span>
-                <span class="blur-word">to</span>
-                <span class="blur-word">real-world</span>
-                <span class="blur-word">situations.</span>
             </p>
         </div>
     </section>
