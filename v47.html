@@ -528,17 +528,20 @@
             transition: opacity 0.4s ease;
         }
 
-        /* Caption directly under the venn */
+        /* Caption directly under the venn — extra top margin so it sits
+           clearly below the circles (which extend to the bottom of the SVG box). */
         .hero-venn-caption {
             font-family: var(--font-serif);
             font-size: clamp(1.3rem, 2vw, 1.8rem);
             font-style: italic;
             font-weight: 400;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.75);
             text-align: center;
-            margin: 1.25rem 0 0;
+            margin: 2.5rem 0 0;
             letter-spacing: 0.005em;
             line-height: 1.4;
+            position: relative;
+            z-index: 5;
         }
 
         /* VENN SIZES (Enlarged and Spaced) */
@@ -3607,25 +3610,26 @@
     </div>
 
     <!-- 1. HERO SECTION — SINGLE venn layer, no doubling -->
-    <section class="hero section-wrap" id="overview" style="padding:9rem 0 2rem 0; border:none;" data-no-divider>
+    <section class="hero section-wrap" id="overview" style="padding:9rem 0 4rem 0; border:none;" data-no-divider>
 
         <!-- One venn — fully visible, both circles + text. Spotlight is a CSS overlay. -->
         <div class="hero-layer-base">
             <div class="hero-venn-wrapper desktop-venn">
-                <svg class="venn-svg" viewBox="0 0 1600 700" xmlns="http://www.w3.org/2000/svg">
+                <!-- viewBox 1600x900: circles cy=450 r=450 fully fit inside (no overflow) -->
+                <svg class="venn-svg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <clipPath id="lc">
-                            <circle cx="530" cy="350" r="450" />
+                            <circle cx="530" cy="450" r="450" />
                         </clipPath>
                     </defs>
-                    <circle cx="530"  cy="350" r="450" fill="rgba(217,32,32,0.10)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-                    <circle cx="1070" cy="350" r="450" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
-                    <circle cx="1070" cy="350" r="450" fill="rgba(217,32,32,0.28)" clip-path="url(#lc)"/>
-                    <text x="400"  y="325" class="text-title" fill="#ffffff">Theory</text>
-                    <text x="400"  y="385" class="text-sub"   fill="rgba(255,255,255,0.55)">Principles that explain why.</text>
-                    <text x="800"  y="335" class="text-title in" fill="#d92020">in</text>
-                    <text x="1200" y="325" class="text-title" fill="#ffffff">Practice</text>
-                    <text x="1200" y="385" class="text-sub"   fill="rgba(255,255,255,0.55)">Repeated action.</text>
+                    <circle cx="530"  cy="450" r="450" fill="rgba(217,32,32,0.10)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="1070" cy="450" r="450" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                    <circle cx="1070" cy="450" r="450" fill="rgba(217,32,32,0.28)" clip-path="url(#lc)"/>
+                    <text x="400"  y="425" class="text-title" fill="#ffffff">Theory</text>
+                    <text x="400"  y="485" class="text-sub"   fill="rgba(255,255,255,0.55)">Principles that explain why.</text>
+                    <text x="800"  y="435" class="text-title in" fill="#d92020">in</text>
+                    <text x="1200" y="425" class="text-title" fill="#ffffff">Practice</text>
+                    <text x="1200" y="485" class="text-sub"   fill="rgba(255,255,255,0.55)">Repeated action.</text>
                 </svg>
             </div>
 
@@ -3665,22 +3669,6 @@
         </button>
     </section>
 
-    <!-- 2. PREMISE — whispy blur word-by-word reveal -->
-    <section class="section-wrap text-reveal stripe-warm" id="premise">
-        <div class="reveal-wrapper">
-            <p class="rev-text" id="premiseText">
-                <span class="blur-word">The</span>
-                <span class="blur-word">goal</span>
-                <span class="blur-word">is</span>
-                <span class="blur-word">judgment</span>
-                <span class="blur-word it">to</span>
-                <span class="blur-word it">act</span>
-                <span class="blur-word it">differently</span>
-                <span class="blur-word">on</span>
-                <span class="blur-word">"Monday".</span>
-            </p>
-        </div>
-    </section>
 
     <!-- 3. ACADEMY -->
     <section class="section-wrap academy" id="academy">
