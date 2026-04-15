@@ -5110,6 +5110,576 @@
         .edit-toolbar .edit-hint { color: rgba(248,245,240,0.6); padding: 0 0.4rem; }
         .edit-toolbar .edit-saved { color: #7cd2a0; }
     </style>
+<style id="book-override">
+/* =================================================================
+   BOOK OVERRIDE
+   "Reads like a book." Paper palette, serif-heavy body copy with
+   generous reading width, drop caps at section starts, chapter
+   ornament dividers, a small table-of-contents rail. No page flips,
+   no crazy GSAP — just thoughtful typographic ritual.
+   ================================================================= */
+
+:root {
+    --bg:        #f5f0e4;               /* paper */
+    --paper:     #faf5e8;
+    --warm:      #ece2cc;
+    --text:      #1c1812;               /* ink */
+    --text-ink:  #1c1812;
+    --text-ink-2:#3a342c;
+    --text-ink-3:#5a544c;
+    --dim:       #7a7570;
+    --dim-ink:   #8a857a;
+    --rule:      rgba(28, 24, 18, 0.14);
+    --rule-ink:  rgba(28, 24, 18, 0.12);
+}
+
+/* Strip every decorative dark-mode element */
+.bokeh-bg,
+.nl-bg,
+.header-blur-fade { display: none !important; }
+
+body {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;  /* serif body — reads like a book */
+    font-size: 20px;
+    line-height: 1.7;
+}
+
+.section-wrap,
+.section-wrap.stripe-light,
+.section-wrap.stripe-accent {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border: none !important;
+    padding: 8vh 5vw !important;
+}
+.hero,
+.hero-layer-base {
+    background: transparent !important;
+}
+
+/* Constrain every section to a readable width, like a book column */
+.container {
+    max-width: 780px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+.clients-impact > .container {
+    max-width: none !important;
+    padding: 0 !important;
+}
+.clients-impact .sec-rule {
+    max-width: 780px !important;
+    margin: 0 auto 2rem !important;
+}
+
+/* ---------- Navigation as a TOC rail ---------- */
+.top-bar {
+    background: var(--bg) !important;
+    border-bottom: 1px solid var(--rule);
+    color: var(--text);
+}
+.top-logo {
+    font-family: var(--font-serif) !important;
+    font-weight: 500;
+}
+.top-logo .logo-w { color: var(--text); }
+.top-logo .logo-r { color: var(--accent); font-style: italic; }
+.sn-link {
+    color: var(--text) !important;
+    opacity: 0.6;
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+    font-size: 16px !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+}
+.sn-link::before {
+    /* Leading ornament — "· Chapter N" feel without literal chapter */
+    content: '·  ';
+    color: var(--accent);
+    opacity: 0.7;
+}
+.sn-link:hover,
+.sn-link.active {
+    opacity: 1;
+    color: var(--text) !important;
+}
+.sn-link::after {
+    background: var(--accent) !important;
+    opacity: 0.7 !important;
+    height: 1px !important;
+}
+.btn-contact {
+    background: transparent !important;
+    border: 1px solid var(--text) !important;
+    color: var(--text) !important;
+    border-radius: 0 !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+.btn-contact .dot { background: var(--accent); }
+
+/* ---------- Hero: keep the venn but soften it into a book diagram ---------- */
+.hero {
+    min-height: auto !important;
+    padding: 16vh 5vw 6vh !important;
+    text-align: center;
+}
+.hero-venn-wrapper {
+    max-width: 720px !important;
+    margin: 0 auto !important;
+}
+.hero-venn-wrapper .venn-svg {
+    max-width: 480px;
+    margin: 0 auto;
+}
+/* Soften the venn: pale strokes, no aurora, subtle wash */
+.hero-venn-wrapper svg circle[stroke] {
+    stroke: rgba(28, 24, 18, 0.35) !important;
+}
+.hero-venn-wrapper svg g[clip-path] rect {
+    fill: rgba(184, 58, 16, 0.12) !important;
+}
+.hero-venn-wrapper svg g[style*="mix-blend-mode"] { display: none !important; }
+.vl-title {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-weight: 500;
+}
+.vl-sub {
+    color: var(--dim) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+}
+.hero-venn-caption {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem) !important;
+    max-width: 32ch;
+    margin: 2rem auto 0 !important;
+}
+
+/* ---------- Section ornament dividers ---------- */
+.sec-rule {
+    justify-content: center !important;
+    margin-bottom: 2.5rem !important;
+}
+.sec-rule hr { display: none !important; }
+.sec-rule .eyebrow {
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: 1rem !important;
+    text-transform: none !important;
+    letter-spacing: 0.04em !important;
+    color: var(--accent) !important;
+    text-align: center;
+    padding: 0 2rem;
+    position: relative;
+}
+.sec-rule .eyebrow::before,
+.sec-rule .eyebrow::after {
+    content: '❦';
+    color: var(--accent);
+    opacity: 0.55;
+    font-size: 0.9em;
+    margin: 0 0.75rem;
+    vertical-align: middle;
+}
+
+.sec-rule .with-icon .sec-icon { display: none !important; }
+
+.sec-title {
+    font-family: var(--font-serif) !important;
+    color: var(--text) !important;
+    text-align: center;
+    font-size: clamp(2.5rem, 5vw, 3.5rem) !important;
+    font-style: italic;
+}
+
+/* ---------- Drop cap on intro paragraph of each section ---------- */
+.acad-intro,
+.cons-head .acad-intro {
+    font-family: var(--font-serif) !important;
+    font-size: 1.2rem !important;
+    line-height: 1.75 !important;
+    color: var(--text-ink) !important;
+    max-width: 62ch;
+    margin: 0 auto 3rem !important;
+    text-align: left;
+}
+.acad-intro::first-letter,
+.cons-head .acad-intro::first-letter {
+    font-family: var(--font-serif);
+    font-size: 4.5rem;
+    font-weight: 500;
+    float: left;
+    line-height: 0.85;
+    padding: 0.25rem 0.65rem 0 0;
+    color: var(--accent);
+}
+
+/* ---------- Academy streams as book chapters ---------- */
+.acad-stream {
+    border-top: none !important;
+    padding: 3rem 0 !important;
+    position: relative;
+    max-width: 680px !important;
+    margin: 0 auto !important;
+}
+.acad-stream:first-of-type { border-top: none !important; padding-top: 1rem !important; }
+.acad-stream::before {
+    content: '❦';
+    display: block;
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.1rem;
+    opacity: 0.55;
+    margin-bottom: 2rem;
+}
+.acad-stream:first-of-type::before { display: none; }
+.acad-stream-title {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 2.6rem) !important;
+    font-weight: 500;
+}
+.acad-stream-kicker {
+    color: var(--dim) !important;
+    text-align: center;
+    font-size: 1.05rem !important;
+    margin-top: 0.5rem !important;
+}
+.acad-stream-dl { margin-top: 2rem !important; }
+.acad-stream-dl dt {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.2rem !important;
+    font-weight: 500;
+    border-top: 1px solid var(--rule) !important;
+    padding-top: 1.2rem !important;
+    padding-bottom: 0.5rem !important;
+}
+.acad-stream-dl dd {
+    color: var(--text-ink-2) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: 1.1rem !important;
+    line-height: 1.65 !important;
+    max-width: 62ch !important;
+}
+
+/* ---------- Method flow as a book-form passage ---------- */
+.method-flow {
+    max-width: 720px !important;
+    padding-left: 44px !important;
+}
+.method-flow::before {
+    background: linear-gradient(to bottom, var(--accent) 0%, var(--accent) 88%, rgba(184,58,16,0.35) 100%) !important;
+}
+.flow-beat::before {
+    box-shadow:
+        0 0 0 3px var(--bg),
+        0 0 0 5px var(--accent) !important;
+}
+.beat-step {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: clamp(2rem, 4vw, 2.6rem) !important;
+}
+.beat-title { color: var(--dim) !important; font-size: 1.1rem !important; }
+.beat-q {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: 1.35rem !important;
+}
+.beat-text {
+    color: var(--text-ink-2) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.1rem !important;
+    line-height: 1.75 !important;
+}
+.beat-output {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1rem !important;
+    background: transparent !important;
+    border: none !important;
+}
+.beat-output-label {
+    color: var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 0.95rem !important;
+}
+.beat-practice {
+    background: rgba(184, 58, 16, 0.06) !important;
+    border-left: 3px solid var(--accent) !important;
+}
+.beat-practice::before { color: var(--accent) !important; opacity: 0.45 !important; }
+.beat-practice-label {
+    color: var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+.beat-practice p {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.2rem !important;
+    line-height: 1.65 !important;
+}
+.method-stat {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    text-align: center;
+    font-style: italic;
+}
+.method-stat .stat-highlight { color: var(--accent) !important; }
+
+/* ---------- Roti card: more editorial, book-frontispiece feel ---------- */
+.roti-card { max-width: 840px !important; gap: 2.5rem !important; }
+.roti-portrait {
+    border-radius: 2px !important;
+    transform: rotate(-1deg) !important;
+}
+.roti-figure::before {
+    border-color: rgba(28, 24, 18, 0.2) !important;
+    border-radius: 2px !important;
+}
+.roti-name {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: clamp(2.5rem, 5vw, 3.4rem) !important;
+}
+.roti-title {
+    color: var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 1.1rem !important;
+}
+.roti-pr-col .pr-h {
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 1rem !important;
+    color: var(--accent) !important;
+}
+.roti-pr-col .pr-li .b {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.1rem !important;
+}
+.roti-pr-col .pr-li .d {
+    color: var(--dim) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 1rem !important;
+}
+.roti-linkedin {
+    background: transparent !important;
+    border: 1px solid var(--text) !important;
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    border-radius: 0 !important;
+}
+
+/* ---------- Clients as a footnote gallery ---------- */
+.clients-impact { padding: 8vh 0 !important; }
+.clients-split { grid-template-columns: 1fr !important; gap: 2rem !important; }
+.clients-split .map-col {
+    position: static !important;
+    height: auto !important;
+    max-width: 780px !important;
+    margin: 0 auto !important;
+}
+.impact-map-wrap { aspect-ratio: 16/9 !important; max-height: 400px !important; }
+.clients-split .clients-grid {
+    grid-template-columns: 1fr 1fr !important;
+    max-width: 780px !important;
+    margin: 0 auto !important;
+    padding: 0 1rem !important;
+    gap: 1rem !important;
+}
+.client-card {
+    background: transparent !important;
+    border: none !important;
+    border-top: 1px solid var(--rule) !important;
+    padding: 1.25rem 0 !important;
+    box-shadow: none !important;
+}
+.client-card.named {
+    background: transparent !important;
+}
+.client-name {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.1rem !important;
+    font-weight: 500;
+}
+.client-link {
+    color: var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+.client-quote {
+    color: var(--text-ink-2) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    font-size: 1.05rem !important;
+    line-height: 1.65 !important;
+}
+.client-role {
+    color: var(--dim) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    font-size: 0.95rem !important;
+}
+
+/* ---------- Partners ---------- */
+.partners-stack { gap: 3rem !important; }
+.partner-card,
+.partner-block {
+    background: transparent !important;
+    border: none !important;
+    border-top: 1px solid var(--rule) !important;
+    padding: 2.5rem 0 !important;
+}
+.p-name {
+    color: var(--text) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.8rem !important;
+}
+.p-body {
+    color: var(--text-ink-2) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.1rem !important;
+    line-height: 1.7 !important;
+}
+.p-btn {
+    background: transparent !important;
+    color: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+.partner-block .p-quote {
+    background: rgba(184, 58, 16, 0.05) !important;
+    border-left: 3px solid var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.15rem !important;
+    color: var(--text) !important;
+}
+.partner-block .p-quote cite .pq-name {
+    color: var(--accent) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+.partner-block .p-quote cite .pq-role {
+    color: var(--dim) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+/* ---------- CTA / form ---------- */
+.cta-sec {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+}
+.cta-sec .cta-title {
+    color: var(--bg) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+}
+.tech-form input,
+.tech-form textarea {
+    background: rgba(245, 240, 228, 0.08) !important;
+    color: var(--bg) !important;
+    border: 1px solid rgba(245, 240, 228, 0.3) !important;
+    font-family: var(--font-serif) !important;
+    font-size: 1.05rem !important;
+}
+.tech-form input::placeholder,
+.tech-form textarea::placeholder {
+    color: rgba(245, 240, 228, 0.55) !important;
+    font-style: italic;
+}
+.btn-send {
+    background: var(--accent) !important;
+    color: var(--bg) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+/* ---------- Footer ornament ---------- */
+footer {
+    background: var(--bg) !important;
+    color: var(--dim) !important;
+    border-top: none !important;
+    text-align: center;
+    padding: 3rem 2rem !important;
+}
+footer::before {
+    content: '❦';
+    display: block;
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.55;
+}
+footer * {
+    color: var(--dim) !important;
+    font-family: var(--font-serif) !important;
+    font-style: italic;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 900px) {
+    body { font-size: 18px; }
+    .hero { padding: 14vh 1.25rem 4vh !important; }
+    .container { padding: 0 1.25rem !important; }
+    .sn-link { font-size: 14px !important; }
+    .acad-stream,
+    .method-flow,
+    .acad-intro,
+    .cons-head .acad-intro { max-width: none !important; }
+    .clients-split .clients-grid { grid-template-columns: 1fr !important; }
+    .acad-intro::first-letter,
+    .cons-head .acad-intro::first-letter { font-size: 3.5rem; }
+}
+
+</style>
 </head>
 
 <body>

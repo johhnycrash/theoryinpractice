@@ -5110,6 +5110,308 @@
         .edit-toolbar .edit-hint { color: rgba(248,245,240,0.6); padding: 0 0.4rem; }
         .edit-toolbar .edit-saved { color: #7cd2a0; }
     </style>
+<style id="cuttingedge-override">
+/* =================================================================
+   CUTTINGEDGE OVERRIDE
+   Swiss/editorial direction. Cream paper canvas, sharp ink
+   typography, a single burnt-orange accent. No blobs, no aurora,
+   no gradients. Confident whitespace and a typographic hero.
+   Every section restyled for minimal/clean award-level polish.
+   ================================================================= */
+
+:root {
+    --bg:        #f6f2ea;               /* cream canvas */
+    --paper:     #fbf7ee;
+    --warm:      #ece4d2;
+    --text:      #14110d;               /* ink */
+    --text-ink:  #14110d;
+    --text-ink-2:#3a342c;
+    --text-ink-3:#5a544c;
+    --dim:       #7a7570;
+    --dim-ink:   #7a7570;
+    --rule:      rgba(20, 17, 13, 0.12);
+    --rule-ink:  rgba(20, 17, 13, 0.10);
+}
+
+/* Strip every decorative dark-mode element */
+.bokeh-bg,
+.nl-bg,
+.header-blur-fade {
+    display: none !important;
+}
+
+body {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    font-weight: 400;
+}
+
+/* Section stripes — everything reads as one cream canvas */
+.section-wrap,
+.section-wrap.stripe-light,
+.section-wrap.stripe-accent {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border: none !important;
+}
+.hero,
+.hero-layer-base {
+    background: transparent !important;
+}
+
+/* ---------- Navigation ---------- */
+.top-bar {
+    background: var(--bg) !important;
+    border-bottom: 1px solid var(--rule);
+    color: var(--text);
+}
+.top-logo .logo-w { color: var(--text); }
+.top-logo .logo-r { color: var(--accent); }
+.sn-link {
+    color: var(--text) !important;
+    opacity: 0.55;
+    font-weight: 500;
+}
+.sn-link:hover,
+.sn-link.active {
+    opacity: 1;
+    color: var(--text) !important;
+}
+.sn-link::after {
+    background: var(--accent) !important;
+    opacity: 1 !important;
+    height: 2px !important;
+}
+.btn-contact {
+    background: var(--text) !important;
+    border-color: var(--text) !important;
+    color: var(--bg) !important;
+}
+.btn-contact:hover {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color: #fff !important;
+}
+.btn-contact .dot { background: var(--accent); }
+
+/* ---------- HERO: typographic, not the venn ---------- */
+.hero-venn-wrapper .venn-svg,
+.hero-venn-wrapper .venn-labels {
+    display: none !important;
+}
+.hero {
+    min-height: auto !important;
+    max-height: none !important;
+    padding: 12vh 5vw 6vh !important;
+}
+.hero-venn-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    max-width: 1240px !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    aspect-ratio: auto !important;
+}
+.hero-venn-wrapper::before {
+    content: 'Theory';
+    display: block;
+    font-family: var(--font-serif);
+    font-size: clamp(4.5rem, 14vw, 14rem);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: var(--text);
+}
+.hero-venn-wrapper::after {
+    content: 'in Practice.';
+    display: block;
+    font-family: var(--font-serif);
+    font-size: clamp(4.5rem, 14vw, 14rem);
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    color: var(--accent);
+    margin-left: clamp(2rem, 8vw, 8rem);
+}
+.hero-venn-caption {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    color: var(--text-ink-2);
+    text-align: left;
+    max-width: 38ch;
+    margin-top: 2.5rem !important;
+    padding: 0;
+    opacity: 1;
+}
+
+/* ---------- Section typography ---------- */
+.eyebrow,
+.sec-rule .eyebrow {
+    color: var(--accent) !important;
+    font-size: var(--fs-mono) !important;
+}
+.sec-rule hr,
+.sec-rule hr:not([class]) {
+    border-top: 1px solid var(--rule) !important;
+}
+.sec-title {
+    color: var(--text) !important;
+}
+.sec-icon { color: var(--accent) !important; }
+
+/* ---------- Academy ---------- */
+.acad-intro {
+    color: var(--text-ink-2) !important;
+    max-width: 60ch;
+}
+.acad-stream {
+    border-top: 1px solid var(--rule) !important;
+}
+.acad-stream:first-of-type {
+    border-top: 2px solid var(--accent) !important;
+}
+.acad-stream-title { color: var(--text) !important; }
+.acad-stream-kicker { color: var(--dim) !important; }
+.acad-stream-dl dt {
+    color: var(--text) !important;
+    border-top: 1px solid var(--rule) !important;
+}
+.acad-stream-dl dd {
+    color: var(--text-ink-3) !important;
+    font-style: normal !important;
+}
+
+/* ---------- Method flow ---------- */
+.cons-head .acad-intro { color: var(--text-ink-2) !important; }
+.method-flow::before {
+    background: linear-gradient(to bottom, var(--accent) 0%, var(--accent) 88%, rgba(184,58,16,0.35) 100%) !important;
+}
+.flow-beat::before {
+    box-shadow:
+        0 0 0 3px var(--bg),
+        0 0 0 5px var(--accent) !important;
+}
+.beat-step  { color: var(--text) !important; }
+.beat-title { color: var(--dim) !important; }
+.beat-q     { color: var(--text) !important; }
+.beat-text  { color: var(--text-ink-3) !important; }
+.beat-output,
+.beat-output-label {
+    color: var(--accent) !important;
+    background: transparent !important;
+    border: none !important;
+}
+.beat-output { color: var(--text) !important; }
+.beat-practice {
+    background: rgba(184, 58, 16, 0.06) !important;
+    border-left: 3px solid var(--accent) !important;
+}
+.beat-practice::before { color: var(--accent) !important; opacity: 0.4 !important; }
+.beat-practice-label { color: var(--accent) !important; }
+.beat-practice p { color: var(--text) !important; }
+.beat-practice p em { color: var(--accent) !important; }
+.method-stat { color: var(--text) !important; }
+.method-stat .stat-highlight { color: var(--accent) !important; }
+
+/* ---------- About / Roti (uses roti-card; override palette) ---------- */
+.roti-name { color: var(--text) !important; }
+.roti-title { color: var(--accent) !important; }
+.roti-pr-col .pr-li .b { color: var(--text) !important; }
+.roti-pr-col .pr-li .d { color: var(--text-ink-3) !important; }
+.roti-linkedin {
+    background: var(--bg) !important;
+    border: 1px solid var(--rule) !important;
+    color: var(--text) !important;
+}
+
+/* ---------- Clients ---------- */
+.client-card {
+    background: var(--bg) !important;
+    border: 1px solid var(--rule) !important;
+    padding: 1.5rem !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+.client-card.named {
+    background: #fffdf8 !important;
+    border-color: rgba(184, 58, 16, 0.25) !important;
+}
+.client-name   { color: var(--text) !important; }
+.client-link   { color: var(--accent) !important; }
+.client-quote  { color: var(--text) !important; }
+.client-role   { color: var(--dim) !important; }
+.pin-label,
+.pin-sub       { color: var(--text) !important; background: var(--bg) !important; }
+
+/* ---------- Partners ---------- */
+.partner-card,
+.partner-block {
+    background: var(--bg) !important;
+    border: 1px solid var(--rule) !important;
+}
+.p-name { color: var(--text) !important; }
+.p-body { color: var(--text-ink-2) !important; }
+.p-btn {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+    border-color: var(--text) !important;
+}
+.partner-block .p-quote {
+    background: #fffdf8 !important;
+    border-left: 3px solid var(--accent) !important;
+    color: var(--text) !important;
+}
+.partner-block .p-quote cite .pq-name { color: var(--accent) !important; }
+.partner-block .p-quote cite .pq-role { color: var(--dim) !important; }
+
+/* ---------- Contact / CTA ---------- */
+.cta-sec {
+    background: var(--text) !important;
+    color: var(--bg) !important;
+    border-top: none !important;
+}
+.cta-sec .cta-title {
+    color: var(--bg) !important;
+}
+.tech-form input,
+.tech-form textarea {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--bg) !important;
+    border: 1px solid rgba(246, 242, 234, 0.25) !important;
+}
+.tech-form input::placeholder,
+.tech-form textarea::placeholder {
+    color: rgba(246, 242, 234, 0.55) !important;
+}
+.btn-send {
+    background: var(--accent) !important;
+    color: var(--bg) !important;
+}
+
+/* ---------- Footer ---------- */
+footer {
+    background: var(--bg) !important;
+    color: var(--dim) !important;
+    border-top: 1px solid var(--rule) !important;
+}
+footer * { color: var(--dim) !important; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 900px) {
+    .hero-venn-wrapper::before,
+    .hero-venn-wrapper::after {
+        font-size: clamp(3.5rem, 16vw, 5rem);
+    }
+    .hero-venn-wrapper::after { margin-left: 1rem; }
+    .hero { padding: 14vh 1.25rem 4vh !important; }
+    .hero-venn-caption { font-size: 1.1rem; }
+}
+
+</style>
 </head>
 
 <body>
