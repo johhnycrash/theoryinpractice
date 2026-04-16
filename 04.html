@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.3.2/build/css/intlTelInput.min.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.3.2/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
         :root {
@@ -106,83 +107,108 @@
             padding: 0 var(--space-24);
         }
 
-        /* ============================================
-           NAV
-           ============================================ */
-        nav {
+        /* ====== FIXED NAV (v50 pattern) ====== */
+        .top-bar {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(248, 245, 240, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--rule);
-            height: var(--nav-h);
-        }
-
-        .nav-inner {
+            top: 0; left: 0;
+            width: 100%;
+            padding: 0 2rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: var(--space-16) var(--space-24);
-            height: 100%;
+            z-index: 200;
+            height: 4.6rem;
+            background: rgba(3, 3, 3, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
-
-        .nav-brand {
+        .top-logo {
             font-family: var(--font-serif);
-            font-size: var(--fs-20);
+            font-size: 1.4rem;
             font-weight: 500;
-            color: var(--ink);
-            letter-spacing: -0.02em;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-
-        .nav-brand span { font-weight: 300; font-style: italic; }
-
-        .nav-links { display: flex; gap: var(--space-32); list-style: none; }
-
-        .nav-links a {
-            font-family: var(--font-mono);
-            font-size: var(--fs-14);
-            color: var(--ink-3);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            transition: color var(--dur) var(--ease);
+        .logo-w { color: #fff; }
+        .logo-r { color: var(--accent); font-style: italic; }
+        .nav-center { flex: 1; display: flex; justify-content: center; min-width: 0; }
+        .nav-links { display: flex; align-items: center; gap: 2.25rem; }
+        .sn-link {
             position: relative;
-            padding-bottom: 4px;
+            display: inline-block;
+            padding: 0.35rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.25s ease;
         }
-
-        /* Always-visible burnt orange underline, brighter on hover */
-        .nav-links a::after {
+        /* Clean underline — appears on hover/active, NOT a pill, NOT always visible */
+        .sn-link::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
+            left: 0; right: 0; bottom: 0;
+            height: 1px;
             background: var(--accent);
-            opacity: 0.4;
-            transition: opacity var(--dur) var(--ease);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.3s ease;
         }
-        .nav-links a:hover::after { opacity: 1; }
+        .sn-link:hover { color: #fff; }
+        .sn-link:hover::after { transform: scaleX(1); }
+        .sn-link.active { color: #fff; }
+        .sn-link.active::after { transform: scaleX(1); }
 
-        .nav-links a:hover { color: var(--accent); }
+        /* BOOK A CALL pill button with blinking red dot */
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-family: var(--font-sans);
+            letter-spacing: 0.12em;
+            background: rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            flex-shrink: 0;
+            margin-left: 1.5rem;
+            white-space: nowrap;
+            align-self: center;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-contact:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; color: #fff; }
+        .btn-contact .dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s infinite ease-in-out;
+        }
+        @keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
+        /* RED OUTLINE on btn-contact ONLY when scrolled to the engage/contact section */
+        .btn-contact.section-active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(184, 58, 16, 0.25);
+        }
+
+        /* Mobile nav */
         .nav-mobile-toggle {
             display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: var(--space-8);
-            color: var(--ink);
-            min-width: 44px;
-            min-height: 44px;
+            background: none; border: none; color: #fff; cursor: pointer;
+            padding: 8px; margin-left: auto;
         }
-
         .nav-mobile-toggle svg { width: 24px; height: 24px; }
+        .mobile-cta { display: none; }
 
         @media (max-width: 860px) {
             .nav-links { display: none; }
@@ -190,107 +216,107 @@
                 display: flex;
                 flex-direction: column;
                 position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: rgba(248, 245, 240, 0.98);
-                backdrop-filter: blur(20px);
-                padding: var(--space-24);
-                gap: var(--space-24);
-                border-bottom: 1px solid var(--rule);
+                top: 4.6rem; left: 0; right: 0;
+                background: rgba(3, 3, 3, 0.95);
+                backdrop-filter: blur(14px);
+                padding: 1.5rem 2rem;
+                gap: 1.25rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
-            .nav-links.open a { min-height: 44px; display: flex; align-items: center; }
-            .nav-mobile-toggle { display: flex; align-items: center; justify-content: center; }
+            .nav-mobile-toggle { display: flex; align-items: center; }
+            .btn-contact.desktop-cta { display: none; }
         }
 
         /* ============================================
-           HERO — Venn diagram on dark background
+           HERO — v44 spotlight pattern
            ============================================ */
         .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: calc(var(--nav-h) + var(--space-48)) var(--space-24) var(--space-64);
             position: relative;
-            background: #030303;
+            min-height: 100vh;
+            width: 100%;
             overflow: hidden;
-        }
-
-        .hero-venn-wrap {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .hero-venn-svg {
-            width: 100%;
-            height: auto;
-            display: block;
-            cursor: crosshair;
-        }
-
-        .hero-tagline {
-            font-family: var(--font-serif);
-            font-size: 2.5rem;
-            font-weight: 400;
-            font-style: italic;
-            color: rgba(248, 245, 240, 0.7);
-            text-align: center;
-            margin-top: var(--space-48);
-            line-height: 1.3;
-        }
-
-        .hero-scroll-hint {
-            position: absolute;
-            bottom: var(--space-48);
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: var(--font-mono);
-            font-size: var(--fs-14);
-            color: rgba(248, 245, 240, 0.25);
+            background: #030303;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: var(--space-8);
-            opacity: 0.6;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            --mouse-x: 50%;
+            --mouse-y: 42%;
         }
 
-        .hero-scroll-hint::after {
-            content: '';
-            width: 1px;
-            height: 32px;
-            background: rgba(184, 58, 16, 0.4);
-            animation: scrollPulse 2s ease-in-out infinite;
+        .hero-layer-base {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        @keyframes scrollPulse {
-            0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
-            50% { opacity: 1; transform: scaleY(1); }
+        /* The base venn is visible at 80%+ opacity — NOT dim */
+        .hero-layer-base .venn-svg circle {
+            stroke-opacity: 0.8;
         }
 
-        /* Aurora breathing animation */
-        @keyframes auroraShift1 {
-            0%   { cx: 780; cy: 430; r: 180; opacity: 0.25; }
-            33%  { cx: 820; cy: 470; r: 220; opacity: 0.35; }
-            66%  { cx: 760; cy: 410; r: 200; opacity: 0.20; }
-            100% { cx: 780; cy: 430; r: 180; opacity: 0.25; }
-        }
-        @keyframes auroraShift2 {
-            0%   { cx: 820; cy: 480; r: 160; opacity: 0.20; }
-            33%  { cx: 770; cy: 420; r: 200; opacity: 0.30; }
-            66%  { cx: 830; cy: 460; r: 170; opacity: 0.15; }
-            100% { cx: 820; cy: 480; r: 160; opacity: 0.20; }
-        }
-        @keyframes auroraShift3 {
-            0%   { cx: 800; cy: 450; r: 140; opacity: 0.15; }
-            50%  { cx: 790; cy: 440; r: 190; opacity: 0.28; }
-            100% { cx: 800; cy: 450; r: 140; opacity: 0.15; }
+        /* Spotlight layer: identical venn but BRIGHTER, masked by cursor radial gradient */
+        .hero-layer-spotlight {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            opacity: 0.7;
+            -webkit-mask-image: radial-gradient(circle 380px at var(--mouse-x) var(--mouse-y), black 0%, transparent 70%);
+            mask-image: radial-gradient(circle 380px at var(--mouse-x) var(--mouse-y), black 0%, transparent 70%);
         }
 
-        @media (max-width: 600px) {
-            .hero-tagline { font-size: 1.5rem; }
+        .hero-venn-wrapper {
+            width: min(92vw, 1200px);
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .venn-svg { width: 100%; height: auto; display: block; }
+
+        .vl-title {
+            font-family: var(--font-serif);
+            font-size: 140px;
+            font-weight: 400;
+            fill: rgba(255, 255, 255, 0.85);
+            letter-spacing: -0.02em;
+        }
+
+        .vl-sub {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-style: italic;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .hero-venn-caption {
+            font-family: var(--font-serif);
+            font-size: var(--fs-hero, 2.5rem);
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.88);
+            text-align: center;
+            margin: 2rem 0 0;
+            position: relative;
+            z-index: 5;
+            letter-spacing: 0.005em;
+            line-height: 1.25;
+        }
+
+        @media (max-width: 900px) {
+            .hero { min-height: auto; padding: 6rem 1rem 3rem; }
+            .hero-venn-caption { font-size: 1.4rem; padding: 0 1rem; }
+            .vl-title { font-size: 80px; }
+            .vl-sub { font-size: 18px; }
+            .hero-layer-spotlight { display: none; } /* No spotlight on touch devices — just show the base */
         }
 
         /* ============================================
@@ -1215,94 +1241,74 @@
 <body>
 
     <!-- NAV -->
-    <nav>
-        <div class="nav-inner">
-            <div class="nav-brand">Theory <span>in Practice</span></div>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#academy">Academy</a></li>
-                <li><a href="#method">Method</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#clients">Clients</a></li>
-                <li><a href="#partners">Partners</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-            <button class="nav-mobile-toggle" id="navToggle" aria-label="Toggle navigation">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
+    <header class="top-bar">
+        <a href="#overview" class="top-logo">
+            <span class="logo-w">Theory</span> <span class="logo-r">in Practice</span>
+        </a>
+        <nav class="nav-center">
+            <div class="nav-links">
+                <a href="#academy" class="sn-link t-academy">Academy</a>
+                <a href="#consulting" class="sn-link t-consulting">Consulting</a>
+                <a href="#about" class="sn-link t-about">About</a>
+                <a href="#footprint" class="sn-link t-footprint">Clients</a>
+                <a href="#partners" class="sn-link t-partners">Partners</a>
+            </div>
+        </nav>
+        <a href="#engage" class="btn-contact desktop-cta">
+            <span class="dot"></span> <span class="btn-label">BOOK A CALL</span>
+        </a>
+        <!-- Mobile hamburger -->
+        <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle navigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </header>
+
+    <!-- HERO — v44 spotlight Venn -->
+    <section class="hero" id="overview">
+        <!-- Base layer: venn diagram -->
+        <div class="hero-layer-base">
+            <div class="hero-venn-wrapper">
+                <svg class="venn-svg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Base circles at 80%+ opacity strokes -->
+                    <circle cx="530" cy="450" r="430" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
+                    <circle cx="1070" cy="450" r="430" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
+
+                    <!-- Text labels -->
+                    <text x="310" y="430" text-anchor="middle" class="vl-title">Theory</text>
+                    <text x="310" y="475" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
+                    <text x="1290" y="430" text-anchor="middle" class="vl-title">Practice</text>
+                    <text x="1290" y="475" text-anchor="middle" class="vl-sub">Repeated action.</text>
+                </svg>
+            </div>
         </div>
-    </nav>
 
-    <!-- HERO — Venn Diagram -->
-    <section class="hero" id="hero">
-        <div class="hero-venn-wrap">
-            <svg class="hero-venn-svg" id="vennSvg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <!-- Clip paths for intersection (vesica piscis) -->
-                    <clipPath id="clipLeft"><circle cx="530" cy="450" r="430"/></clipPath>
-                    <clipPath id="clipRight"><circle cx="1070" cy="450" r="430"/></clipPath>
-                    <clipPath id="clipIntersection">
-                        <path id="intersectionPath"/>
-                    </clipPath>
-
-                    <!-- Spotlight radial gradient — follows cursor -->
-                    <radialGradient id="spotlightGrad" cx="0.5" cy="0.5" r="0.5">
-                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7"/>
-                        <stop offset="40%" stop-color="#ffffff" stop-opacity="0.3"/>
-                        <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-                    </radialGradient>
-
-                    <!-- Aurora gradients -->
-                    <radialGradient id="aurora1" cx="0.5" cy="0.5" r="0.5">
-                        <stop offset="0%" stop-color="#d4731a" stop-opacity="0.4"/>
-                        <stop offset="100%" stop-color="#b83a10" stop-opacity="0"/>
-                    </radialGradient>
-                    <radialGradient id="aurora2" cx="0.5" cy="0.5" r="0.5">
-                        <stop offset="0%" stop-color="#e8a060" stop-opacity="0.3"/>
-                        <stop offset="100%" stop-color="#b83a10" stop-opacity="0"/>
-                    </radialGradient>
-                    <radialGradient id="aurora3" cx="0.5" cy="0.5" r="0.5">
-                        <stop offset="0%" stop-color="#f5d4a0" stop-opacity="0.25"/>
-                        <stop offset="100%" stop-color="#b83a10" stop-opacity="0"/>
-                    </radialGradient>
-                </defs>
-
-                <!-- Left circle stroke -->
-                <circle cx="530" cy="450" r="430" fill="none" stroke="rgba(248,245,240,0.12)" stroke-width="1"/>
-                <!-- Right circle stroke -->
-                <circle cx="1070" cy="450" r="430" fill="none" stroke="rgba(248,245,240,0.12)" stroke-width="1"/>
-
-                <!-- Intersection fill: right circle clipped by left = lens shape -->
-                <g clip-path="url(#clipLeft)">
-                    <circle cx="1070" cy="450" r="430" fill="var(--accent)"/>
-
-                    <!-- Aurora breathing blobs inside intersection -->
-                    <circle cx="780" cy="430" r="180" fill="url(#aurora1)" style="animation: auroraShift1 8s ease-in-out infinite; mix-blend-mode: screen;"/>
-                    <circle cx="820" cy="480" r="160" fill="url(#aurora2)" style="animation: auroraShift2 11s ease-in-out infinite; mix-blend-mode: screen;"/>
-                    <circle cx="800" cy="450" r="140" fill="url(#aurora3)" style="animation: auroraShift3 14s ease-in-out infinite; mix-blend-mode: screen;"/>
-
-                    <!-- Spotlight circle — only visible in intersection due to parent clip -->
-                    <circle id="spotlightCircle" cx="800" cy="450" r="200" fill="url(#spotlightGrad)" opacity="0" style="mix-blend-mode: screen; transition: opacity 0.4s ease; pointer-events: none;"/>
-                </g>
-
-                <!-- Stroke brightener near spotlight (on top, clipped to intersection) -->
-                <g clip-path="url(#clipLeft)">
-                    <circle cx="1070" cy="450" r="430" fill="none" stroke="rgba(248,245,240,0.08)" stroke-width="1.5" id="strokeGlowRight"/>
-                </g>
-                <g clip-path="url(#clipRight)">
-                    <circle cx="530" cy="450" r="430" fill="none" stroke="rgba(248,245,240,0.08)" stroke-width="1.5" id="strokeGlowLeft"/>
-                </g>
-
-                <!-- "Theory" label — left circle, outside overlap -->
-                <text x="310" y="420" font-family="'Cormorant Garamond', Georgia, serif" font-size="64" font-weight="400" fill="rgba(248,245,240,0.85)" text-anchor="middle">Theory</text>
-                <text x="310" y="470" font-family="'Inter Tight', sans-serif" font-size="20" font-weight="300" fill="rgba(248,245,240,0.35)" text-anchor="middle">Principles that explain why.</text>
-
-                <!-- "Practice" label — right circle, outside overlap -->
-                <text x="1290" y="420" font-family="'Cormorant Garamond', Georgia, serif" font-size="64" font-weight="400" fill="rgba(248,245,240,0.85)" text-anchor="middle">Practice</text>
-                <text x="1290" y="470" font-family="'Inter Tight', sans-serif" font-size="20" font-weight="300" fill="rgba(248,245,240,0.35)" text-anchor="middle">Repeated action.</text>
-            </svg>
+        <!-- Spotlight layer: follows cursor, reveals a brightened version -->
+        <div class="hero-layer-spotlight">
+            <div class="hero-venn-wrapper">
+                <svg class="venn-svg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="lens-clip-l"><circle cx="530" cy="450" r="430"/></clipPath>
+                        <clipPath id="lens-clip-r"><circle cx="1070" cy="450" r="430"/></clipPath>
+                    </defs>
+                    <!-- Bright circle strokes (revealed by spotlight) -->
+                    <circle cx="530" cy="450" r="430" fill="none" stroke="rgba(255,255,255,1)" stroke-width="2"/>
+                    <circle cx="1070" cy="450" r="430" fill="none" stroke="rgba(255,255,255,1)" stroke-width="2"/>
+                    <!-- Bright burnt orange intersection -->
+                    <g clip-path="url(#lens-clip-l)">
+                        <g clip-path="url(#lens-clip-r)">
+                            <rect x="0" y="0" width="1600" height="900" fill="var(--accent)"/>
+                        </g>
+                    </g>
+                    <!-- Bright text -->
+                    <text x="310" y="430" text-anchor="middle" class="vl-title" fill="#fff">Theory</text>
+                    <text x="310" y="475" text-anchor="middle" class="vl-sub" fill="rgba(255,255,255,0.9)">Principles that explain why.</text>
+                    <text x="1290" y="430" text-anchor="middle" class="vl-title" fill="#fff">Practice</text>
+                    <text x="1290" y="475" text-anchor="middle" class="vl-sub" fill="rgba(255,255,255,0.9)">Repeated action.</text>
+                </svg>
+            </div>
         </div>
-        <p class="hero-tagline">Applying proven models to real-world situations.</p>
-        <div class="hero-scroll-hint">scroll</div>
+
+        <p class="hero-venn-caption">Applying proven models to real-world situations.</p>
     </section>
 
     <!-- ACADEMY -->
@@ -1396,7 +1402,7 @@
     </section>
 
     <!-- METHOD (Consulting) -->
-    <section id="method">
+    <section id="consulting">
         <div class="container">
             <div class="section-rule"></div>
             <div class="section-label">Consulting</div>
@@ -1533,7 +1539,7 @@
     </section>
 
     <!-- CLIENTS -->
-    <section id="clients">
+    <section id="footprint">
         <div class="container" style="max-width: none; padding: 0;">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 var(--space-24);">
                 <div class="section-rule"></div>
@@ -1662,7 +1668,7 @@
     </section>
 
     <!-- CONTACT -->
-    <section class="contact-section" id="contact">
+    <section class="contact-section" id="engage">
         <div class="container">
             <div class="section-label">Contact</div>
             <h2 class="section-title">How can we help?</h2>
@@ -1731,9 +1737,9 @@
             <div class="footer-brand">Theory <span>in Practice</span></div>
             <ul class="footer-nav">
                 <li><a href="#academy">Academy</a></li>
-                <li><a href="#method">Consulting</a></li>
+                <li><a href="#consulting">Consulting</a></li>
                 <li><a href="#about">About</a></li>
-                <li><a href="#clients">Clients</a></li>
+                <li><a href="#footprint">Clients</a></li>
                 <li><a href="#partners">Partners</a></li>
             </ul>
         </div>
@@ -1764,82 +1770,52 @@
 
     <script>
         // ============================================
-        // VENN SPOTLIGHT — cursor-follow on intersection
+        // V44-STYLE SPOTLIGHT — CSS mask follows cursor
         // ============================================
-        (function initVennSpotlight() {
-            var svg = document.getElementById('vennSvg');
-            if (!svg) return;
-            var spot = document.getElementById('spotlightCircle');
-            if (!spot) return;
+        (function initSpotlight() {
+            var heroSec = document.querySelector('.hero');
+            if (!heroSec) return;
+            var spotObj = { x: window.innerWidth * 0.5, y: window.innerHeight * 0.42 };
 
-            var pt = svg.createSVGPoint();
-            var isOver = false;
+            var updateSpotlight = function () {
+                heroSec.style.setProperty('--mouse-x', spotObj.x + 'px');
+                heroSec.style.setProperty('--mouse-y', spotObj.y + 'px');
+            };
+            updateSpotlight();
 
-            function svgCoords(e) {
-                var rect = svg.getBoundingClientRect();
-                pt.x = e.clientX;
-                pt.y = e.clientY;
-                var ctm = svg.getScreenCTM();
-                if (ctm) {
-                    var inv = ctm.inverse();
-                    return pt.matrixTransform(inv);
-                }
-                // Fallback
-                return {
-                    x: (e.clientX - rect.left) / rect.width * 1600,
-                    y: (e.clientY - rect.top) / rect.height * 900
-                };
-            }
-
-            // Check if point is inside the intersection (inside both circles)
-            function inIntersection(sx, sy) {
-                var dx1 = sx - 530, dy1 = sy - 450;
-                var dx2 = sx - 1070, dy2 = sy - 450;
-                return (dx1*dx1 + dy1*dy1 <= 430*430) && (dx2*dx2 + dy2*dy2 <= 430*430);
-            }
-
-            svg.addEventListener('mousemove', function(e) {
-                var coords = svgCoords(e);
-                spot.setAttribute('cx', coords.x);
-                spot.setAttribute('cy', coords.y);
-
-                if (inIntersection(coords.x, coords.y)) {
-                    if (!isOver) {
-                        isOver = true;
-                        spot.setAttribute('opacity', '0.9');
-                    }
-                } else {
-                    if (isOver) {
-                        isOver = false;
-                        spot.setAttribute('opacity', '0');
-                    }
-                }
+            // Auto drift when not interacting
+            var autoSpot = gsap.to(spotObj, {
+                x: window.innerWidth * 0.65,
+                y: window.innerHeight * 0.42,
+                duration: 6,
+                ease: 'sine.inOut',
+                yoyo: true,
+                repeat: -1,
+                onUpdate: updateSpotlight
             });
 
-            svg.addEventListener('mouseleave', function() {
-                isOver = false;
-                spot.setAttribute('opacity', '0');
-            });
-
-            // Touch support
-            svg.addEventListener('touchmove', function(e) {
-                if (e.touches.length < 1) return;
-                var touch = e.touches[0];
-                var coords = svgCoords(touch);
-                spot.setAttribute('cx', coords.x);
-                spot.setAttribute('cy', coords.y);
-                if (inIntersection(coords.x, coords.y)) {
-                    spot.setAttribute('opacity', '0.9');
-                    isOver = true;
-                } else {
-                    spot.setAttribute('opacity', '0');
-                    isOver = false;
-                }
-            }, { passive: true });
-
-            svg.addEventListener('touchend', function() {
-                isOver = false;
-                spot.setAttribute('opacity', '0');
+            var interactionTimer;
+            heroSec.addEventListener('mousemove', function (e) {
+                var rect = heroSec.getBoundingClientRect();
+                if (autoSpot) autoSpot.kill();
+                gsap.to(spotObj, {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top,
+                    duration: 0.15,
+                    onUpdate: updateSpotlight
+                });
+                clearTimeout(interactionTimer);
+                interactionTimer = setTimeout(function () {
+                    autoSpot = gsap.to(spotObj, {
+                        x: window.innerWidth * 0.65,
+                        y: window.innerHeight * 0.42,
+                        duration: 6,
+                        ease: 'sine.inOut',
+                        yoyo: true,
+                        repeat: -1,
+                        onUpdate: updateSpotlight
+                    });
+                }, 3000);
             });
         })();
 
@@ -1878,14 +1854,41 @@
         // ============================================
         // MOBILE NAV TOGGLE
         // ============================================
-        document.getElementById('navToggle').addEventListener('click', function () {
-            document.getElementById('navLinks').classList.toggle('open');
-        });
-        document.querySelectorAll('.nav-links a').forEach(function (a) {
-            a.addEventListener('click', function () {
-                document.getElementById('navLinks').classList.remove('open');
-            });
-        });
+        (function initNav() {
+            var navToggle = document.getElementById('navMobileToggle');
+            var navLinks = document.querySelector('.nav-links');
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', function () {
+                    navLinks.classList.toggle('open');
+                });
+                // Close on link click
+                navLinks.querySelectorAll('a').forEach(function (a) {
+                    a.addEventListener('click', function () { navLinks.classList.remove('open'); });
+                });
+            }
+
+            // Scrollspy: highlight active nav link + red outline on BOOK A CALL when at engage section
+            var sections = document.querySelectorAll('section[id]');
+            var navLinksAll = document.querySelectorAll('.sn-link');
+            var ctaBtn = document.querySelector('.btn-contact.desktop-cta');
+
+            function updateScrollspy() {
+                var scrollY = window.scrollY + 120;
+                var currentId = '';
+                sections.forEach(function (sec) {
+                    if (sec.offsetTop <= scrollY) currentId = sec.id;
+                });
+                navLinksAll.forEach(function (link) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+                });
+                // Red outline on CTA only when at the contact/engage section
+                if (ctaBtn) {
+                    ctaBtn.classList.toggle('section-active', currentId === 'engage');
+                }
+            }
+            window.addEventListener('scroll', updateScrollspy, { passive: true });
+            updateScrollspy();
+        })();
 
         // ============================================
         // MAP
