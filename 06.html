@@ -993,6 +993,7 @@
                 display: block !important;
                 grid-template-columns: unset !important;
                 overflow: visible !important;
+                position: relative !important;
             }
             .map-col {
                 position: relative !important;
@@ -2190,6 +2191,17 @@
                         if (cardEl) {
                             cardEl.addEventListener('mouseenter', activate);
                             cardEl.addEventListener('mouseleave', deactivate);
+                            // Mobile: tap card → pulse pin on map
+                            cardEl.addEventListener('click', function(e) {
+                                // Don't hijack link clicks
+                                if (e.target.closest('a')) return;
+                                activate();
+                                // Pan map to this pin
+                                if (map && dat.lat && dat.lng) {
+                                    map.panTo([dat.lat, dat.lng], { animate: true, duration: 0.5 });
+                                }
+                                setTimeout(deactivate, 3000);
+                            });
                         }
                     });
                     fitMapToMarkers();
@@ -2503,15 +2515,28 @@
                 var sr = secC.getBoundingClientRect();
                 var mh = mapC.offsetHeight;
 
-                if (sr.top <= navH && sr.bottom > navH + mh + 100) {
+                // Section is in view and there's room for cards below
+                var shouldPin = sr.top <= navH && sr.bottom > navH + mh + 50;
+                // Section bottom is near/above map bottom — park map at section bottom
+                var shouldPark = sr.top <= navH && sr.bottom <= navH + mh + 50;
+
+                if (shouldPin) {
                     if (!pinned) {
                         mapC.classList.add('pinned');
+                        mapC.classList.remove('parked');
                         splitC.classList.add('map-pinned');
                         pinned = true;
                     }
+                } else if (shouldPark) {
+                    // Keep map visible at bottom of section instead of disappearing
+                    mapC.classList.remove('pinned');
+                    mapC.classList.add('parked');
+                    splitC.classList.add('map-pinned');
+                    pinned = false;
                 } else {
-                    if (pinned) {
+                    if (pinned || mapC.classList.contains('parked')) {
                         mapC.classList.remove('pinned');
+                        mapC.classList.remove('parked');
                         splitC.classList.remove('map-pinned');
                         pinned = false;
                     }
