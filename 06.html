@@ -2184,15 +2184,17 @@
                             cardEl.addEventListener('mouseenter', activate);
                             cardEl.addEventListener('mouseleave', deactivate);
                             // Mobile: tap card → pulse pin on map
+                            // Do NOT call activate() — it scrolls the page,
+                            // which can push past the section and unpin the map.
                             cardEl.addEventListener('click', function(e) {
-                                // Don't hijack link clicks
                                 if (e.target.closest('a')) return;
-                                activate();
-                                // Pan map to this pin
-                                if (map && dat.lat && dat.lng) {
-                                    map.panTo([dat.lat, dat.lng], { animate: true, duration: 0.5 });
-                                }
-                                setTimeout(deactivate, 3000);
+                                // Highlight pin directly (no scrollBy)
+                                pinEl.classList.add('active');
+                                cardEl.classList.add('pin-hover');
+                                setTimeout(function() {
+                                    pinEl.classList.remove('active');
+                                    cardEl.classList.remove('pin-hover');
+                                }, 3000);
                             });
                         }
                     });
