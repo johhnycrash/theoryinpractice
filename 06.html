@@ -993,7 +993,6 @@
                 display: block !important;
                 grid-template-columns: unset !important;
                 overflow: visible !important;
-                position: relative !important;
             }
             .map-col {
                 position: relative !important;
@@ -1007,13 +1006,6 @@
             .map-col.pinned {
                 position: fixed !important;
                 top: 64px !important;
-                left: 0 !important;
-                right: 0 !important;
-            }
-            .map-col.parked {
-                position: absolute !important;
-                bottom: 0 !important;
-                top: auto !important;
                 left: 0 !important;
                 right: 0 !important;
             }
@@ -2515,28 +2507,18 @@
                 var sr = secC.getBoundingClientRect();
                 var mh = mapC.offsetHeight;
 
-                // Section is in view and there's room for cards below
-                var shouldPin = sr.top <= navH && sr.bottom > navH + mh + 50;
-                // Section bottom is near/above map bottom — park map at section bottom
-                var shouldPark = sr.top <= navH && sr.bottom <= navH + mh + 50;
-
-                if (shouldPin) {
+                // Pin while section is in view. Unpin only when
+                // the section bottom has scrolled above where the
+                // map bottom would sit (i.e. no more cards visible).
+                if (sr.top <= navH && sr.bottom > navH + mh) {
                     if (!pinned) {
                         mapC.classList.add('pinned');
-                        mapC.classList.remove('parked');
                         splitC.classList.add('map-pinned');
                         pinned = true;
                     }
-                } else if (shouldPark) {
-                    // Keep map visible at bottom of section instead of disappearing
-                    mapC.classList.remove('pinned');
-                    mapC.classList.add('parked');
-                    splitC.classList.add('map-pinned');
-                    pinned = false;
                 } else {
-                    if (pinned || mapC.classList.contains('parked')) {
+                    if (pinned) {
                         mapC.classList.remove('pinned');
-                        mapC.classList.remove('parked');
                         splitC.classList.remove('map-pinned');
                         pinned = false;
                     }
