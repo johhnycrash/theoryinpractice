@@ -222,7 +222,7 @@
                 gap: 1.25rem;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
-            .nav-mobile-toggle { display: flex; align-items: center; }
+            .nav-mobile-toggle { display: flex; align-items: center; order: 3; margin-left: 0; }
             .btn-contact.desktop-cta { 
                 padding: 6px 14px; 
                 font-size: 11px; 
@@ -323,8 +323,10 @@
         @media (max-width: 900px) {
             .hero { min-height: auto; padding: 6rem 1rem 3rem; }
             .hero-venn-caption { font-size: 1.4rem; padding: 0 1rem; }
-            .vl-title { font-size: 80px; }
-            .vl-sub { font-size: 18px; }
+            .hero-venn-wrapper { overflow: hidden; }
+            .venn-svg { transform: scale(1.35); transform-origin: center center; }
+            .vl-title { font-size: 130px; }
+            .vl-sub { font-size: 52px; }
             .hero-spotlight { display: none; }
         }
 
@@ -1457,10 +1459,10 @@
                     </g>
 
                     <!-- Labels positioned in the non-overlap parts of each circle -->
-                    <text x="310" y="440" text-anchor="middle" class="vl-title">Theory</text>
-                    <text x="310" y="510" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
-                    <text x="1290" y="440" text-anchor="middle" class="vl-title">Practice</text>
-                    <text x="1290" y="510" text-anchor="middle" class="vl-sub">Repeated action.</text>
+                    <text id="vl-theory" x="310" y="440" text-anchor="middle" class="vl-title">Theory</text>
+                    <text id="vl-theory-sub" x="310" y="510" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
+                    <text id="vl-practice" x="1290" y="440" text-anchor="middle" class="vl-title">Practice</text>
+                    <text id="vl-practice-sub" x="1290" y="510" text-anchor="middle" class="vl-sub">Repeated action.</text>
                 </svg>
             </div>
 
@@ -2056,6 +2058,21 @@
                 navLinks.querySelectorAll('a').forEach(function (a) {
                     a.addEventListener('click', function () { navLinks.classList.remove('open'); });
                 });
+            }
+
+            // Mobile venn: move text to circle centers for readability
+            if (window.innerWidth <= 900) {
+                var els = {
+                    t: document.getElementById('vl-theory'),
+                    ts: document.getElementById('vl-theory-sub'),
+                    p: document.getElementById('vl-practice'),
+                    ps: document.getElementById('vl-practice-sub')
+                };
+                // Circle centers: left cx=530, right cx=1070, cy=450
+                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '430'); }
+                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '500'); }
+                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '430'); }
+                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '500'); }
             }
 
             // Scrollspy: highlight active nav link + red outline on BOOK A CALL when at engage section
