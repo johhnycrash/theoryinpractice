@@ -352,11 +352,13 @@
             align-items: center;
         }
         .sec-icon {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             vertical-align: middle;
             margin-right: 0.5rem;
             color: var(--accent);
+            stroke-width: 1.2;
+            opacity: 0.7;
         }
         .sec-title {
             font-family: var(--font-serif);
@@ -485,14 +487,21 @@
 
         .method-step-dot {
             position: absolute;
-            left: 13px;
-            top: 4px;
-            width: 24px;
-            height: 24px;
+            left: 15px;
+            top: 14px; /* vertically centered with step-name first line (~32px font, ~35px line) */
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 2px solid var(--accent);
+            border: 2px solid var(--ink);
             background: var(--bg);
             z-index: 1;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .method-step:hover .method-step-dot {
+            border-color: var(--accent);
+            transform: scale(1.5);
+            box-shadow: 0 0 0 3px rgba(184,58,16,0.2);
         }
 
         .method-step-dot::after {
@@ -504,6 +513,11 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
+            background: var(--ink);
+            transition: background 0.3s ease;
+        }
+
+        .method-step:hover .method-step-dot::after {
             background: var(--accent);
         }
 
@@ -643,15 +657,20 @@
         }
 
         .about-photo {
+            display: block;
             width: 100%;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            transform: rotate(-1.5deg);
-            transition: transform var(--dur) var(--ease);
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: none;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
 
         .about-photo-wrap:hover .about-photo {
-            transform: rotate(0deg);
+            transform: scale(1.5);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
         }
 
         .about-name {
@@ -806,6 +825,20 @@
             box-shadow: 0 0 0 6px var(--map-pin-glow);
         }
 
+        .map-pin.active::after,
+        .map-pin.auto-pulse::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: pin-pulse 1.5s ease-out infinite;
+        }
+        @keyframes pin-pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
         .pin-labels {
             position: absolute;
             bottom: calc(100% + 8px);
@@ -852,6 +885,11 @@
             border-color: rgba(20, 17, 13, 0.18);
         }
 
+        .client-card.pin-hover {
+            outline: 2px solid var(--accent);
+            background: rgba(184, 58, 16, 0.06) !important;
+        }
+
         /* Semantic coloring: paper bg = named clients with links, warm bg = anonymized */
         .client-card.named { background: var(--bg); }
         .client-card.anon { background: var(--bg-warm); }
@@ -894,19 +932,22 @@
 
         @media (max-width: 960px) {
             .clients-split {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
+                gap: 0 !important;
             }
             .map-col {
-                position: static;
-                height: auto;
+                position: sticky !important;
+                top: 0;
+                height: 50vh !important;
+                z-index: 10;
             }
             .impact-map-wrap {
-                aspect-ratio: 16 / 7;
-                max-height: 320px;
-                height: auto;
+                height: 100% !important;
+                max-height: none !important;
+                aspect-ratio: auto !important;
             }
             .cards-col {
-                padding: var(--space-24);
+                padding: var(--space-24) !important;
             }
         }
 
@@ -997,6 +1038,7 @@
             background: var(--ink);
             color: #fff;
             padding: var(--space-96) 0;
+            text-align: left;
         }
 
         .contact-section .section-label { color: var(--accent); }
@@ -1005,7 +1047,7 @@
 
         .contact-form {
             max-width: 640px;
-            margin-top: var(--space-48);
+            margin: var(--space-48) auto 0;
         }
 
         .form-row {
@@ -1092,9 +1134,11 @@
         .form-status.info { color: rgba(255,255,255,0.5); }
 
         .btn-send {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: var(--space-8);
+            width: 100%;
             padding: var(--space-16) var(--space-48);
             font-family: var(--font-mono);
             font-size: var(--fs-14);
@@ -1108,6 +1152,7 @@
             cursor: pointer;
             transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
             min-height: 44px;
+            text-align: center;
         }
 
         .btn-send:hover {
@@ -1244,6 +1289,45 @@
                 text-align: center;
             }
             .footer-nav { flex-wrap: wrap; justify-content: center; gap: var(--space-16); }
+        }
+
+        /* ============================================
+           MOBILE SWEEP (375px)
+           ============================================ */
+        @media (max-width: 768px) {
+            /* No horizontal scroll */
+            html, body { overflow-x: hidden; }
+
+            /* Hero caption */
+            .hero-venn-caption { font-size: 1.25rem; padding: 0 0.75rem; }
+
+            /* Academy streams single col */
+            .stream { grid-template-columns: 1fr; gap: var(--space-24); }
+            .stream-header { position: static; }
+
+            /* Method: spine visible, no overflow */
+            .method-flow::before { left: 16px; }
+            .method-step { padding-left: 52px; }
+            .method-step-dot { left: 7px; }
+            .method-cycle-return { padding-left: 52px; }
+            .step-name { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+            /* About: photo above bio */
+            .about-layout { grid-template-columns: 1fr; gap: var(--space-32); }
+            .about-photo-wrap { position: static; max-width: 240px; }
+            .about-photo-wrap:hover .about-photo { transform: scale(1.05); } /* less zoom on mobile */
+            .about-columns { grid-template-columns: 1fr; gap: var(--space-24); }
+
+            /* Partners single col */
+            .partner-card { grid-template-columns: 1fr; gap: var(--space-24); padding: var(--space-24); }
+
+            /* Contact full width */
+            .contact-form { max-width: 100%; padding: 0; }
+            .form-row { grid-template-columns: 1fr; }
+
+            /* Touch targets */
+            .sn-link, .btn-contact, .partner-link, .client-link, .about-linkedin,
+            .footer-nav a { min-height: 44px; display: inline-flex; align-items: center; }
         }
     </style>
 </head>
@@ -1492,6 +1576,7 @@
                 </svg>
                 About
             </span>
+            <h2 class="sec-title">The Team.</h2>
             <div class="about-layout">
                 <div class="about-photo-wrap">
                     <img class="about-photo" src="roti.png" alt="Roti Akinsanmi" loading="eager">
@@ -1541,7 +1626,7 @@
                                 <div class="about-award">
                                     <!-- Trophy icon (Grammy-style) -->
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v4a4 4 0 0 1-8 0V3z"/><path d="M8 5H5.5a2 2 0 0 0 0 4H8"/><path d="M16 5h2.5a2 2 0 0 1 0 4H16"/><path d="M12 11v5"/><path d="M9 21h6l-.5-4h-5L9 21z"/></svg>
-                                    <span>2026 Teaching Excellence in Lifelong Learning Award</span>
+                                    <span>2026 Teaching Excellence in Lifelong Learning&nbsp;Award</span>
                                 </div>
                             </div>
                         </div>
@@ -1562,7 +1647,7 @@
                     </svg>
                     Clients
                 </span>
-                <h2 class="sec-title">The Footprint.</h2>
+                <h2 class="sec-title">In Practice.</h2>
             </div>
 
             <div class="clients-split">
@@ -2051,7 +2136,7 @@
             if (window.IntersectionObserver) {
                 new IntersectionObserver(function (entries) {
                     entries.forEach(function (e) { if (e.isIntersecting) fitMapToMarkers(); });
-                }, { threshold: 0.2 }).observe(document.getElementById('clients'));
+                }, { threshold: 0.2 }).observe(document.getElementById('footprint'));
             }
 
             renderMapItems();
