@@ -223,7 +223,13 @@
                 border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             }
             .nav-mobile-toggle { display: flex; align-items: center; }
-            .btn-contact.desktop-cta { display: none; }
+            .btn-contact.desktop-cta { 
+                padding: 6px 14px; 
+                font-size: 11px; 
+                margin-left: auto; 
+                margin-right: 0.75rem;
+                order: 2;
+            }
         }
 
         /* ====== HEADER BLUR FADE ====== */
@@ -2080,10 +2086,13 @@
                 var pinBounds = L.latLngBounds(latLngs);
                 map.invalidateSize();
                 var sz = map.getSize();
-                var pad = Math.max(40, Math.round(Math.min(sz.x, sz.y) * 0.12));
+                var shorter = Math.min(sz.x, sz.y);
+                var pad = Math.max(30, Math.round(shorter * 0.08));
+                // On small screens, use less zoom so all of NA fits
+                var mz = shorter < 400 ? 3.5 : (shorter < 700 ? 4 : 5);
                 map.fitBounds(pinBounds, {
                     padding: [pad, pad],
-                    maxZoom: 5,
+                    maxZoom: mz,
                     animate: false
                 });
             }
@@ -2131,7 +2140,12 @@
                         if (!pinEl) return;
                         var activate = function () {
                             pinEl.classList.add('active');
-                            if (cardEl) cardEl.classList.add('pin-hover');
+                            if (cardEl) {
+                                cardEl.classList.add('pin-hover');
+                                var r = cardEl.getBoundingClientRect();
+                                var offset = r.top + r.height / 2 - window.innerHeight / 2;
+                                window.scrollBy({ top: offset, behavior: 'smooth' });
+                            }
                         };
                         var deactivate = function () {
                             pinEl.classList.remove('active');
@@ -2139,8 +2153,9 @@
                         };
                         pinEl.addEventListener('mouseenter', activate);
                         pinEl.addEventListener('mouseleave', deactivate);
-                        pinEl.addEventListener('touchstart', activate, { passive: true });
-                        pinEl.addEventListener('touchend', deactivate, { passive: true });
+                        pinEl.addEventListener('touchstart', function() {
+                            activate(); setTimeout(deactivate, 3000);
+                        }, { passive: true });
                         if (cardEl) {
                             cardEl.addEventListener('mouseenter', activate);
                             cardEl.addEventListener('mouseleave', deactivate);
