@@ -2178,49 +2178,46 @@
                         var pinEl = document.getElementById(dat.id);
                         var cardEl = document.querySelector('.client-card[data-pin="' + dat.id + '"]');
                         if (!pinEl) return;
-                        var activate = function () {
+                        // Highlight only — no scrolling
+                        var highlight = function () {
                             pinEl.classList.add('active');
-                            if (cardEl) {
-                                cardEl.classList.add('pin-hover');
-                                var r = cardEl.getBoundingClientRect();
-                                var cardMid = r.top + r.height / 2;
-                                // On mobile, cards live in the bottom half (below the pinned map).
-                                // Center the card in that zone, not the full viewport.
-                                var isMobile = window.innerWidth <= 960;
-                                var mapBot = isMobile ? (64 + (document.querySelector('.map-col') || {}).offsetHeight || 406) : 0;
-                                var target = isMobile
-                                    ? (mapBot + window.innerHeight) / 2
-                                    : window.innerHeight / 2;
-                                window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
-                            }
+                            if (cardEl) cardEl.classList.add('pin-hover');
                         };
-                        var deactivate = function () {
+                        var unhighlight = function () {
                             pinEl.classList.remove('active');
                             if (cardEl) cardEl.classList.remove('pin-hover');
                         };
-                        pinEl.addEventListener('mouseenter', activate);
-                        pinEl.addEventListener('mouseleave', deactivate);
-                        pinEl.addEventListener('touchstart', function() {
-                            activate(); setTimeout(deactivate, 3000);
+                        // Scroll a card into the center of its visible zone
+                        var scrollToCard = function () {
+                            if (!cardEl) return;
+                            var r = cardEl.getBoundingClientRect();
+                            var cardMid = r.top + r.height / 2;
+                            var isMobile = window.innerWidth <= 960;
+                            var mapH = isMobile ? ((document.querySelector('.map-col') || {}).offsetHeight || 406) : 0;
+                            var zoneTop = isMobile ? (64 + mapH) : 0;
+                            var target = (zoneTop + window.innerHeight) / 2;
+                            window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
+                        };
+
+                        // --- PIN hover/tap: highlight + scroll to card ---
+                        pinEl.addEventListener('mouseenter', function () {
+                            highlight(); scrollToCard();
+                        });
+                        pinEl.addEventListener('mouseleave', unhighlight);
+                        pinEl.addEventListener('touchstart', function () {
+                            highlight(); scrollToCard();
+                            setTimeout(unhighlight, 3000);
                         }, { passive: true });
+
+                        // --- CARD hover (desktop): highlight pin only, NO scroll ---
                         if (cardEl) {
-                            cardEl.addEventListener('mouseenter', activate);
-                            cardEl.addEventListener('mouseleave', deactivate);
-                            // Mobile: tap card → pulse pin + center card in bottom half
-                            cardEl.addEventListener('click', function(e) {
+                            cardEl.addEventListener('mouseenter', highlight);
+                            cardEl.addEventListener('mouseleave', unhighlight);
+                            // --- CARD tap (mobile): highlight pin + center card ---
+                            cardEl.addEventListener('click', function (e) {
                                 if (e.target.closest('a')) return;
-                                pinEl.classList.add('active');
-                                cardEl.classList.add('pin-hover');
-                                // Center this card in the bottom half of screen
-                                var r = cardEl.getBoundingClientRect();
-                                var cardMid = r.top + r.height / 2;
-                                var mapBot = 64 + ((document.querySelector('.map-col') || {}).offsetHeight || 406);
-                                var target = (mapBot + window.innerHeight) / 2;
-                                window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
-                                setTimeout(function() {
-                                    pinEl.classList.remove('active');
-                                    cardEl.classList.remove('pin-hover');
-                                }, 3000);
+                                highlight(); scrollToCard();
+                                setTimeout(unhighlight, 3000);
                             });
                         }
                     });
