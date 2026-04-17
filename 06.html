@@ -90,7 +90,7 @@
             background: var(--bg);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
+            overflow-x: clip;
         }
 
         ::selection { background: var(--accent); color: #fff; }
@@ -1364,7 +1364,7 @@
            ============================================ */
         @media (max-width: 768px) {
             /* No horizontal scroll */
-            html, body { overflow-x: hidden; }
+            html, body { overflow-x: clip; }
 
             /* Hero caption */
             .hero-venn-caption { font-size: 1.25rem; padding: 0 0.75rem; }
