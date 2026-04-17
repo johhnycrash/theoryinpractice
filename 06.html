@@ -998,7 +998,7 @@
             .map-col {
                 position: sticky !important;
                 top: 64px !important;
-                height: 45vh !important;
+                height: 50vh !important;
                 width: 100% !important;
                 z-index: 5;
                 overflow: hidden;
@@ -2103,9 +2103,8 @@
                 map.invalidateSize();
                 var sz = map.getSize();
                 var shorter = Math.min(sz.x, sz.y);
-                var pad = Math.max(30, Math.round(shorter * 0.08));
-                // On small screens, use less zoom so all of NA fits
-                var mz = shorter < 400 ? 3.5 : (shorter < 700 ? 4 : 5);
+                var pad = Math.max(24, Math.round(shorter * 0.06));
+                var mz = shorter < 500 ? 3 : (shorter < 800 ? 3.75 : 5);
                 map.fitBounds(pinBounds, {
                     padding: [pad, pad],
                     maxZoom: mz,
