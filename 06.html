@@ -2167,8 +2167,15 @@
                             if (cardEl) {
                                 cardEl.classList.add('pin-hover');
                                 var r = cardEl.getBoundingClientRect();
-                                var offset = r.top + r.height / 2 - window.innerHeight / 2;
-                                window.scrollBy({ top: offset, behavior: 'smooth' });
+                                var cardMid = r.top + r.height / 2;
+                                // On mobile, cards live in the bottom half (below the pinned map).
+                                // Center the card in that zone, not the full viewport.
+                                var isMobile = window.innerWidth <= 960;
+                                var mapBot = isMobile ? (64 + (document.querySelector('.map-col') || {}).offsetHeight || 406) : 0;
+                                var target = isMobile
+                                    ? (mapBot + window.innerHeight) / 2
+                                    : window.innerHeight / 2;
+                                window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
                             }
                         };
                         var deactivate = function () {
@@ -2183,14 +2190,17 @@
                         if (cardEl) {
                             cardEl.addEventListener('mouseenter', activate);
                             cardEl.addEventListener('mouseleave', deactivate);
-                            // Mobile: tap card → pulse pin on map
-                            // Do NOT call activate() — it scrolls the page,
-                            // which can push past the section and unpin the map.
+                            // Mobile: tap card → pulse pin + center card in bottom half
                             cardEl.addEventListener('click', function(e) {
                                 if (e.target.closest('a')) return;
-                                // Highlight pin directly (no scrollBy)
                                 pinEl.classList.add('active');
                                 cardEl.classList.add('pin-hover');
+                                // Center this card in the bottom half of screen
+                                var r = cardEl.getBoundingClientRect();
+                                var cardMid = r.top + r.height / 2;
+                                var mapBot = 64 + ((document.querySelector('.map-col') || {}).offsetHeight || 406);
+                                var target = (mapBot + window.innerHeight) / 2;
+                                window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
                                 setTimeout(function() {
                                     pinEl.classList.remove('active');
                                     cardEl.classList.remove('pin-hover');
