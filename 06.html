@@ -985,8 +985,16 @@
                 flex-direction: column;
             }
             #footprint > .container {
+                flex: 1;
+                min-height: 0;
+                display: flex !important;
+                flex-direction: column !important;
+                padding: 0 !important;
+                overflow: hidden;
+            }
+            #footprint > .container > div:first-child {
                 flex-shrink: 0;
-                padding: 0.75rem 1.25rem !important;
+                padding: 0.75rem 1.25rem;
             }
             .sec-title { margin-bottom: 0.5rem !important; }
             .clients-split {
@@ -995,6 +1003,7 @@
                 grid-template-columns: unset !important;
                 flex: 1;
                 min-height: 0;
+                overflow: hidden;
             }
             .map-col {
                 position: relative !important;
