@@ -323,10 +323,10 @@
         @media (max-width: 900px) {
             .hero { min-height: auto; padding: 6rem 1rem 3rem; }
             .hero-venn-caption { font-size: 1.4rem; padding: 0 1rem; }
-            .hero-venn-wrapper { overflow: hidden; }
-            .venn-svg { transform: scale(1.35); transform-origin: center center; }
-            .vl-title { font-size: 130px; }
-            .vl-sub { font-size: 52px; }
+            .hero-venn-wrapper { overflow: hidden; border-radius: 8px; }
+            .venn-svg { transform: scale(1.25); transform-origin: center center; }
+            .vl-title { font-size: 150px; }
+            .vl-sub { font-size: 56px; }
             .hero-spotlight { display: none; }
         }
 
@@ -2069,10 +2069,11 @@
                     ps: document.getElementById('vl-practice-sub')
                 };
                 // Circle centers: left cx=530, right cx=1070, cy=450
-                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '430'); }
-                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '500'); }
-                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '430'); }
-                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '500'); }
+                // Center text pair in each circle (cy=450, title above center, sub below)
+                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '420'); }
+                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '490'); }
+                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '420'); }
+                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '490'); }
             }
 
             // Scrollspy: highlight active nav link + red outline on BOOK A CALL when at engage section
