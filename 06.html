@@ -973,44 +973,35 @@
             font-style: normal;
         }
 
-        /* Mobile clients: section becomes a viewport-height box.
-           Map pinned in the top ~45%, cards scroll independently
-           in the bottom ~55% with their own overflow-y. */
+        /* Mobile clients: map STICKS to top of screen while cards
+           scroll past in normal page flow. No overflow traps.
+           position:sticky works because NO ancestor has overflow:hidden. */
         @media (max-width: 960px) {
             #footprint {
-                height: 100vh;
-                overflow: hidden;
                 padding: 0 !important;
-                display: flex;
-                flex-direction: column;
+                overflow: visible !important;
             }
             #footprint > .container {
-                flex: 1;
-                min-height: 0;
-                display: flex !important;
-                flex-direction: column !important;
+                max-width: none !important;
                 padding: 0 !important;
-                overflow: hidden;
+                overflow: visible !important;
             }
             #footprint > .container > div:first-child {
-                flex-shrink: 0;
                 padding: 0.75rem 1.25rem;
             }
             .sec-title { margin-bottom: 0.5rem !important; }
             .clients-split {
-                display: flex !important;
-                flex-direction: column !important;
+                display: block !important;
                 grid-template-columns: unset !important;
-                flex: 1;
-                min-height: 0;
-                overflow: hidden;
+                overflow: visible !important;
             }
             .map-col {
-                position: relative !important;
-                top: auto !important;
-                height: 40vh !important;
+                position: sticky !important;
+                top: 64px !important;
+                height: 45vh !important;
                 width: 100% !important;
-                flex-shrink: 0;
+                z-index: 5;
+                overflow: hidden;
             }
             .impact-map-wrap {
                 height: 100% !important;
@@ -1022,10 +1013,6 @@
                 grid-template-columns: 1fr !important;
             }
             .cards-col {
-                flex: 1;
-                min-height: 0;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
                 padding: 0.75rem 1rem !important;
             }
         }
