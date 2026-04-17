@@ -973,18 +973,34 @@
             font-style: normal;
         }
 
+        /* Mobile clients: section becomes a viewport-height box.
+           Map pinned in the top ~45%, cards scroll independently
+           in the bottom ~55% with their own overflow-y. */
         @media (max-width: 960px) {
+            #footprint {
+                height: 100vh;
+                overflow: hidden;
+                padding: 0 !important;
+                display: flex;
+                flex-direction: column;
+            }
+            #footprint > .container {
+                flex-shrink: 0;
+                padding: 0.75rem 1.25rem !important;
+            }
+            .sec-title { margin-bottom: 0.5rem !important; }
             .clients-split {
                 display: flex !important;
                 flex-direction: column !important;
                 grid-template-columns: unset !important;
+                flex: 1;
+                min-height: 0;
             }
             .map-col {
-                position: sticky !important;
-                top: 0 !important;
-                height: 50vh !important;
+                position: relative !important;
+                top: auto !important;
+                height: 40vh !important;
                 width: 100% !important;
-                z-index: 5;
                 flex-shrink: 0;
             }
             .impact-map-wrap {
@@ -993,11 +1009,15 @@
                 aspect-ratio: unset !important;
             }
             .clients-cards {
-                padding: 1rem !important;
+                padding: 0 !important;
                 grid-template-columns: 1fr !important;
             }
             .cards-col {
-                padding: var(--space-24) !important;
+                flex: 1;
+                min-height: 0;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 0.75rem 1rem !important;
             }
         }
 
