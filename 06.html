@@ -995,12 +995,29 @@
                 overflow: visible !important;
             }
             .map-col {
-                position: sticky !important;
-                top: 64px !important;
+                position: relative !important;
+                top: auto !important;
                 height: 50vh !important;
                 width: 100% !important;
                 z-index: 5;
                 overflow: hidden;
+                /* JS handles pinning — see mobileMapPin() below */
+            }
+            .map-col.pinned {
+                position: fixed !important;
+                top: 64px !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+            .map-col.parked {
+                position: absolute !important;
+                bottom: 0 !important;
+                top: auto !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+            .clients-split.map-pinned {
+                padding-top: 50vh;
             }
             .impact-map-wrap {
                 height: 100% !important;
@@ -2469,7 +2486,49 @@
                 });
             });
         })();
-    </script>
+    
+        // Mobile map pin: fixes map to top half of screen when
+        // clients section is in view. Pure scroll listener, no
+        // IntersectionObserver overhead, throttled via rAF.
+        if (window.innerWidth <= 960) {
+            var mapC = document.querySelector('.map-col');
+            var splitC = document.querySelector('.clients-split');
+            var secC = document.getElementById('footprint');
+            var navH = 64;
+            var pinned = false;
+            var ticking = false;
+
+            function mobileMapPin() {
+                if (!secC || !mapC) return;
+                var sr = secC.getBoundingClientRect();
+                var mh = mapC.offsetHeight;
+
+                if (sr.top <= navH && sr.bottom > navH + mh + 100) {
+                    if (!pinned) {
+                        mapC.classList.add('pinned');
+                        splitC.classList.add('map-pinned');
+                        pinned = true;
+                    }
+                } else {
+                    if (pinned) {
+                        mapC.classList.remove('pinned');
+                        splitC.classList.remove('map-pinned');
+                        pinned = false;
+                    }
+                }
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(mobileMapPin);
+                    ticking = true;
+                }
+            }, { passive: true });
+            mobileMapPin();
+        }
+
+        </script>
 </body>
 </html>
 /* cache-bust 1776460939 */
