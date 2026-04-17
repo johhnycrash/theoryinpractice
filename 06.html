@@ -821,31 +821,43 @@
 
         .leaflet-container { background: var(--map-water) !important; }
 
+        /* Force Leaflet marker pane ABOVE the overlay/GeoJSON pane.
+           Without this, the SVG land layer can paint over the pins. */
+        .leaflet-marker-pane { z-index: 700 !important; }
+        .leaflet-overlay-pane { z-index: 300 !important; }
+
         .leaflet-div-icon {
             background: transparent !important;
             border: none !important;
+            overflow: visible !important;
         }
         .custom-leaflet-pin {
             background: none !important;
             border: none !important;
+            overflow: visible !important;
         }
 
         .map-pin {
             position: relative;
-            width: 16px;
-            height: 16px;
-            background: var(--accent);
+            width: 18px;
+            height: 18px;
+            background: #b83a10 !important;   /* hardcoded burnt orange — never invisible */
             border: 2px solid #fff;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-            z-index: 10;
+            box-shadow:
+                0 0 0 2px #b83a10,             /* outer burnt ring for contrast */
+                0 2px 6px rgba(0, 0, 0, 0.4);  /* drop shadow for lift */
+            z-index: 100 !important;
             transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
         .map-pin:hover {
-            transform: scale(1.3);
-            box-shadow: 0 2px 8px rgba(184,58,16,0.4);
+            transform: scale(1.4);
+            box-shadow:
+                0 0 0 3px #b83a10,
+                0 0 14px rgba(184, 58, 16, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .map-pin.active::after,
@@ -2107,11 +2119,12 @@
             }
             addLandLayer();
 
-            // Markers
+            // Markers — rendered AFTER land so they're guaranteed on top.
             var markers = [];
             function renderMapItems() {
                 markers.forEach(function (m) { map.removeLayer(m); });
                 markers.length = 0;
+                console.log('[map] rendering', mapData.length, 'pins');
 
                 mapData.forEach(function (dat) {
                     var labelsHtml =
@@ -2172,6 +2185,9 @@
             }
 
             renderMapItems();
+            // Re-render pins after a delay to ensure they're on top of any
+            // async-loaded layers (GeoJSON, tiles) that might paint over them.
+            setTimeout(function() { renderMapItems(); fitMapToMarkers(); }, 1500);
         })();
 
         // ============================================
