@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Theory in Practice</title>
+    <meta property="og:title" content="Theory in Practice">
+    <meta property="og:description" content="Applying proven models to real-world situations.">
+    <meta property="og:image" content="https://theoryinpractice.ca/og-06.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://theoryinpractice.ca/06.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://theoryinpractice.ca/og-06.png">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter+Tight:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -1456,11 +1463,11 @@
                         </g>
                     </g>
 
-                    <!-- Labels positioned in the non-overlap parts of each circle -->
-                    <text id="vl-theory" x="310" y="440" text-anchor="middle" class="vl-title">Theory</text>
-                    <text id="vl-theory-sub" x="310" y="510" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
-                    <text id="vl-practice" x="1290" y="440" text-anchor="middle" class="vl-title">Practice</text>
-                    <text id="vl-practice-sub" x="1290" y="510" text-anchor="middle" class="vl-sub">Repeated action.</text>
+                    <!-- Labels centered in the non-overlap area of each circle -->
+                    <text id="vl-theory" x="370" y="464" text-anchor="middle" class="vl-title">Theory</text>
+                    <text id="vl-theory-sub" x="370" y="534" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
+                    <text id="vl-practice" x="1230" y="464" text-anchor="middle" class="vl-title">Practice</text>
+                    <text id="vl-practice-sub" x="1230" y="534" text-anchor="middle" class="vl-sub">Repeated action.</text>
                 </svg>
             </div>
 
@@ -2067,11 +2074,11 @@
                     ps: document.getElementById('vl-practice-sub')
                 };
                 // Circle centers: left cx=530, right cx=1070, cy=450
-                // Center text pair in each circle (cy=450, title above center, sub below)
-                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '420'); }
-                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '490'); }
-                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '420'); }
-                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '490'); }
+                // On mobile, move text to circle centers (more space) and center vertically
+                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '475'); }
+                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '555'); }
+                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '475'); }
+                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '555'); }
             }
 
             // Scrollspy: highlight active nav link + red outline on BOOK A CALL when at engage section
