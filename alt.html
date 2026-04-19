@@ -1,0 +1,2573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theory in Practice</title>
+    <meta property="og:title" content="Theory in Practice">
+    <meta property="og:description" content="Applying proven models to real-world situations.">
+    <meta property="og:image" content="https://theoryinpractice.ca/og-06.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://theoryinpractice.ca/06.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://theoryinpractice.ca/og-06.png">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter+Tight:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.3.2/build/css/intlTelInput.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.3.2/build/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --accent: #b83a10;
+            --accent-hover: #d0481c;
+            --accent-dark: #8a2b0b;
+            --accent-wash: rgba(184, 58, 16, 0.08);
+            --accent-glow: rgba(184, 58, 16, 0.35);
+
+            --bg: #f8f5f0;
+            --bg-white: #ffffff;
+            --bg-warm: #ece4d2;
+            --ink: #14110d;
+            --ink-2: #3a342c;
+            --ink-3: #5a544c;
+            --ink-4: #8a8278;
+            --rule: rgba(20, 17, 13, 0.10);
+
+            /* Map colors — water=white, land=grey, pins=burnt orange */
+            --map-water: #ffffff;
+            --map-land: #d9d5cc;
+            --map-border: #bfbab0;
+            --map-pin: var(--accent);
+            --map-pin-stroke: #ffffff;
+            --map-pin-glow: var(--accent-glow);
+
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+            --font-sans: 'Inter Tight', -apple-system, sans-serif;
+            --font-mono: 'DM Mono', monospace;
+
+            --fs-14: 0.875rem;
+            --fs-15: 0.9375rem;
+            --fs-16: 1rem;
+            --fs-18: 1.125rem;
+            --fs-20: 1.25rem;
+            --fs-24: 1.5rem;
+            --fs-32: 2rem;
+            --fs-40: 2.5rem;
+            --fs-48: 3rem;
+            --fs-64: 4rem;
+            --fs-hero: clamp(3.5rem, 8vw, 7rem);
+
+            --space-4: 0.25rem;
+            --space-8: 0.5rem;
+            --space-12: 0.75rem;
+            --space-16: 1rem;
+            --space-24: 1.5rem;
+            --space-32: 2rem;
+            --space-48: 3rem;
+            --space-64: 4rem;
+            --space-96: 6rem;
+            --space-128: 8rem;
+
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+
+            --shadow-sm: 0 1px 3px rgba(20, 17, 13, 0.06);
+            --shadow-md: 0 4px 16px rgba(20, 17, 13, 0.08);
+            --shadow-lg: 0 12px 40px rgba(20, 17, 13, 0.10);
+
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --dur: 250ms;
+
+            --nav-h: 64px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.65;
+            color: var(--ink);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: clip;
+        }
+
+        ::selection { background: var(--accent); color: #fff; }
+
+        img { display: block; max-width: 100%; }
+        a { color: var(--accent); text-decoration: none; transition: color var(--dur) var(--ease); }
+        a:hover { color: var(--accent-hover); }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-24);
+        }
+
+        /* ====== FIXED NAV (v50 pattern) ====== */
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            z-index: 200;
+            height: 4.6rem;
+            background: rgba(3, 3, 3, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .top-logo {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .logo-w { color: #fff; }
+        .logo-r { color: var(--accent); font-style: italic; }
+        .nav-center { flex: 1; display: flex; justify-content: center; min-width: 0; }
+        .nav-links { display: flex; align-items: center; gap: 2.25rem; }
+        .sn-link {
+            position: relative;
+            display: inline-block;
+            padding: 0.35rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: color 0.25s ease;
+        }
+        /* Clean underline — appears on hover/active, NOT a pill, NOT always visible */
+        .sn-link::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 1px;
+            background: var(--accent);
+            transform: scaleX(0);
+            transform-origin: left center;
+            transition: transform 0.3s ease;
+        }
+        .sn-link:hover { color: #fff; }
+        .sn-link:hover::after { transform: scaleX(1); }
+        .sn-link.active { color: #fff; }
+        .sn-link.active::after { transform: scaleX(1); }
+
+        /* BOOK A CALL pill button with blinking red dot */
+        .btn-contact {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 100px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-family: var(--font-sans);
+            letter-spacing: 0.12em;
+            background: rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            flex-shrink: 0;
+            margin-left: 1.5rem;
+            white-space: nowrap;
+            align-self: center;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+        .btn-contact:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; color: #fff; }
+        .btn-contact .dot {
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: blink 2s infinite ease-in-out;
+        }
+        @keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* RED OUTLINE on btn-contact ONLY when scrolled to the engage/contact section */
+        .btn-contact.section-active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(184, 58, 16, 0.25);
+        }
+
+        /* Mobile nav */
+        .nav-mobile-toggle {
+            display: none;
+            background: none; border: none; color: #fff; cursor: pointer;
+            padding: 8px; margin-left: auto;
+        }
+        .nav-mobile-toggle svg { width: 24px; height: 24px; }
+        .mobile-cta { display: none; }
+
+        @media (max-width: 860px) {
+            .nav-links { display: none; }
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 4.6rem; left: 0; right: 0;
+                background: rgba(3, 3, 3, 0.95);
+                backdrop-filter: blur(14px);
+                padding: 1.5rem 2rem;
+                gap: 1.25rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+            .nav-mobile-toggle { display: flex; align-items: center; order: 3; margin-left: 0; }
+            .btn-contact.desktop-cta { 
+                padding: 6px 14px; 
+                font-size: 11px; 
+                margin-left: auto; 
+                margin-right: 0.75rem;
+                order: 2;
+            }
+        }
+
+        /* ====== HEADER BLUR FADE ====== */
+        .header-blur-fade {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            pointer-events: none;
+            z-index: 190; /* below nav (200) but above content */
+            background: linear-gradient(to bottom,
+                rgba(3,3,3,0.95) 0%,
+                rgba(3,3,3,0.7) 40%,
+                rgba(3,3,3,0) 100%
+            );
+            /* NO backdrop-filter — causes lag on older machines (OSX 11) */
+            /* Pure gradient is GPU-composited and performs well everywhere */
+        }
+
+        /* ============================================
+           HERO — v05 single-SVG spotlight
+           ============================================ */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            background: #030303;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            --spot-x: 50%;
+            --spot-y: 45%;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+        }
+        .hero-venn-wrapper {
+            width: min(92vw, 1200px);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .venn-svg { width: 100%; height: auto; display: block; }
+        .vl-title {
+            font-family: var(--font-serif);
+            font-size: 140px;
+            font-weight: 400;
+            fill: rgba(255,255,255,0.85);
+        }
+        .vl-sub {
+            font-family: var(--font-serif);
+            font-size: 28px;
+            font-style: italic;
+            fill: rgba(255,255,255,0.5);
+        }
+        .hero-venn-caption {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.88);
+            text-align: center;
+            margin: 2rem 0 0;
+            line-height: 1.25;
+        }
+
+        /* The spotlight: a full-cover div with a radial white glow that follows the cursor.
+           mix-blend-mode: soft-light brightens the burnt orange intersection and strokes. */
+        .hero-spotlight {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+            background: radial-gradient(
+                circle 350px at var(--spot-x) var(--spot-y),
+                rgba(255,255,255,0.18) 0%,
+                rgba(255,255,255,0.06) 40%,
+                transparent 70%
+            );
+            mix-blend-mode: soft-light;
+            transition: opacity 0.4s ease;
+            opacity: 0;
+        }
+        .hero:hover .hero-spotlight,
+        .hero.spotlight-active .hero-spotlight {
+            opacity: 1;
+        }
+
+        @media (max-width: 900px) {
+            .hero { min-height: auto; padding: 6rem 1rem 3rem; }
+            .hero-venn-caption { font-size: 1.4rem; padding: 0 1rem; }
+            .vl-title { font-size: 180px; }
+            .vl-sub { font-size: 64px; }
+            .hero-spotlight { display: none; }
+        }
+
+        /* ============================================
+           SECTIONS — shared
+           ============================================ */
+        section {
+            padding: var(--space-96) 0;
+        }
+
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: var(--space-16);
+        }
+
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: clamp(var(--fs-32), 4vw, var(--fs-48));
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            line-height: 1.15;
+        }
+
+        .section-intro {
+            font-size: var(--fs-18);
+            font-weight: 300;
+            color: var(--ink-2);
+            max-width: 720px;
+            line-height: 1.7;
+            margin-top: var(--space-24);
+        }
+
+        .section-rule {
+            width: 100%;
+            height: 1px;
+            background: var(--rule);
+            margin-bottom: var(--space-64);
+        }
+
+        /* Section eyebrow with icon + descriptive title */
+        .eyebrow.with-icon {
+            display: flex;
+            align-items: center;
+        }
+        .sec-icon {
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+            color: var(--accent);
+            stroke-width: 1.2;
+            opacity: 0.7;
+        }
+        .sec-title {
+            font-family: var(--font-serif);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 400;
+            font-style: italic;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            line-height: 1;
+            margin: 0.5rem 0 2rem;
+        }
+
+        /* ============================================
+           ACADEMY
+           ============================================ */
+        .academy-streams {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-64);
+            margin-top: var(--space-64);
+        }
+
+        .stream {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--space-48);
+        }
+
+        .stream-header {
+            position: sticky;
+            top: 80px;
+            align-self: start;
+        }
+
+        .stream-name {
+            font-family: var(--font-serif);
+            font-size: var(--fs-32);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            line-height: 1.2;
+        }
+
+        .stream-kicker {
+            font-size: var(--fs-15);
+            color: var(--ink-3);
+            margin-top: var(--space-8);
+            font-weight: 300;
+        }
+
+        .stream-modules {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-16);
+        }
+
+        .module-card {
+            background: var(--bg-white);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius-md);
+            padding: var(--space-24);
+            transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+        }
+
+        .module-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: rgba(20, 17, 13, 0.18);
+        }
+
+        .module-name {
+            font-family: var(--font-sans);
+            font-size: var(--fs-16);
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: var(--space-8);
+        }
+
+        .module-desc {
+            font-size: var(--fs-15);
+            color: var(--ink-2);
+            font-weight: 300;
+            line-height: 1.65;
+        }
+
+        @media (max-width: 860px) {
+            .stream {
+                grid-template-columns: 1fr;
+                gap: var(--space-24);
+            }
+            .stream-header {
+                position: static;
+            }
+        }
+
+        /* ============================================
+           METHOD (Consulting)
+           ============================================ */
+        .method-intro-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-24);
+        }
+
+        .method-flow {
+            margin-top: var(--space-64);
+            position: relative;
+        }
+
+        .method-flow::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--rule);
+        }
+
+        .method-step {
+            position: relative;
+            padding-left: 72px;
+            padding-bottom: var(--space-64);
+        }
+
+        .method-step:last-child { padding-bottom: 0; }
+
+        .method-step-dot {
+            position: absolute;
+            left: 15px;
+            top: 14px; /* vertically centered with step-name first line (~32px font, ~35px line) */
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--ink);
+            background: var(--bg);
+            z-index: 1;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .method-step:hover .method-step-dot {
+            border-color: var(--accent);
+            transform: scale(1.5);
+            box-shadow: 0 0 0 3px rgba(184,58,16,0.2);
+        }
+
+        .method-step-dot::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ink);
+            transition: background 0.3s ease;
+        }
+
+        .method-step:hover .method-step-dot::after {
+            background: var(--accent);
+        }
+
+        .step-name {
+            font-family: var(--font-serif);
+            font-size: clamp(var(--fs-32), 4vw, var(--fs-40));
+            font-weight: 400;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .step-subtitle {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent);
+            margin-top: var(--space-4);
+        }
+
+        .step-question {
+            font-family: var(--font-serif);
+            font-size: var(--fs-24);
+            font-weight: 400;
+            font-style: italic;
+            color: var(--ink-2);
+            margin-top: var(--space-24);
+            line-height: 1.4;
+        }
+
+        .step-desc {
+            font-size: var(--fs-16);
+            color: var(--ink-2);
+            margin-top: var(--space-16);
+            font-weight: 300;
+            line-height: 1.7;
+            max-width: 640px;
+        }
+
+        .step-output {
+            display: inline-flex;
+            align-items: baseline;
+            gap: var(--space-8);
+            margin-top: var(--space-16);
+            font-size: var(--fs-14);
+            color: var(--ink-3);
+        }
+
+        .step-output-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ink-4);
+        }
+
+        .step-practice {
+            margin-top: var(--space-24);
+            padding: var(--space-24);
+            background: var(--bg-white);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+
+        .step-practice-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--accent);
+            margin-bottom: var(--space-8);
+        }
+
+        .step-practice p {
+            font-size: var(--fs-16);
+            color: var(--ink-2);
+            font-weight: 300;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .method-cycle-return {
+            padding-left: 72px;
+            margin-top: var(--space-32);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: var(--ink-4);
+        }
+
+        .method-stat {
+            text-align: center;
+            margin-top: var(--space-96);
+            padding: var(--space-64) var(--space-24);
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .method-stat .stat-num {
+            font-family: var(--font-serif);
+            font-size: clamp(var(--fs-48), 8vw, var(--fs-64));
+            font-weight: 400;
+            color: var(--accent);
+            letter-spacing: -0.03em;
+            display: block;
+            line-height: 1;
+        }
+
+        .method-stat .stat-text {
+            font-size: var(--fs-18);
+            color: var(--ink-2);
+            font-weight: 300;
+            margin-top: var(--space-16);
+        }
+
+        @media (max-width: 860px) {
+            .method-flow::before { left: 16px; }
+            .method-step { padding-left: 52px; }
+            .method-step-dot { left: 5px; }
+            .method-cycle-return { padding-left: 52px; }
+        }
+
+        /* ============================================
+           ABOUT
+           ============================================ */
+        .about-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: var(--space-64);
+            margin-top: var(--space-48);
+            align-items: start;
+        }
+
+        .about-photo-wrap {
+            position: sticky;
+            top: 100px;
+        }
+
+        .about-photo {
+            display: block;
+            width: 100%;
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: none;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .about-photo-wrap:hover .about-photo {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+        }
+
+        .about-name {
+            font-family: var(--font-serif);
+            font-size: var(--fs-40);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+        }
+
+        .about-role {
+            font-size: var(--fs-16);
+            color: var(--ink-3);
+            margin-top: var(--space-4);
+        }
+
+        .about-linkedin {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-8);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: var(--accent);
+            margin-top: var(--space-16);
+            transition: color var(--dur) var(--ease);
+        }
+
+        .about-linkedin:hover { color: var(--accent-hover); }
+
+        .about-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-48);
+            margin-top: var(--space-48);
+        }
+
+        .about-col-title {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: var(--space-24);
+            padding-bottom: var(--space-12);
+            border-bottom: 1px solid var(--rule);
+        }
+
+        .about-entry {
+            margin-bottom: var(--space-24);
+        }
+
+        .about-entry-org {
+            font-size: var(--fs-16);
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .about-entry-detail {
+            font-size: var(--fs-14);
+            color: var(--ink-3);
+            margin-top: var(--space-4);
+        }
+
+        .about-award {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-12);
+            margin-top: var(--space-8);
+            padding: var(--space-12) var(--space-16);
+            background: var(--accent-wash);
+            border-radius: var(--radius-sm);
+        }
+
+        .about-award svg {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
+        }
+
+        .about-award span {
+            font-size: var(--fs-14);
+            font-weight: 500;
+            color: var(--accent-dark);
+        }
+
+        @media (max-width: 860px) {
+            .about-layout {
+                grid-template-columns: 1fr;
+                gap: var(--space-48);
+            }
+            .about-photo-wrap {
+                position: static;
+                max-width: 280px;
+            }
+            .about-columns {
+                grid-template-columns: 1fr;
+                gap: var(--space-32);
+            }
+        }
+
+        /* ============================================
+           CLIENTS — full-height map + cards split
+           ============================================ */
+        .clients-split {
+            display: grid;
+            grid-template-columns: minmax(0, 50vw) minmax(0, 1fr);
+            gap: 0;
+            margin-top: var(--space-48);
+        }
+
+        .map-col {
+            position: sticky;
+            top: var(--nav-h);
+            height: calc(100vh - var(--nav-h));
+            overflow: hidden;
+        }
+
+        .impact-map-wrap {
+            height: 100%;
+            width: 100%;
+            background: var(--map-water);
+        }
+
+        #real-map {
+            width: 100%;
+            height: 100%;
+            background: var(--map-water);
+        }
+
+        .leaflet-container { background: var(--map-water) !important; }
+
+        /* Desaturate the real map tiles so they read as grey tones
+           with visible detail (roads, lakes, state lines, terrain).
+           Pins stay full-color above the filtered tile pane. */
+        .leaflet-tile-pane {
+            filter: saturate(0) brightness(1.02) contrast(0.95);
+        }
+        .leaflet-marker-pane { z-index: 700 !important; }
+
+        .leaflet-div-icon {
+            background: transparent !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+        .custom-leaflet-pin {
+            background: none !important;
+            border: none !important;
+            overflow: visible !important;
+        }
+
+        .map-pin {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            background: #b83a10 !important;   /* hardcoded burnt orange — never invisible */
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow:
+                0 0 0 2px #b83a10,             /* outer burnt ring for contrast */
+                0 2px 6px rgba(0, 0, 0, 0.4);  /* drop shadow for lift */
+            z-index: 100 !important;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .map-pin:hover {
+            transform: scale(1.4);
+            box-shadow:
+                0 0 0 3px #b83a10,
+                0 0 14px rgba(184, 58, 16, 0.5),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .map-pin.active::after,
+        .map-pin.auto-pulse::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: pin-pulse 1.5s ease-out infinite;
+        }
+        @keyframes pin-pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .pin-labels {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--dur) var(--ease);
+        }
+
+        .map-pin:hover .pin-labels, .map-pin.active .pin-labels { opacity: 1; }
+
+        .pin-label {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+            background: var(--bg-white);
+            padding: 4px 8px;
+            border-radius: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cards-col {
+            padding: var(--space-32) var(--space-32) var(--space-32) var(--space-32);
+        }
+
+        .clients-cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-16);
+        }
+
+        .client-card {
+            padding: var(--space-24);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--rule);
+            transition: box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
+        }
+
+        .client-card:hover, .client-card.pin-hover {
+            box-shadow: var(--shadow-md);
+            border-color: rgba(20, 17, 13, 0.18);
+        }
+
+        .client-card.pin-hover {
+            outline: 2px solid var(--accent);
+            background: rgba(184, 58, 16, 0.06) !important;
+        }
+
+        /* Semantic coloring: paper bg = named clients with links, warm bg = anonymized */
+        .client-card.named { background: var(--bg); }
+        .client-card.anon { background: var(--bg-warm); }
+
+        .client-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-12);
+        }
+
+        .client-name {
+            font-size: var(--fs-15);
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .client-link {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: var(--accent);
+        }
+
+        .client-quote {
+            font-size: var(--fs-15);
+            color: var(--ink-2);
+            font-weight: 300;
+            line-height: 1.65;
+            font-style: italic;
+        }
+
+        .client-role {
+            display: block;
+            margin-top: var(--space-12);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: var(--ink-4);
+            font-style: normal;
+        }
+
+        /* Mobile clients: map STICKS to top of screen while cards
+           scroll past in normal page flow. No overflow traps.
+           position:sticky works because NO ancestor has overflow:hidden. */
+        @media (max-width: 960px) {
+            #footprint {
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #footprint > .container {
+                max-width: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #footprint > .container > div:first-child {
+                display: none;
+            }
+            .clients-split {
+                display: block !important;
+                grid-template-columns: unset !important;
+                overflow: visible !important;
+            }
+            .map-col {
+                position: relative !important;
+                top: auto !important;
+                height: 50vh !important;
+                width: 100% !important;
+                z-index: 5;
+                overflow: hidden;
+                /* JS handles pinning — see mobileMapPin() below */
+            }
+            .map-col.pinned {
+                position: fixed !important;
+                top: 64px !important;
+                left: 0 !important;
+                right: 0 !important;
+            }
+            .clients-split.map-pinned {
+                padding-top: 50vh;
+            }
+            .impact-map-wrap {
+                height: 100% !important;
+                max-height: none !important;
+                aspect-ratio: unset !important;
+            }
+            .clients-cards {
+                padding: 0 !important;
+                grid-template-columns: 1fr !important;
+            }
+            .cards-col {
+                padding: 0.75rem 1rem !important;
+            }
+        }
+
+        /* ============================================
+           PARTNERS
+           ============================================ */
+        .partners-grid {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-32);
+            margin-top: var(--space-48);
+        }
+
+        .partner-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-48);
+            padding: var(--space-48);
+            background: var(--bg-white);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius-lg);
+        }
+
+        .partner-name {
+            font-family: var(--font-serif);
+            font-size: var(--fs-24);
+            font-weight: 400;
+            color: var(--ink);
+            margin-bottom: var(--space-16);
+        }
+
+        .partner-body {
+            font-size: var(--fs-15);
+            color: var(--ink-2);
+            font-weight: 300;
+            line-height: 1.7;
+        }
+
+        .partner-link {
+            display: inline-block;
+            margin-top: var(--space-16);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: var(--accent);
+        }
+
+        .partner-quote {
+            font-size: var(--fs-16);
+            color: var(--ink-2);
+            font-style: italic;
+            font-weight: 300;
+            line-height: 1.7;
+            padding-left: var(--space-24);
+            border-left: 2px solid var(--accent);
+        }
+
+        .partner-quote cite {
+            display: block;
+            margin-top: var(--space-16);
+            font-style: normal;
+        }
+
+        .partner-quote cite .pq-name {
+            display: block;
+            font-size: var(--fs-15);
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .partner-quote cite .pq-role {
+            display: block;
+            font-size: var(--fs-14);
+            color: var(--ink-3);
+        }
+
+        @media (max-width: 860px) {
+            .partner-card {
+                grid-template-columns: 1fr;
+                gap: var(--space-32);
+                padding: var(--space-32);
+            }
+        }
+
+        /* ============================================
+           CONTACT
+           ============================================ */
+        .contact-section {
+            background: var(--ink);
+            color: #fff;
+            padding: var(--space-96) 0;
+            text-align: left !important;
+        }
+
+        .contact-section .container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .contact-section .section-label { color: var(--accent); }
+        .contact-section .section-title { color: #fff; text-align: left !important; margin-bottom: 2rem; }
+        .contact-section .section-intro { color: rgba(255,255,255,0.6); }
+
+        .contact-form {
+            max-width: 640px;
+            margin: var(--space-48) auto 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
+            margin-bottom: var(--space-16);
+        }
+
+        .form-field { position: relative; }
+
+        .form-field input,
+        .form-field textarea {
+            width: 100%;
+            padding: var(--space-16);
+            font-family: var(--font-sans);
+            font-size: var(--fs-16);
+            font-weight: 300;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+        }
+
+        .form-field input::placeholder,
+        .form-field textarea::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-field input:focus,
+        .form-field textarea:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-field textarea { resize: vertical; min-height: 120px; }
+
+        .form-field.err input,
+        .form-field.err textarea { border-color: #e53e3e; }
+
+        .form-err {
+            display: block;
+            min-height: 1.2em;
+            font-size: var(--fs-14);
+            color: #e53e3e;
+            margin-top: var(--space-4);
+        }
+
+        .form-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-4);
+        }
+
+        .form-counter {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: rgba(255,255,255,0.3);
+        }
+        .form-counter.warn { color: #ecc94b; }
+        .form-counter.over { color: #e53e3e; }
+
+        .form-honeypot {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .form-status {
+            font-size: var(--fs-14);
+            min-height: 1.4em;
+            margin-bottom: var(--space-16);
+        }
+        .form-status.fail { color: #e53e3e; }
+        .form-status.ok { color: #38a169; }
+        .form-status.info { color: rgba(255,255,255,0.5); }
+
+        .btn-send {
+            display: block;
+            width: 100%;
+            padding: var(--space-16) var(--space-48);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #fff;
+            background: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+            min-height: 44px;
+            text-align: center;
+        }
+
+        .btn-send:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-send:active { transform: translateY(0); }
+
+        @media (max-width: 860px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        /* intl-tel-input overrides for dark bg */
+        .contact-section .iti { width: 100%; }
+        .contact-section .iti__selected-dial-code { color: rgba(255,255,255,0.6); }
+        .contact-section .iti__arrow { border-top-color: rgba(255,255,255,0.4); }
+
+        /* ============================================
+           SUCCESS MODAL
+           ============================================ */
+        .success-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-modal.open { display: flex; }
+
+        .success-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .success-modal__card {
+            position: relative;
+            background: var(--bg-white);
+            padding: var(--space-48);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .success-modal__title {
+            font-family: var(--font-serif);
+            font-size: var(--fs-32);
+            color: var(--ink);
+            margin-bottom: var(--space-16);
+        }
+
+        .success-modal__body {
+            font-size: var(--fs-16);
+            color: var(--ink-2);
+        }
+
+        .success-modal__close {
+            margin-top: var(--space-32);
+            padding: var(--space-12) var(--space-32);
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--dur) var(--ease);
+            min-height: 44px;
+        }
+
+        .success-modal__close:hover { background: var(--accent-hover); }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        footer {
+            background: var(--ink);
+            color: rgba(255, 255, 255, 0.5);
+            padding: var(--space-48) 0;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-24);
+        }
+
+        .footer-brand {
+            font-family: var(--font-serif);
+            font-size: var(--fs-20);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .footer-brand span { font-weight: 300; font-style: italic; }
+
+        .footer-nav { display: flex; gap: var(--space-32); list-style: none; }
+
+        .footer-nav a {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            color: rgba(255, 255, 255, 0.4);
+            transition: color var(--dur) var(--ease);
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-nav a:hover { color: var(--accent); }
+
+        .footer-legal {
+            font-size: var(--fs-14);
+            color: rgba(255, 255, 255, 0.3);
+            margin-top: var(--space-24);
+            text-align: center;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 var(--space-24);
+        }
+
+        @media (max-width: 860px) {
+            .footer-inner {
+                flex-direction: column;
+                gap: var(--space-24);
+                text-align: center;
+            }
+            .footer-nav { flex-wrap: wrap; justify-content: center; gap: var(--space-16); }
+        }
+
+        /* ============================================
+           MOBILE SWEEP (375px)
+           ============================================ */
+        @media (max-width: 768px) {
+            /* No horizontal scroll */
+            html, body { overflow-x: clip; }
+
+            /* Hero caption */
+            .hero-venn-caption { font-size: 1.25rem; padding: 0 0.75rem; }
+
+            /* Academy streams single col */
+            .stream { grid-template-columns: 1fr; gap: var(--space-24); }
+            .stream-header { position: static; }
+
+            /* Method: spine visible, no overflow */
+            .method-flow::before { left: 16px; }
+            .method-step { padding-left: 52px; }
+            .method-step-dot { left: 7px; }
+            .method-cycle-return { padding-left: 52px; }
+            .step-name { font-size: clamp(1.5rem, 6vw, 2rem); }
+
+            /* About: photo above bio */
+            .about-layout { grid-template-columns: 1fr; gap: var(--space-32); }
+            .about-photo-wrap { position: static; max-width: 240px; }
+            .about-photo-wrap:hover .about-photo { transform: scale(1.05); } /* less zoom on mobile */
+            .about-columns { grid-template-columns: 1fr; gap: var(--space-24); }
+
+            /* Partners single col */
+            .partner-card { grid-template-columns: 1fr; gap: var(--space-24); padding: var(--space-24); }
+
+            /* Contact full width */
+            .contact-form { max-width: 100%; padding: 0; }
+            .form-row { grid-template-columns: 1fr; }
+
+            /* Touch targets */
+            .sn-link, .btn-contact, .partner-link, .client-link, .about-linkedin,
+            .footer-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <header class="top-bar">
+        <a href="#overview" class="top-logo">
+            <span class="logo-w">Theory</span> <span class="logo-r">in Practice</span>
+        </a>
+        <nav class="nav-center">
+            <div class="nav-links">
+                <a href="#academy" class="sn-link t-academy">Academy</a>
+                <a href="#consulting" class="sn-link t-consulting">Consulting</a>
+                <a href="#about" class="sn-link t-about">About</a>
+                <a href="#footprint" class="sn-link t-footprint">Clients</a>
+                <a href="#partners" class="sn-link t-partners">Partners</a>
+            </div>
+        </nav>
+        <a href="#engage" class="btn-contact desktop-cta">
+            <span class="dot"></span> <span class="btn-label">BOOK A CALL</span>
+        </a>
+        <!-- Mobile hamburger -->
+        <button class="nav-mobile-toggle" id="navMobileToggle" aria-label="Toggle navigation">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+    </header>
+    <div class="header-blur-fade" aria-hidden="true"></div>
+
+    <!-- HERO — v05 single-SVG + CSS spotlight -->
+    <section class="hero" id="overview">
+        <div class="hero-content">
+            <div class="hero-venn-wrapper">
+                <svg class="venn-svg" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <clipPath id="clip-left"><circle cx="530" cy="450" r="430"/></clipPath>
+                        <clipPath id="clip-right"><circle cx="1070" cy="450" r="430"/></clipPath>
+                    </defs>
+
+                    <!-- Circle outlines at 80% opacity -->
+                    <circle cx="530" cy="450" r="430" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
+                    <circle cx="1070" cy="450" r="430" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.2"/>
+
+                    <!-- Burnt orange intersection (always visible) -->
+                    <g clip-path="url(#clip-left)">
+                        <g clip-path="url(#clip-right)">
+                            <rect x="0" y="0" width="1600" height="900" fill="rgba(184,58,16,0.85)"/>
+                        </g>
+                    </g>
+
+                    <!-- Labels centered in the non-overlap area of each circle -->
+                    <text id="vl-theory" x="370" y="464" text-anchor="middle" class="vl-title">Theory</text>
+                    <text id="vl-theory-sub" x="370" y="534" text-anchor="middle" class="vl-sub">Principles that explain why.</text>
+                    <text id="vl-practice" x="1230" y="464" text-anchor="middle" class="vl-title">Practice</text>
+                    <text id="vl-practice-sub" x="1230" y="534" text-anchor="middle" class="vl-sub">Repeated action.</text>
+                </svg>
+            </div>
+
+            <p class="hero-venn-caption">Applying proven models to real-world situations.</p>
+        </div>
+
+        <!-- Spotlight overlay: a SINGLE div with radial gradient that brightens wherever the cursor is -->
+        <div class="hero-spotlight" aria-hidden="true"></div>
+    </section>
+
+    <!-- ACADEMY -->
+    <section id="academy">
+        <div class="container">
+            <div class="section-rule"></div>
+            <span class="section-label eyebrow with-icon">
+                <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3 6-1 1-1.5 2.5-1.5 4h-5c0-1.5-.5-3-1.5-4-1.5-1.5-3-3.5-3-6a7 7 0 0 1 7-7z"/>
+                    <path d="M9.5 19h5M10 22h4"/>
+                </svg>
+                Academy
+            </span>
+            <h2 class="sec-title">The Foundations.</h2>
+            <p class="section-intro">Each program connects proven management frameworks to the operational reality of your team. The goal is judgment to act differently on &ldquo;Monday&rdquo;.</p>
+
+            <div class="academy-streams">
+                <!-- Stream 1 -->
+                <div class="stream">
+                    <div class="stream-header">
+                        <h3 class="stream-name">Delivery Fundamentals</h3>
+                        <p class="stream-kicker">The mechanics of execution.</p>
+                    </div>
+                    <div class="stream-modules">
+                        <div class="module-card">
+                            <div class="module-name">Product Management</div>
+                            <div class="module-desc">What should we build, and why? How do we decide what comes next &mdash; before we spend time building the wrong thing?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Project Management</div>
+                            <div class="module-desc">How do we go from a mandate to a finished outcome &mdash; on time, within budget, and to the standard we promised?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Projects for Non-PMs</div>
+                            <div class="module-desc">I'm not a project manager, but I'm running a project. What do I actually need to know to keep this on track?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Earned Value Management</div>
+                            <div class="module-desc">Are we ahead or behind right now &mdash; and how do we know before it's too late to change anything?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream 2 -->
+                <div class="stream">
+                    <div class="stream-header">
+                        <h3 class="stream-name">Human &amp; Change Dynamics</h3>
+                        <p class="stream-kicker">The people side of execution.</p>
+                    </div>
+                    <div class="stream-modules">
+                        <div class="module-card">
+                            <div class="module-name">Design Thinking</div>
+                            <div class="module-desc">Are we solving the right problem &mdash; or just the most obvious one? How do we define the challenge before we design the solution?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Change Management</div>
+                            <div class="module-desc">We know what needs to change. Why isn't it changing? What does it take to move an organisation from where it is to where it needs to be?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Effective Meetings</div>
+                            <div class="module-desc">Why do our meetings cost so much and produce so little? How do we run the room so that decisions actually get made?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Building High-Performing Teams</div>
+                            <div class="module-desc">We have capable people. Why aren't they performing as a unit? What does it take to build a team that delivers consistently?</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream 3 -->
+                <div class="stream">
+                    <div class="stream-header">
+                        <h3 class="stream-name">Risk &amp; Governance</h3>
+                        <p class="stream-kicker">Predicting events &amp; taking action.</p>
+                    </div>
+                    <div class="stream-modules">
+                        <div class="module-card">
+                            <div class="module-name">Risk Management</div>
+                            <div class="module-desc">What could go wrong &mdash; and how do we decide what to do about it before it happens? How do we distinguish a real risk from noise?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">PMO Design</div>
+                            <div class="module-desc">How do we build the governance architecture that keeps every project across the organisation on track and accountable?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">The Sponsor's Edge</div>
+                            <div class="module-desc">I'm sponsoring this initiative. What is my actual job &mdash; and what does it take to guide the team across the finish line?</div>
+                        </div>
+                        <div class="module-card">
+                            <div class="module-name">Agile for Executives</div>
+                            <div class="module-desc">My team is running Agile. What do I need to understand to lead it effectively &mdash; without getting in the way of the work?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METHOD (Consulting) -->
+    <section id="consulting">
+        <div class="container">
+            <div class="section-rule"></div>
+            <span class="section-label eyebrow with-icon">
+                <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+                </svg>
+                Consulting
+            </span>
+            <div class="method-intro-wrap">
+                <h2 class="sec-title">The Method.</h2>
+                <p class="section-intro">We begin with a question &mdash; and follow a disciplined four-step process from diagnosis to decision. The process is iterative: after Debrief, clients return to Discover with a sharper question.</p>
+            </div>
+
+            <div class="method-flow">
+                <div class="method-step">
+                    <div class="method-step-dot"></div>
+                    <h3 class="step-name">Discover</h3>
+                    <div class="step-subtitle">Why</div>
+                    <p class="step-question">What is the real problem or opportunity?</p>
+                    <p class="step-desc">We establish a fact-based definition before any solution is proposed.</p>
+                    <div class="step-output"><span class="step-output-label">Output</span> A written definition that all stakeholders agree on.</div>
+                    <div class="step-practice">
+                        <div class="step-practice-label">In practice</div>
+                        <p>The stated problem was a skills gap. The real problem was behavioural. Teams had the tools but lacked a shared model for why planning discipline matters.</p>
+                    </div>
+                </div>
+
+                <div class="method-step">
+                    <div class="method-step-dot"></div>
+                    <h3 class="step-name">Design</h3>
+                    <div class="step-subtitle">How</div>
+                    <p class="step-question">What does the right solution look like?</p>
+                    <p class="step-desc">We apply Design Thinking to find the best path forward for your specific context.</p>
+                    <div class="step-output"><span class="step-output-label">Output</span> A solution design tailored to your situation.</div>
+                    <div class="step-practice">
+                        <div class="step-practice-label">In practice</div>
+                        <p>The solution had to address the <em>why</em> before the <em>how</em>. A single governing principle shaped everything: a weak Work Breakdown Structure makes forecasting impossible. That theory determined the workshop design.</p>
+                    </div>
+                </div>
+
+                <div class="method-step">
+                    <div class="method-step-dot"></div>
+                    <h3 class="step-name">Deliver</h3>
+                    <div class="step-subtitle">What</div>
+                    <p class="step-question">How do we execute with precision?</p>
+                    <p class="step-desc">We implement alongside your team, building systems and measuring results against the objectives defined in Discover.</p>
+                    <div class="step-output"><span class="step-output-label">Output</span> Measurable results.</div>
+                    <div class="step-practice">
+                        <div class="step-practice-label">In practice</div>
+                        <p>Three sessions across North American time zones. Teams applied the principle to their own projects, their own WBS gaps, their own forecasting challenges.</p>
+                    </div>
+                </div>
+
+                <div class="method-step">
+                    <div class="method-step-dot"></div>
+                    <h3 class="step-name">Debrief</h3>
+                    <div class="step-subtitle">What next</div>
+                    <p class="step-question">What did we learn?</p>
+                    <p class="step-desc">We compare results to intent, surface lessons, and transfer knowledge.</p>
+                    <div class="step-output"><span class="step-output-label">Output</span> A decision: exit with confidence, or return to Discover.</div>
+                    <div class="step-practice">
+                        <div class="step-practice-label">In practice</div>
+                        <p>The client returned to Discover twice, each time with a sharper question. First: how do we build trust between Project Controllers and Project Managers? Then: how do we make the value of Project Controls visible to the people it serves?</p>
+                    </div>
+                </div>
+            </div>
+
+            <p class="method-cycle-return">&larr; returns to Discover</p>
+
+            <div class="method-stat">
+                <span class="stat-num">93.3%</span>
+                <span class="stat-text">of participants said they would recommend this program.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+        <div class="container">
+            <div class="section-rule"></div>
+            <span class="section-label eyebrow with-icon">
+                <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                About
+            </span>
+            <h2 class="sec-title">The Team.</h2>
+            <div class="about-layout">
+                <div class="about-photo-wrap">
+                    <img class="about-photo" src="roti.png" alt="Roti Akinsanmi" loading="eager">
+                </div>
+                <div class="about-content">
+                    <h2 class="about-name">Roti Akinsanmi</h2>
+                    <p class="about-role">Founder &middot; Theory in Practice</p>
+                    <a href="https://linkedin.com/in/akinsanmi" target="_blank" rel="noopener" class="about-linkedin">LinkedIn &rarr;</a>
+
+                    <div class="about-columns">
+                        <div>
+                            <div class="about-col-title">Education</div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">Cornell / Queen's</div>
+                                <div class="about-entry-detail">Executive MBA &middot; 2011</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">Harvard Business School</div>
+                                <div class="about-entry-detail">Cert. Management Excellence &middot; 2023</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">MIT Sloan</div>
+                                <div class="about-entry-detail">AI &amp; Business Strategy &middot; 2021</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">University of Lagos</div>
+                                <div class="about-entry-detail">BSc Computer Science &middot; 1996</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="about-col-title">Experience</div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">Major Canadian Airline</div>
+                                <div class="about-entry-detail">Head, Innovation Lab &middot; 2019&ndash;21</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">Leading Streaming Platform</div>
+                                <div class="about-entry-detail">VP of Products &middot; 2021&ndash;24</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">First Transfer Inc.</div>
+                                <div class="about-entry-detail">Founder &middot; Regulated FinTech &middot; 2016&ndash;20</div>
+                            </div>
+                            <div class="about-entry">
+                                <div class="about-entry-org">Mount Royal University</div>
+                                <div class="about-entry-detail">Instructor &middot; Since 2014</div>
+                                <div class="about-award">
+                                    <!-- Trophy icon (Grammy-style) -->
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v4a4 4 0 0 1-8 0V3z"/><path d="M8 5H5.5a2 2 0 0 0 0 4H8"/><path d="M16 5h2.5a2 2 0 0 1 0 4H16"/><path d="M12 11v5"/><path d="M9 21h6l-.5-4h-5L9 21z"/></svg>
+                                    <span>2026 Teaching Excellence in Lifelong Learning&nbsp;Award</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CLIENTS -->
+    <section id="footprint">
+        <div class="container" style="max-width: none; padding: 0;">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 0 var(--space-24);">
+                <div class="section-rule"></div>
+                <span class="section-label eyebrow with-icon">
+                    <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Clients
+                </span>
+                <h2 class="sec-title">In Practice.</h2>
+            </div>
+
+            <div class="clients-split">
+                <div class="map-col">
+                    <div class="impact-map-wrap">
+                        <div id="real-map"></div>
+                    </div>
+                </div>
+                <div class="cards-col">
+                    <div class="clients-cards" id="clientsGrid">
+                        <div class="client-card named" data-pin="city-aeb">
+                            <div class="client-head"><span class="client-name">AEB</span><a href="https://www.aeb.com" target="_blank" rel="noopener" class="client-link">aeb.com &#8599;</a></div>
+                            <p class="client-quote">&ldquo;I walked out with a framework I could use the next morning. The concepts finally connected to the work I was actually doing.&rdquo;</p>
+                            <cite class="client-role">Project Controller, 2025</cite>
+                        </div>
+                        <div class="client-card named" data-pin="city-cfb">
+                            <div class="client-head"><span class="client-name">Calgary Food Bank</span><a href="https://www.calgaryfoodbank.com" target="_blank" rel="noopener" class="client-link">calgaryfoodbank.com &#8599;</a></div>
+                            <p class="client-quote">&ldquo;Our team left with a shared language for tracking performance. For the first time, everyone understood what the numbers meant and what to do about them.&rdquo;</p>
+                            <cite class="client-role">Program Manager, 2023</cite>
+                        </div>
+                        <div class="client-card named" data-pin="city-nalma">
+                            <div class="client-head"><span class="client-name">NALMA</span><a href="https://www.nalma.ca" target="_blank" rel="noopener" class="client-link">nalma.ca &#8599;</a></div>
+                            <p class="client-quote">&ldquo;The program gave our team a shared framework for managing complex land administration projects. The structure was clear, the delivery was practical, and the impact has been lasting.&rdquo;</p>
+                            <cite class="client-role">Representative, NALMA</cite>
+                        </div>
+                        <div class="client-card named" data-pin="city-alm">
+                            <div class="client-head"><span class="client-name">Alberta Landmen</span><a href="https://www.landmen.ca" target="_blank" rel="noopener" class="client-link">landmen.ca &#8599;</a></div>
+                            <p class="client-quote">&ldquo;It changed how we plan. We stopped guessing and started forecasting. The difference in our project outcomes has been measurable.&rdquo;</p>
+                            <cite class="client-role">Director, Project Controls, 2019</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-ab-petro">
+                            <div class="client-head"><span class="client-name">Petrochemical plant, AB</span></div>
+                            <p class="client-quote">&ldquo;We came in thinking we had a scheduling problem. What we discovered was a planning problem. That distinction changed everything about how we approached the project.&rdquo;</p>
+                            <cite class="client-role">Program Lead</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-on-ind">
+                            <div class="client-head"><span class="client-name">Industrial group, ON</span></div>
+                            <p class="client-quote">&ldquo;The team came out with a common language and a clearer sense of accountability. Within two months, our project reporting had fundamentally changed.&rdquo;</p>
+                            <cite class="client-role">Project Director</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-ab-univ">
+                            <div class="client-head"><span class="client-name">Research university, AB</span></div>
+                            <p class="client-quote">&ldquo;What distinguished this engagement was the emphasis on understanding before acting. That sequence matters enormously in an institution like ours, where change takes time and requires genuine buy-in.&rdquo;</p>
+                            <cite class="client-role">Department Head</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-ab-col">
+                            <div class="client-head"><span class="client-name">Regional college, AB</span></div>
+                            <p class="client-quote">&ldquo;Our staff had been through change management training before. This was different. It started with a real diagnosis of what was actually happening, not a prescribed model layered onto our situation.&rdquo;</p>
+                            <cite class="client-role">Operations Manager</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-wa-tran">
+                            <div class="client-head"><span class="client-name">Transit authority, WA</span></div>
+                            <p class="client-quote">&ldquo;Delivering across distributed teams in multiple time zones is difficult. The fact that each session felt coherent and purposeful, despite the complexity, says everything about the preparation behind it.&rdquo;</p>
+                            <cite class="client-role">Program Manager</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-mn-med">
+                            <div class="client-head"><span class="client-name">Medical device manufacturer, MN</span></div>
+                            <p class="client-quote">&ldquo;In a regulated environment, the cost of poor planning is not just delay. It is compliance risk. This engagement gave our team the discipline to plan with the precision that environment demands.&rdquo;</p>
+                            <cite class="client-role">VP Operations</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-fl-cem">
+                            <div class="client-head"><span class="client-name">Cement plant, FL</span></div>
+                            <p class="client-quote">&ldquo;We had good project controllers. What we did not have was a consistent methodology. After this engagement, we did. The improvement in forecast accuracy was immediate.&rdquo;</p>
+                            <cite class="client-role">Project Controller</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-fl-def">
+                            <div class="client-head"><span class="client-name">Defence contractor, FL</span></div>
+                            <p class="client-quote">&ldquo;We operate in a demanding environment where performance data has to be defensible. This engagement gave our PMO the theoretical foundation to produce reporting that stands up to scrutiny.&rdquo;</p>
+                            <cite class="client-role">Director, PMO</cite>
+                        </div>
+                        <div class="client-card anon" data-pin="city-ca-gis">
+                            <div class="client-head"><span class="client-name">GIS software company, CA</span></div>
+                            <p class="client-quote">&ldquo;We build software for complex spatial problems. Our delivery challenges are equally complex. Having a framework that could adapt to our specific context, rather than a generic methodology, made all the difference.&rdquo;</p>
+                            <cite class="client-role">Delivery Lead</cite>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PARTNERS -->
+    <section id="partners">
+        <div class="container">
+            <div class="section-rule"></div>
+            <span class="section-label eyebrow with-icon">
+                <svg class="sec-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 12c-2-2.67-6-2.67-6 2 0 3.33 6 6 6 6s6-2.67 6-6c0-4.67-4-4.67-6-2z"/>
+                </svg>
+                Strategic Partners
+            </span>
+            <h2 class="sec-title">The Alliance.</h2>
+
+            <div class="partners-grid">
+                <div class="partner-card">
+                    <div>
+                        <h3 class="partner-name">Mount Royal University</h3>
+                        <p class="partner-body">Since 1990, Mount Royal University's Faculty of Continuing Education has partnered with organisations to build capability and respond to change. Every Academy program is co-delivered through this partnership. Participants receive co-branded certificates from a leading Canadian university.</p>
+                        <a href="https://www.mtroyal.ca/ContinuingEducation/CustomTraining/index.htm" target="_blank" rel="noopener" class="partner-link">MRU Custom Training &rarr;</a>
+                    </div>
+                    <div class="partner-quote">
+                        &ldquo;This partnership has delivered some of the most consistent results we have seen across our Custom Training portfolio. Participants leave with frameworks they apply immediately. The outcomes speak for themselves.&rdquo;
+                        <cite>
+                            <span class="pq-name">Strategic Partnerships</span>
+                            <span class="pq-role">Mount Royal University</span>
+                        </cite>
+                    </div>
+                </div>
+
+                <div class="partner-card">
+                    <div>
+                        <h3 class="partner-name">Tarka Consulting</h3>
+                        <p class="partner-body">Tarka Consulting brings Theory in Practice methodology to enterprise clients across North America. Together, we deploy the same frameworks inside some of the continent's most operationally complex organisations.</p>
+                        <a href="https://www.tarka-consulting.com" target="_blank" rel="noopener" class="partner-link">tarka-consulting.com &rarr;</a>
+                    </div>
+                    <div class="partner-quote">
+                        &ldquo;The ability to ground every engagement in a clear theoretical model and then execute against it is rare. Our clients consistently report that the approach produces results that other interventions have not. The methodology holds.&rdquo;
+                        <cite>
+                            <span class="pq-name">Emil Tarka</span>
+                            <span class="pq-role">Principal &middot; Tarka Consulting</span>
+                        </cite>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact-section" id="engage">
+        <div class="container">
+            <div class="section-label">Contact</div>
+            <h2 class="section-title">How can we help?</h2>
+
+            <form class="contact-form" id="contactForm" novalidate>
+                <div class="form-row">
+                    <div class="form-field">
+                        <input type="text" id="fName" name="name" placeholder="Name" required maxlength="80" autocomplete="name">
+                        <span class="form-err" id="errName"></span>
+                    </div>
+                    <div class="form-field">
+                        <input type="text" id="fOrg" name="organisation" placeholder="Organisation" required maxlength="120" autocomplete="organization">
+                        <span class="form-err" id="errOrg"></span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <input type="email" id="fEmail" name="email" placeholder="Email" required maxlength="120" autocomplete="email">
+                        <span class="form-err" id="errEmail"></span>
+                    </div>
+                    <div class="form-field">
+                        <input type="tel" id="fPhone" name="phone" placeholder="Phone (optional)" maxlength="40" autocomplete="tel">
+                        <span class="form-err" id="errPhone"></span>
+                    </div>
+                </div>
+                <div class="form-field" style="margin-bottom: var(--space-16);">
+                    <textarea id="fMessage" name="message" placeholder="How can we help?" required rows="4" maxlength="4000"></textarea>
+                    <div class="form-meta">
+                        <span class="form-err" id="errMessage"></span>
+                        <span class="form-counter" id="wordCounter">0 / 500</span>
+                    </div>
+                </div>
+                <div class="form-honeypot" aria-hidden="true">
+                    <label>Company (leave blank)
+                        <input type="text" name="company" id="fCompany" tabindex="-1" autocomplete="off">
+                    </label>
+                </div>
+                <div class="cf-turnstile" id="turnstileWidget"
+                     data-sitekey="1x00000000000000000000AA"
+                     data-theme="dark"
+                     data-size="flexible"
+                     data-execution="execute"
+                     data-callback="onTurnstileSuccess"
+                     data-error-callback="onTurnstileError"
+                     style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;"></div>
+                <input type="hidden" id="fHuman" value="">
+                <div class="form-status" id="formStatus"></div>
+                <button type="submit" id="fSubmit" class="btn-send">SEND &rarr;</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- SUCCESS MODAL -->
+    <div class="success-modal" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle" aria-hidden="true">
+        <div class="success-modal__backdrop" data-modal-close></div>
+        <div class="success-modal__card">
+            <h3 class="success-modal__title" id="successTitle">Thank you.</h3>
+            <p class="success-modal__body">Your message has been sent.</p>
+            <button type="button" class="success-modal__close" id="successClose">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">Theory <span>in Practice</span></div>
+            <ul class="footer-nav">
+                <li><a href="#academy">Academy</a></li>
+                <li><a href="#consulting">Consulting</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#footprint">Clients</a></li>
+                <li><a href="#partners">Partners</a></li>
+            </ul>
+        </div>
+        <div class="footer-legal">&copy; 2026 Theory in Practice Inc. &middot; Calgary, Alberta &middot; theoryinpractice.ca</div>
+    </footer>
+
+
+    <!-- INLINE DATA -->
+
+
+    <script type="application/json" id="map-data-store">
+[
+  { "id": "city-aeb",      "name": "AEB",                             "role": "Project Controller · 2025",   "lat": 53.5461,  "lng": -113.4938 },
+  { "id": "city-cfb",      "name": "Calgary Food Bank",               "role": "Program Manager · 2023",      "lat": 51.0447,  "lng": -114.0719 },
+  { "id": "city-nalma",    "name": "NALMA",                           "role": "Representative",              "lat": 53.9333,  "lng": -116.5765 },
+  { "id": "city-alm",      "name": "Alberta Landmen",                 "role": "Director, Project Controls",  "lat": 51.0500,  "lng": -114.1000 },
+  { "id": "city-ab-petro", "name": "Petrochemical plant, AB",         "role": "Program Lead",                "lat": 56.7264,  "lng": -111.3803 },
+  { "id": "city-on-ind",   "name": "Industrial group, ON",            "role": "Project Director",            "lat": 43.6532,  "lng": -79.3832  },
+  { "id": "city-ab-univ",  "name": "Research university, AB",         "role": "Department Head",             "lat": 53.5232,  "lng": -113.5263 },
+  { "id": "city-ab-col",   "name": "Regional college, AB",            "role": "Operations Manager",          "lat": 52.2681,  "lng": -113.8112 },
+  { "id": "city-wa-tran",  "name": "Transit authority, WA",           "role": "Program Manager",             "lat": 47.6062,  "lng": -122.3321 },
+  { "id": "city-mn-med",   "name": "Medical device manufacturer, MN", "role": "VP Operations",               "lat": 44.9778,  "lng":  -93.2650 },
+  { "id": "city-fl-cem",   "name": "Cement plant, FL",                "role": "Project Controller",          "lat": 27.9506,  "lng":  -82.4572 },
+  { "id": "city-fl-def",   "name": "Defence contractor, FL",          "role": "Director, PMO",               "lat": 28.5383,  "lng":  -81.3792 },
+  { "id": "city-ca-gis",   "name": "GIS software company, CA",        "role": "Delivery Lead",               "lat": 34.0556,  "lng": -117.1826 }
+]
+    </script>
+
+    <script>
+        // ============================================
+        // V05 SPOTLIGHT — single CSS gradient overlay
+        // ============================================
+        (function initSpotlight() {
+            var heroEl = document.querySelector('.hero');
+            var spotEl = document.querySelector('.hero-spotlight');
+            if (!heroEl || !spotEl) return;
+
+            var spotX = 50, spotY = 45;
+            var driftAngle = 0;
+            var isInteracting = false;
+            var interactionTimer;
+
+            function updateSpot() {
+                heroEl.style.setProperty('--spot-x', spotX + '%');
+                heroEl.style.setProperty('--spot-y', spotY + '%');
+            }
+
+            // Gentle auto-drift in a figure-8 pattern
+            function drift() {
+                if (isInteracting) return;
+                driftAngle += 0.003;
+                spotX = 50 + Math.sin(driftAngle) * 15;
+                spotY = 45 + Math.sin(driftAngle * 1.7) * 8;
+                updateSpot();
+                requestAnimationFrame(drift);
+            }
+
+            heroEl.classList.add('spotlight-active');
+            drift();
+
+            heroEl.addEventListener('mousemove', function (e) {
+                isInteracting = true;
+                heroEl.classList.add('spotlight-active');
+                var rect = heroEl.getBoundingClientRect();
+                spotX = ((e.clientX - rect.left) / rect.width) * 100;
+                spotY = ((e.clientY - rect.top) / rect.height) * 100;
+                updateSpot();
+                clearTimeout(interactionTimer);
+                interactionTimer = setTimeout(function () {
+                    isInteracting = false;
+                    drift();
+                }, 3000);
+            });
+
+            heroEl.addEventListener('mouseleave', function () {
+                clearTimeout(interactionTimer);
+                interactionTimer = setTimeout(function () {
+                    isInteracting = false;
+                    drift();
+                }, 1000);
+            });
+        })();
+
+        // ============================================
+        // TURNSTILE CALLBACKS
+        // ============================================
+        window.__turnstilePendingResolvers = [];
+        function onTurnstileSuccess(token) {
+            var h = document.getElementById('fHuman');
+            if (h) h.value = token;
+            while (window.__turnstilePendingResolvers.length) {
+                var resolve = window.__turnstilePendingResolvers.shift();
+                try { resolve(token); } catch (e) {}
+            }
+        }
+        function onTurnstileError() {
+            while (window.__turnstilePendingResolvers.length) {
+                var resolve = window.__turnstilePendingResolvers.shift();
+                try { resolve(null); } catch (e) {}
+            }
+        }
+        window.requestTurnstileToken = function () {
+            return new Promise(function (resolve) {
+                var settled = false;
+                var done = function (tok) { if (settled) return; settled = true; resolve(tok); };
+                window.__turnstilePendingResolvers.push(done);
+                setTimeout(function () { done(null); }, 8000);
+                try {
+                    if (window.turnstile && typeof window.turnstile.execute === 'function') {
+                        window.turnstile.execute('#turnstileWidget');
+                    }
+                } catch (e) { done(null); }
+            });
+        };
+
+        // ============================================
+        // MOBILE NAV TOGGLE
+        // ============================================
+        (function initNav() {
+            var navToggle = document.getElementById('navMobileToggle');
+            var navLinks = document.querySelector('.nav-links');
+            if (navToggle && navLinks) {
+                navToggle.addEventListener('click', function () {
+                    navLinks.classList.toggle('open');
+                });
+                // Close on link click
+                navLinks.querySelectorAll('a').forEach(function (a) {
+                    a.addEventListener('click', function () { navLinks.classList.remove('open'); });
+                });
+            }
+
+            // Mobile venn: move text to circle centers for readability
+            if (window.innerWidth <= 900) {
+                var els = {
+                    t: document.getElementById('vl-theory'),
+                    ts: document.getElementById('vl-theory-sub'),
+                    p: document.getElementById('vl-practice'),
+                    ps: document.getElementById('vl-practice-sub')
+                };
+                // Circle centers: left cx=530, right cx=1070, cy=450
+                // On mobile, move text to circle centers (more space) and center vertically
+                if (els.t) { els.t.setAttribute('x', '530'); els.t.setAttribute('y', '475'); }
+                if (els.ts) { els.ts.setAttribute('x', '530'); els.ts.setAttribute('y', '555'); }
+                if (els.p) { els.p.setAttribute('x', '1070'); els.p.setAttribute('y', '475'); }
+                if (els.ps) { els.ps.setAttribute('x', '1070'); els.ps.setAttribute('y', '555'); }
+            }
+
+            // Scrollspy: highlight active nav link + red outline on BOOK A CALL when at engage section
+            var sections = document.querySelectorAll('section[id]');
+            var navLinksAll = document.querySelectorAll('.sn-link');
+            var ctaBtn = document.querySelector('.btn-contact.desktop-cta');
+
+            function updateScrollspy() {
+                var scrollY = window.scrollY + 120;
+                var currentId = '';
+                sections.forEach(function (sec) {
+                    if (sec.offsetTop <= scrollY) currentId = sec.id;
+                });
+                navLinksAll.forEach(function (link) {
+                    link.classList.toggle('active', link.getAttribute('href') === '#' + currentId);
+                });
+                // Red outline on CTA only when at the contact/engage section
+                if (ctaBtn) {
+                    ctaBtn.classList.toggle('section-active', currentId === 'engage');
+                }
+            }
+            window.addEventListener('scroll', updateScrollspy, { passive: true });
+            updateScrollspy();
+        })();
+
+        // ============================================
+        // MAP
+        // ============================================
+        (function initMap() {
+            var mapEl = document.getElementById('real-map');
+            if (!mapEl) return;
+
+            var mapData = [];
+            try {
+                mapData = JSON.parse(document.getElementById('map-data-store').textContent);
+            } catch (e) { console.error('Map parsing err', e); }
+
+            var map = L.map('real-map', {
+                center: [42.0, -100.0],
+                zoom: 4,
+                zoomControl: false,
+                dragging: false,
+                scrollWheelZoom: false,
+                doubleClickZoom: false,
+                touchZoom: false,
+                attributionControl: false,
+                zoomSnap: 0.25
+            });
+
+            function fitMapToMarkers() {
+                if (!mapData.length) return;
+                var latLngs = mapData.map(function (d) { return [d.lat, d.lng]; });
+                var pinBounds = L.latLngBounds(latLngs);
+                map.invalidateSize();
+                var sz = map.getSize();
+                var shorter = Math.min(sz.x, sz.y);
+                var pad = Math.max(24, Math.round(shorter * 0.06));
+                var mz = shorter < 500 ? 3 : (shorter < 800 ? 3.75 : 5);
+                map.fitBounds(pinBounds, {
+                    padding: [pad, pad],
+                    maxZoom: mz,
+                    animate: false
+                });
+            }
+
+            // Vector land layer
+            var rootStyles = getComputedStyle(document.documentElement);
+            var landColor = rootStyles.getPropertyValue('--map-land').trim() || '#d9d5cc';
+            var borderColor = rootStyles.getPropertyValue('--map-border').trim() || '#bfbab0';
+
+            // Real map tiles (CartoDB Positron no-labels) — shows roads,
+            // lakes, state lines, terrain detail. CSS filter on
+            // .leaflet-tile-pane desaturates to grey tones.
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+                attribution: '', subdomains: 'abcd', maxZoom: 19
+            }).addTo(map);
+
+            // Markers — rendered AFTER land so they're guaranteed on top.
+            var markers = [];
+            function renderMapItems() {
+                markers.forEach(function (m) { map.removeLayer(m); });
+                markers.length = 0;
+                console.log('[map] rendering', mapData.length, 'pins');
+
+                mapData.forEach(function (dat) {
+                    var labelsHtml =
+                        '<div class="pin-labels">' +
+                            '<div class="pin-label">' + dat.name + '</div>' +
+                        '</div>';
+
+                    var mIcon = L.divIcon({
+                        className: 'custom-leaflet-pin',
+                        html: '<div class="map-pin" id="' + dat.id + '">' + labelsHtml + '</div>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    });
+
+                    var marker = L.marker([dat.lat, dat.lng], { icon: mIcon }).addTo(map);
+                    markers.push(marker);
+                });
+
+                setTimeout(function () {
+                    mapData.forEach(function (dat) {
+                        var pinEl = document.getElementById(dat.id);
+                        var cardEl = document.querySelector('.client-card[data-pin="' + dat.id + '"]');
+                        if (!pinEl) return;
+                        // Highlight only — no scrolling
+                        var highlight = function () {
+                            pinEl.classList.add('active');
+                            if (cardEl) cardEl.classList.add('pin-hover');
+                        };
+                        var unhighlight = function () {
+                            pinEl.classList.remove('active');
+                            if (cardEl) cardEl.classList.remove('pin-hover');
+                        };
+                        // Scroll a card into the center of its visible zone
+                        var scrollToCard = function () {
+                            if (!cardEl) return;
+                            var r = cardEl.getBoundingClientRect();
+                            var cardMid = r.top + r.height / 2;
+                            var isMobile = window.innerWidth <= 960;
+                            var mapH = isMobile ? ((document.querySelector('.map-col') || {}).offsetHeight || 406) : 0;
+                            var zoneTop = isMobile ? (64 + mapH) : 0;
+                            var target = (zoneTop + window.innerHeight) / 2;
+                            window.scrollBy({ top: cardMid - target, behavior: 'smooth' });
+                        };
+
+                        // --- PIN hover/tap: highlight + scroll to card ---
+                        pinEl.addEventListener('mouseenter', function () {
+                            highlight(); scrollToCard();
+                        });
+                        pinEl.addEventListener('mouseleave', unhighlight);
+                        pinEl.addEventListener('touchstart', function () {
+                            highlight(); scrollToCard();
+                            setTimeout(unhighlight, 3000);
+                        }, { passive: true });
+
+                        // --- CARD hover (desktop): highlight pin only, NO scroll ---
+                        if (cardEl) {
+                            cardEl.addEventListener('mouseenter', highlight);
+                            cardEl.addEventListener('mouseleave', unhighlight);
+                            // --- CARD tap (mobile): highlight pin + center card ---
+                            cardEl.addEventListener('click', function (e) {
+                                if (e.target.closest('a')) return;
+                                highlight(); scrollToCard();
+                                setTimeout(unhighlight, 3000);
+                            });
+                        }
+                    });
+                    fitMapToMarkers();
+                    requestAnimationFrame(fitMapToMarkers);
+                    setTimeout(fitMapToMarkers, 250);
+                    setTimeout(fitMapToMarkers, 800);
+                }, 50);
+            }
+
+            var fitTO = null;
+            window.addEventListener('resize', function () {
+                clearTimeout(fitTO);
+                fitTO = setTimeout(fitMapToMarkers, 120);
+            });
+
+            if (window.IntersectionObserver) {
+                new IntersectionObserver(function (entries) {
+                    entries.forEach(function (e) { if (e.isIntersecting) fitMapToMarkers(); });
+                }, { threshold: 0.2 }).observe(document.getElementById('footprint'));
+            }
+
+            renderMapItems();
+            // Re-render pins after a delay to ensure they're on top of any
+            // async-loaded layers (GeoJSON, tiles) that might paint over them.
+            setTimeout(function() { renderMapItems(); fitMapToMarkers(); }, 1500);
+        })();
+
+        // ============================================
+        // PHONE — intl-tel-input
+        // ============================================
+        (function initPhone() {
+            var input = document.getElementById('fPhone');
+            if (!input || typeof window.intlTelInput !== 'function') return;
+            window.__iti = window.intlTelInput(input, {
+                initialCountry: 'ca',
+                preferredCountries: ['ca', 'us', 'gb', 'ng'],
+                separateDialCode: true,
+                nationalMode: false,
+                utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@23.3.2/build/js/utils.js'
+            });
+        })();
+
+        // ============================================
+        // CONTACT FORM
+        // ============================================
+        (function () {
+            var form = document.getElementById('contactForm');
+            if (!form) return;
+
+            var fName = document.getElementById('fName');
+            var fOrg = document.getElementById('fOrg');
+            var fEmail = document.getElementById('fEmail');
+            var fPhone = document.getElementById('fPhone');
+            var fMessage = document.getElementById('fMessage');
+            var fCompany = document.getElementById('fCompany');
+            var fHuman = document.getElementById('fHuman');
+            var fSubmit = document.getElementById('fSubmit');
+            var errName = document.getElementById('errName');
+            var errOrg = document.getElementById('errOrg');
+            var errEmail = document.getElementById('errEmail');
+            var errPhone = document.getElementById('errPhone');
+            var errMessage = document.getElementById('errMessage');
+            var counter = document.getElementById('wordCounter');
+            var status = document.getElementById('formStatus');
+
+            var MAX_WORDS = 500;
+            var MIN_LOAD_SECONDS = 3;
+            var loadTime = Date.now();
+
+            var EMAIL_RE = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            var SPAM_PATTERNS = [
+                /<[a-z][^>]*>/i,
+                /\b(?:https?|ftp|www\.)\S+/i,
+                /\[url=/i,
+                /\{\{.*\}\}/,
+                /\b(?:viagra|casino|crypto airdrop|seo backlink|bitcoin invest)\b/i
+            ];
+
+            function sanitize(str) {
+                return String(str).replace(/<[^>]*>/g, '').replace(/[\u0000-\u001F\u007F]/g, '').replace(/\s+/g, ' ').trim();
+            }
+            function escapeHtml(str) {
+                return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+            }
+            function countWords(str) {
+                var t = String(str).trim();
+                if (!t) return 0;
+                return t.split(/\s+/).length;
+            }
+            function setFieldError(fieldEl, errEl, msg) {
+                var wrap = fieldEl.closest('.form-field');
+                if (wrap) wrap.classList.toggle('err', !!msg);
+                if (errEl) errEl.textContent = msg || '';
+            }
+            function setStatus(kind, msg) {
+                status.className = 'form-status ' + kind;
+                status.textContent = msg;
+            }
+
+            function liveName() {
+                var v = (fName.value || '').trim();
+                if (!v) { setFieldError(fName, errName, ''); return; }
+                if (v.length < 2) setFieldError(fName, errName, 'Too short');
+                else if (v.length > 80) setFieldError(fName, errName, 'Too long');
+                else if (/[<>{}]/.test(v)) setFieldError(fName, errName, 'Invalid input');
+                else setFieldError(fName, errName, '');
+            }
+            function liveEmail() {
+                var v = (fEmail.value || '').trim();
+                if (!v) { setFieldError(fEmail, errEmail, ''); return; }
+                if (!EMAIL_RE.test(v)) setFieldError(fEmail, errEmail, 'Invalid email');
+                else setFieldError(fEmail, errEmail, '');
+            }
+            function liveMessage() {
+                var n = countWords(fMessage.value);
+                counter.textContent = n + ' / ' + MAX_WORDS;
+                counter.classList.remove('warn', 'over');
+                if (n > MAX_WORDS) counter.classList.add('over');
+                else if (n > MAX_WORDS * 0.85) counter.classList.add('warn');
+                if (n === 0) setFieldError(fMessage, errMessage, '');
+                else if (n < 3) setFieldError(fMessage, errMessage, 'Too short');
+                else if (n > MAX_WORDS) setFieldError(fMessage, errMessage, 'Too long');
+                else setFieldError(fMessage, errMessage, '');
+            }
+
+            fMessage.addEventListener('input', liveMessage);
+            fName.addEventListener('input', liveName);
+            fEmail.addEventListener('input', liveEmail);
+
+            // Success modal
+            var successModal = document.getElementById('successModal');
+            var successCloseBtn = document.getElementById('successClose');
+            function openSuccessModal() {
+                if (!successModal) return;
+                successModal.classList.add('open');
+                successModal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+                setTimeout(function () { if (successCloseBtn) successCloseBtn.focus(); }, 300);
+            }
+            function closeSuccessModal() {
+                if (!successModal) return;
+                successModal.classList.remove('open');
+                successModal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+                setStatus('info', '');
+            }
+            if (successModal) {
+                successModal.querySelectorAll('[data-modal-close]').forEach(function (el) {
+                    el.addEventListener('click', closeSuccessModal);
+                });
+                if (successCloseBtn) successCloseBtn.addEventListener('click', closeSuccessModal);
+                window.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && successModal.classList.contains('open')) closeSuccessModal();
+                });
+            }
+
+            async function submitContactForm() {
+                setStatus('info', '');
+
+                if (fCompany && fCompany.value.trim() !== '') {
+                    openSuccessModal();
+                    form.reset();
+                    return;
+                }
+
+                var elapsed = (Date.now() - loadTime) / 1000;
+                if (elapsed < MIN_LOAD_SECONDS) {
+                    setStatus('fail', 'Please take a moment to review your message before sending.');
+                    return;
+                }
+
+                var name = sanitize(fName.value);
+                var organisation = sanitize(fOrg.value);
+                var email = sanitize(fEmail.value);
+                var phone = sanitize(fPhone.value);
+                var message = sanitize(fMessage.value);
+
+                var ok = true;
+
+                if (!name) { setFieldError(fName, errName, 'Required'); ok = false; }
+                else if (name.length < 2) { setFieldError(fName, errName, 'Too short'); ok = false; }
+                else if (name.length > 80) { setFieldError(fName, errName, 'Too long'); ok = false; }
+                else if (/[<>{}]/.test(name)) { setFieldError(fName, errName, 'Invalid input'); ok = false; }
+                else { setFieldError(fName, errName, ''); }
+
+                if (!organisation) { setFieldError(fOrg, errOrg, 'Required'); ok = false; }
+                else if (organisation.length < 2) { setFieldError(fOrg, errOrg, 'Too short'); ok = false; }
+                else if (/[<>{}]/.test(organisation)) { setFieldError(fOrg, errOrg, 'Invalid input'); ok = false; }
+                else { setFieldError(fOrg, errOrg, ''); }
+
+                if (!email) { setFieldError(fEmail, errEmail, 'Required'); ok = false; }
+                else if (!EMAIL_RE.test(email)) { setFieldError(fEmail, errEmail, 'Invalid email'); ok = false; }
+                else { setFieldError(fEmail, errEmail, ''); }
+
+                var phoneFull = '';
+                if (phone) {
+                    if (window.__iti && typeof window.__iti.isValidNumber === 'function') {
+                        if (!window.__iti.isValidNumber()) {
+                            setFieldError(fPhone, errPhone, 'Invalid phone'); ok = false;
+                        } else {
+                            phoneFull = window.__iti.getNumber() || phone;
+                            setFieldError(fPhone, errPhone, '');
+                        }
+                    } else if (!/^[0-9 +()\-.]{6,}$/.test(phone)) {
+                        setFieldError(fPhone, errPhone, 'Invalid phone'); ok = false;
+                    } else {
+                        phoneFull = phone;
+                        setFieldError(fPhone, errPhone, '');
+                    }
+                } else {
+                    setFieldError(fPhone, errPhone, '');
+                }
+
+                var wc = countWords(message);
+                if (!message) {
+                    setFieldError(fMessage, errMessage, 'Required'); ok = false;
+                } else if (wc < 3) {
+                    setFieldError(fMessage, errMessage, 'Too short'); ok = false;
+                } else if (wc > MAX_WORDS) {
+                    setFieldError(fMessage, errMessage, 'Too long'); ok = false;
+                } else {
+                    var spam = false;
+                    for (var i = 0; i < SPAM_PATTERNS.length; i++) {
+                        if (SPAM_PATTERNS[i].test(fMessage.value) || SPAM_PATTERNS[i].test(fName.value) || SPAM_PATTERNS[i].test(fEmail.value)) {
+                            spam = true; break;
+                        }
+                    }
+                    var caps = (message.match(/[A-Z]/g) || []).length;
+                    var letters = (message.match(/[A-Za-z]/g) || []).length;
+                    if (letters > 20 && caps / letters > 0.6) spam = true;
+                    if (/(.)\1{9,}/.test(message)) spam = true;
+                    if (spam) {
+                        setFieldError(fMessage, errMessage, 'Looks automated'); ok = false;
+                    } else {
+                        setFieldError(fMessage, errMessage, '');
+                    }
+                }
+
+                if (!ok) {
+                    if (!status.textContent) setStatus('fail', 'Please fix the fields above.');
+                    return;
+                }
+
+                setStatus('info', 'Verifying\u2026');
+                if (window.requestTurnstileToken) {
+                    var tok = await window.requestTurnstileToken();
+                    if (tok) fHuman.value = tok;
+                }
+
+                setStatus('info', 'Sending\u2026');
+
+                try {
+                    var res = await fetch('/api/contact', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: escapeHtml(name),
+                            organisation: escapeHtml(organisation),
+                            email: escapeHtml(email),
+                            phone: phoneFull ? escapeHtml(phoneFull) : '',
+                            message: escapeHtml(message),
+                            token: fHuman.value
+                        })
+                    });
+                    if (!res.ok) {
+                        var errPayload = null;
+                        try { errPayload = await res.json(); } catch (e) {}
+                        throw errPayload || { error: 'Server error' };
+                    }
+                    form.reset();
+                    if (counter) counter.textContent = '0 / ' + MAX_WORDS;
+                    fHuman.value = '';
+                    if (window.turnstile && typeof window.turnstile.reset === 'function') {
+                        try { window.turnstile.reset('#turnstileWidget'); } catch (e) {}
+                    }
+                    setStatus('ok', '');
+                    openSuccessModal();
+                } catch (err) {
+                    var msg = (err && err.error) || 'Something went wrong. Please try again or email dev@theoryinpractice.ca directly.';
+                    setStatus('fail', msg);
+                }
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                submitContactForm();
+            });
+
+            [fName, fEmail, fMessage].forEach(function (f) {
+                f.addEventListener('blur', function () {
+                    if (f === fName) liveName();
+                    else if (f === fEmail) liveEmail();
+                    else if (f === fMessage) liveMessage();
+                });
+            });
+        })();
+    
+        // Mobile map pin: fixes map to top half of screen when
+        // clients section is in view. Pure scroll listener, no
+        // IntersectionObserver overhead, throttled via rAF.
+        if (window.innerWidth <= 960) {
+            var mapC = document.querySelector('.map-col');
+            var splitC = document.querySelector('.clients-split');
+            var secC = document.getElementById('footprint');
+            var navH = 64;
+            var pinned = false;
+            var ticking = false;
+
+            function mobileMapPin() {
+                if (!secC || !mapC) return;
+                var sr = secC.getBoundingClientRect();
+                var mh = mapC.offsetHeight;
+
+                // Pin while section is in view. Unpin only when
+                // the section bottom has scrolled above where the
+                // map bottom would sit (i.e. no more cards visible).
+                if (sr.top <= navH && sr.bottom > navH + mh) {
+                    if (!pinned) {
+                        mapC.classList.add('pinned');
+                        splitC.classList.add('map-pinned');
+                        pinned = true;
+                    }
+                } else {
+                    if (pinned) {
+                        mapC.classList.remove('pinned');
+                        splitC.classList.remove('map-pinned');
+                        pinned = false;
+                    }
+                }
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(mobileMapPin);
+                    ticking = true;
+                }
+            }, { passive: true });
+            mobileMapPin();
+        }
+
+        </script>
+</body>
+</html>
+/* cache-bust 1776460939 */
