@@ -518,7 +518,7 @@
         .method-step-dot {
             position: absolute;
             left: 15px;
-            top: 14px; /* vertically centered with step-name first line (~32px font, ~35px line) */
+            top: 4px; /* aligned with step-eyebrow (small mono kicker) */
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -551,22 +551,22 @@
             background: var(--accent);
         }
 
-        .step-name {
-            font-family: var(--font-serif);
-            font-size: clamp(var(--fs-32), 4vw, var(--fs-40));
-            font-weight: 400;
-            color: var(--ink);
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-        }
-
-        .step-subtitle {
+        .step-eyebrow {
             font-family: var(--font-mono);
             font-size: var(--fs-14);
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.12em;
             color: var(--accent);
-            margin-top: var(--space-4);
+        }
+
+        .step-title {
+            font-family: var(--font-serif);
+            font-size: clamp(var(--fs-32), 4.5vw, var(--fs-48));
+            font-weight: 400;
+            color: var(--ink);
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            margin-top: var(--space-8);
         }
 
         .step-question {
@@ -638,28 +638,129 @@
             color: var(--ink-4);
         }
 
-        .method-stat {
-            text-align: center;
-            margin-top: var(--space-96);
-            padding: var(--space-64) var(--space-24);
-            border-top: 1px solid var(--rule);
-            border-bottom: 1px solid var(--rule);
+        /* Step 4 — dark case-study card */
+        .method-step.is-debrief .method-step-dot {
+            top: calc(var(--space-48) + 4px);
+            border-color: var(--accent);
         }
+        .method-step.is-debrief .method-step-dot::after {
+            background: var(--accent);
+        }
+        .step-card-dark {
+            background: var(--ink);
+            color: var(--bg);
+            padding: var(--space-48);
+            border-radius: var(--radius-sm);
+        }
+        .step-card-dark .step-eyebrow { color: var(--accent); }
+        .step-card-dark .step-title { color: var(--bg); }
+        .step-card-dark .step-question { color: rgba(248,245,240,0.85); }
+        .step-card-dark .step-desc { color: rgba(248,245,240,0.7); }
+        .step-card-dark .step-output { color: rgba(248,245,240,0.6); }
+        .step-card-dark .step-output-label { color: rgba(248,245,240,0.45); }
+        .step-card-dark .step-practice {
+            background: rgba(255,255,255,0.04);
+            border-left-color: var(--accent);
+        }
+        .step-card-dark .step-practice-label { color: var(--accent); }
+        .step-card-dark .step-practice p { color: rgba(248,245,240,0.78); }
 
-        .method-stat .stat-num {
+        .step-case-study {
+            margin-top: var(--space-48);
+            padding-top: var(--space-32);
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+        .case-study-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(248,245,240,0.5);
+            margin-bottom: var(--space-32);
+        }
+        .case-study-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-32);
+        }
+        .case-col-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent);
+            display: block;
+            margin-bottom: var(--space-12);
+        }
+        .case-col p {
+            font-size: var(--fs-16);
+            color: rgba(248,245,240,0.82);
+            font-weight: 300;
+            line-height: 1.6;
+        }
+        .case-study-stat {
+            margin-top: var(--space-48);
+            text-align: center;
+            padding-top: var(--space-32);
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+        .case-study-stat .stat-num {
             font-family: var(--font-serif);
             font-size: clamp(var(--fs-48), 8vw, var(--fs-64));
             font-weight: 400;
             color: var(--accent);
-            letter-spacing: -0.03em;
             display: block;
             line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .case-study-stat .stat-text {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(248,245,240,0.45);
+            display: block;
+            margin-top: var(--space-16);
         }
 
-        .method-stat .stat-text {
-            font-size: var(--fs-18);
-            color: var(--ink-2);
-            font-weight: 300;
+        /* Academy proof strip — 12 / 1,500+ / 3.76 */
+        .academy-proof {
+            margin-top: var(--space-96);
+            background: var(--ink);
+            color: var(--bg);
+            padding: var(--space-64) var(--space-48);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-32);
+            border-radius: var(--radius-sm);
+        }
+        .academy-proof-stat {
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.12);
+            padding: var(--space-16) 0;
+        }
+        .academy-proof-stat:last-child { border-right: none; }
+        .proof-num {
+            font-family: var(--font-serif);
+            font-size: clamp(var(--fs-48), 6vw, var(--fs-64));
+            font-weight: 400;
+            color: var(--accent);
+            display: block;
+            line-height: 1;
+            letter-spacing: -0.02em;
+        }
+        .proof-num-sub {
+            font-size: 0.5em;
+            color: rgba(248,245,240,0.4);
+            letter-spacing: 0;
+        }
+        .proof-label {
+            font-family: var(--font-mono);
+            font-size: var(--fs-14);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: rgba(248,245,240,0.5);
+            display: block;
             margin-top: var(--space-16);
         }
 
@@ -668,6 +769,18 @@
             .method-step { padding-left: 52px; }
             .method-step-dot { left: 5px; }
             .method-cycle-return { padding-left: 52px; }
+            .step-card-dark { padding: var(--space-32) var(--space-24); }
+            .case-study-grid { grid-template-columns: 1fr; gap: var(--space-24); }
+            .academy-proof {
+                grid-template-columns: 1fr;
+                padding: var(--space-32) var(--space-24);
+            }
+            .academy-proof-stat {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,0.12);
+                padding: var(--space-24) 0;
+            }
+            .academy-proof-stat:last-child { border-bottom: none; }
         }
 
         /* ============================================
@@ -1395,7 +1508,7 @@
             .method-step { padding-left: 52px; }
             .method-step-dot { left: 7px; }
             .method-cycle-return { padding-left: 52px; }
-            .step-name { font-size: clamp(1.5rem, 6vw, 2rem); }
+            .step-title { font-size: clamp(1.5rem, 6vw, 2rem); }
 
             /* About: photo above bio */
             .about-layout { grid-template-columns: 1fr; gap: var(--space-32); }
@@ -1571,6 +1684,21 @@
                     </div>
                 </div>
             </div>
+
+            <div class="academy-proof">
+                <div class="academy-proof-stat">
+                    <span class="proof-num">12</span>
+                    <span class="proof-label">Years</span>
+                </div>
+                <div class="academy-proof-stat">
+                    <span class="proof-num">1,500+</span>
+                    <span class="proof-label">Participants</span>
+                </div>
+                <div class="academy-proof-stat">
+                    <span class="proof-num">3.76 <span class="proof-num-sub">/ 4</span></span>
+                    <span class="proof-label">Rating</span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1592,8 +1720,8 @@
             <div class="method-flow">
                 <div class="method-step">
                     <div class="method-step-dot"></div>
-                    <h3 class="step-name">Discover</h3>
-                    <div class="step-subtitle">Why</div>
+                    <div class="step-eyebrow">01 &middot; Discover</div>
+                    <h3 class="step-title">Why</h3>
                     <p class="step-question">What is the real problem or opportunity?</p>
                     <p class="step-desc">We establish a fact-based definition before any solution is proposed.</p>
                     <div class="step-output"><span class="step-output-label">Output</span> A written definition that all stakeholders agree on.</div>
@@ -1605,8 +1733,8 @@
 
                 <div class="method-step">
                     <div class="method-step-dot"></div>
-                    <h3 class="step-name">Design</h3>
-                    <div class="step-subtitle">How</div>
+                    <div class="step-eyebrow">02 &middot; Design</div>
+                    <h3 class="step-title">How</h3>
                     <p class="step-question">What does the right solution look like?</p>
                     <p class="step-desc">We apply Design Thinking to find the best path forward for your specific context.</p>
                     <div class="step-output"><span class="step-output-label">Output</span> A solution design tailored to your situation.</div>
@@ -1618,8 +1746,8 @@
 
                 <div class="method-step">
                     <div class="method-step-dot"></div>
-                    <h3 class="step-name">Deliver</h3>
-                    <div class="step-subtitle">What</div>
+                    <div class="step-eyebrow">03 &middot; Deliver</div>
+                    <h3 class="step-title">What</h3>
                     <p class="step-question">How do we execute with precision?</p>
                     <p class="step-desc">We implement alongside your team, building systems and measuring results against the objectives defined in Discover.</p>
                     <div class="step-output"><span class="step-output-label">Output</span> Measurable results.</div>
@@ -1629,26 +1757,49 @@
                     </div>
                 </div>
 
-                <div class="method-step">
+                <div class="method-step is-debrief">
                     <div class="method-step-dot"></div>
-                    <h3 class="step-name">Debrief</h3>
-                    <div class="step-subtitle">What next</div>
-                    <p class="step-question">What did we learn?</p>
-                    <p class="step-desc">We compare results to intent, surface lessons, and transfer knowledge.</p>
-                    <div class="step-output"><span class="step-output-label">Output</span> A decision: exit with confidence, or return to Discover.</div>
-                    <div class="step-practice">
-                        <div class="step-practice-label">In practice</div>
-                        <p>The client returned to Discover twice, each time with a sharper question. First: how do we build trust between Project Controllers and Project Managers? Then: how do we make the value of Project Controls visible to the people it serves?</p>
+                    <div class="step-card-dark">
+                        <div class="step-eyebrow">04 &middot; Debrief</div>
+                        <h3 class="step-title">What next</h3>
+                        <p class="step-question">What did we learn?</p>
+                        <p class="step-desc">We compare results to intent, surface lessons, and transfer knowledge.</p>
+                        <div class="step-output"><span class="step-output-label">Output</span> A decision: exit with confidence, or return to Discover.</div>
+                        <div class="step-practice">
+                            <div class="step-practice-label">In practice</div>
+                            <p>The client returned to Discover twice, each time with a sharper question. First: how do we build trust between Project Controllers and Project Managers? Then: how do we make the value of Project Controls visible to the people it serves?</p>
+                        </div>
+
+                        <div class="step-case-study">
+                            <div class="case-study-label">In practice &middot; Global engineering firm &middot; Project Controls</div>
+                            <div class="case-study-grid">
+                                <div class="case-col">
+                                    <span class="case-col-label">Discover</span>
+                                    <p>The stated problem was a skills gap. The real problem was behavioural. Tools existed but teams lacked a shared model for why planning discipline matters.</p>
+                                </div>
+                                <div class="case-col">
+                                    <span class="case-col-label">Design</span>
+                                    <p>Without a clear Work Breakdown Structure, no forecasting system works.</p>
+                                </div>
+                                <div class="case-col">
+                                    <span class="case-col-label">Deliver</span>
+                                    <p>Hands-on workshop; back to planning basics.</p>
+                                </div>
+                                <div class="case-col">
+                                    <span class="case-col-label">Debrief</span>
+                                    <p>Success. Rolled out across North America.</p>
+                                </div>
+                            </div>
+                            <div class="case-study-stat">
+                                <span class="stat-num">93.3%</span>
+                                <span class="stat-text">of participants said they would recommend this program</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <p class="method-cycle-return">&larr; returns to Discover</p>
-
-            <div class="method-stat">
-                <span class="stat-num">93.3%</span>
-                <span class="stat-text">of participants said they would recommend this program.</span>
-            </div>
         </div>
     </section>
 
